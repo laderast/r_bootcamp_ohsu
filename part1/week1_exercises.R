@@ -34,9 +34,6 @@ num_logical <- c(1, 2, 3, TRUE)
 char_logical <- c("a", "b", "c", TRUE)
 tricky <- c(1, 2, 3, "4")
 
-## Challenge: why does the following code return TRUE: 
-"four" > "five"
-
 ## Challenge:
 # create vector
 heights <- c(63, 69, 60, 65, NA, 68, 61, 70, 61, 59, 64, 69, 63, 63, NA, 72, 65, 64, 70, 63, 65)
