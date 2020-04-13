@@ -5,19 +5,13 @@ Introduction to R, Class 1: Functions and objects
 
 ## Objectives
 
-Welcome to Introduction to R from fredhutch.io\! This course introduces
-you R by working through common tasks in data science: importing,
-manipulating, and visualizing data.
+This course introduces you R by working through common tasks in data science: importing, manipulating, and visualizing data. 
 
-R is a statistical and programming computer language widely used for a
-variety of applications. For more information about R and ways to use it
-at Fred Hutch, please see the [R and
-RStudio](https://sciwiki.fredhutch.org/scicomputing/software_R/) entry
-for the Fred Hutch Biomedical Data Science Wiki.
+R is a statistical and programming computer language widely used for a variety of applications.
 
-Before proceeding with these training materials, please ensure you have
-installed both R and RStudio as described
-[here](http://www.fredhutch.io/software/#r-and-rstudio).
+Before proceeding with these training materials, please ensure you have an RStudio.cloud account and can see the workspace.
+
+
 
 By the end of this session, you should be able to:
 
@@ -28,6 +22,7 @@ By the end of this session, you should be able to:
     missing data
 
 ## A brief orientation to RStudio
+
 
 [R](https://cran.r-project.org) is a statistical programming language,
 while [RStudio](https://rstudio.com) is an integrated development
@@ -61,44 +56,13 @@ as well as explanations of how you can use them. It may be intimidating
 right now, but will come in handy as you gain experience with R.
 
 One of the ways that RStudio makes working in R easier is by allowing
-you to create R projects. You can think of a project as a discrete unit
-of work, such as a chapter of a thesis/dissertation, analysis for a
-manuscript, or a monthly report. We recommend organizing your code,
-data, and other associated files as projects, which allows you to keep
-all parts of an analysis together for easier access.
+you to create R projects. You can think of a project as a discrete unit of work, such as a chapter of a thesis/dissertation, analysis for a manuscript, or a monthly report. We recommend organizing your code, data, and other associated files as projects, which allows you to keep all parts of an analysis together for easier access.
 
-We’ll be creating a project to use for the duration of this course.
-Create a new project in RStudio:
+For this course, I will be creating the projects for you, but starting next session I will show you how to create your own projects.
 
-  - `File -> New Project`
-  - Choose `New Directory`, then `New Project`
-  - name your project `intro_r` and save it somewhere on your computer
-    you’ll be able to find easily later (we recommend your Desktop or
-    Documents)
-  - Click `Create project`
+Let's talk a little bit about the project structure.
 
-After your RStudio screen reloads, note two things:
-
-  - The file browser in the lower right panel will now show the contents
-    of a new folder, `intro_r`, that was created as a part of your
-    RStudio project.
-  - The console window will show the path, or location in your computer,
-    for your project directory. This is important later in class, when
-    this path will be required to locate data for analysis.
-
-Now we’re ready to create a new R script:
-
-  - `File -> New File -> R Script`
-  - Save the new file as `class1.R`. By default, RStudio will save this
-    in your project directory.
-
-This R script is a text file that we’ll use to save code we learn in
-this class. We’ll refer to this window as the script or source window.
-Remember to save this file periodically to retain the record of the work
-you’re doing, so you can re-execute the code later if necessary.
-
-By convention, a script should include a title at the top, so type the
-following on the first line:
+Structure of an RStudio project
 
 `# Introduction to R: Class 1`
 
@@ -115,42 +79,8 @@ next two lines:
 
     ## [1] 9
 
-The first of the two boxes above represents the code you execute. The
-second box (prefaced with `##`) shows the output you should expect. The
-`[1]` in the second box means there is one item (in this case, `9`)
-present in the output.
+# Code Blocks, output windows and comments
 
-The first line in that example is a code comment. It is not interpreted
-by R, but is a human-readable explanation of the code that follows. This
-is also how we included a title in our script. In R, anything to the
-right of one or more `#` symbols represents a comment.
-
-The code above is the same mathematical operation we executed earlier.
-If we wanted to re-run this command, we have two options:
-
-1.  Copy and paste the code into the Console
-2.  Use the `Run` button at the top of the script window
-3.  Use the keyboard shortcut: `Ctrl + Enter`
-
-The third option is the most efficient, especially as your coding skills
-progress. With your cursor on the line with `4 + 5`, hold down the
-`Control` key and press `Enter`. You’ll see the code and answer both
-appear in the Console. A few things to note about this keyboard
-shortcut:
-
-  - It doesn’t matter where your cursor is on the line of code; the
-    entire line will be executed with the keyboard shortcut.
-  - If there isn’t code on the line where your cursor is located,
-    RStudio will attempt to execute following lines.
-
-In practice, a script should represent code you are developing in R, and
-you should only save the code that you know functions. For this class,
-we’ll be including notes about things we learn as comments.
-
-> `Ctrl + Enter` is the only keyboard shortcut we emphasize in this
-> course, but there are many others available. You can view them on the
-> second page of the cheat sheet linked above, or by going to `Help ->
-> Keyboard Shortcuts Help`.
 
 If you were looking carefully, you may have noticed that the `+` in the
 previous code example had spaces on either side, separating it from the

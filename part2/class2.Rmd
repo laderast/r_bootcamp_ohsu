@@ -1,6 +1,7 @@
 ---
 title: "Introduction to R, Part 2: Working with Data"
 output: html_notebook
+authors
 ---
 
 <!--class2.md is generated from class2.Rmd. Please edit that file -->
@@ -22,9 +23,7 @@ In this session, we'll continue our introduction to R by working with a large da
 By the end of this session, you should be able to:
 
 1. **Import** spreadsheet-style data into R as a data frame
-2. **Extract/select/filter** portions of data from a data frame
-3. **Manipulate** factors (categorical data)
-
+2. **Visualize** `numeric` vectors in this dataset using `ggplot2`
 
 
 #### A note about Base R versus the Tidyverse
@@ -62,6 +61,20 @@ Now that we have a place to store our data, we can download the dataset:
 ```{r}
 # download data from url
 download.file("https://raw.githubusercontent.com/fredhutchio/R_intro/master/extra/clinical.csv", "data/clinical.csv")
+```
+
+
+```{r}
+birth <- readr::read_csv(here::here("extra/birth_reduced.csv"))
+
+library(tidyverse)
+
+ggplot(data = birth, 
+       aes(x=(age_at_diagnosis)/365, 
+           y = cigarettes_per_day, 
+           color = race)) +
+    geom_point() + 
+    geom_smooth(method = "lm")
 ```
 
 

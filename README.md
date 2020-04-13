@@ -1,23 +1,10 @@
-# Introduction to R
+# Ready for R
 
-## Description
+## Acknowledgements
 
-Description: This four-class course is designed to introduce attendees to R statistical programming and its broad applications. 
-Each two hour session will include brief tutorials interspersed with challenge exercises, and assumes attendees have no prior 
-computer coding experience. At the end of this course, you will be able to use R to import, manipulate, and visualize data.
+This course is a remix of the R-Bootcamp by Ted Laderas and Jessica Minnier: http://r-bootcamp.netlify.com and the FredHutch.io Intro to R course: https://github.com/fredhutchio/R_intro
 
-This repository is adapted from content originally appearing in 
-[R for data analysis and visualization of Ecological Data](https://datacarpentry.org/R-ecology-lesson/),
-Copyright (c) Data Carpentry. 
-
-**Required software**: Software requirements for this course can be found on [fredhutch.io's Software page](http://www.fredhutch.io/software/#r-and-rstudio). The HackMD (interactive page used for sharing links and information) for this course is here: https://hackmd.io/@k8hertweck/introR
-
-## Schedule
-
-* [Class 1](class1.md): R syntax, assigning objects, using functions
-* [Class 2](class2.md): Data types and structures; slicing and subsetting data
-* [Class 3](class3.md): Data manipulation with `dplyr`
-* [Class 4](class4.md): Data visualization in `ggplot2`
+Tidyverse Illustrations gratefully used from Allison Horst. Thank you so much! https://github.com/allisonhorst/stats-illustrations
 
 ## Resources
 
