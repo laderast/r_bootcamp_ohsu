@@ -1,16 +1,11 @@
 ---
-title: "Introduction to R, Part 2: Working with Data"
+title: "Introduction to R, Part 2: Data Frames, Reading Data, visualizing data with ggplot2"
 output: html_notebook
-authors
 ---
-
-<!--class2.md is generated from class2.Rmd. Please edit that file -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-
 
 # Welcome to Ready for R: Part 2!
 
@@ -22,11 +17,12 @@ In this session, we'll continue our introduction to R by working with a large da
 
 By the end of this session, you should be able to:
 
-1. **Import** spreadsheet-style data into R as a data frame
-2. **Visualize** `numeric` vectors in this dataset using `ggplot2`
+1. **Import** spreadsheet-style data into R as a `data.frame`
+2. **Understand** properties of `data.frames`, especially variables.
+3. **Visualize** `numeric` vectors in this dataset using `ggplot2`
 
 
-#### A note about Base R versus the Tidyverse
+## A note about Base R versus the Tidyverse
 
 For the remainder of this course, we'll be focusing on using functions from the [tidyverse](https://www.tidyverse.org/). The Tidyverse is essentially a library of libraries -- each contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists. You can install this library (and all of its dependencies) using `install.packages('tidyverse')`. Once you've installed `tidyverse`, let's load it up!
 
@@ -44,16 +40,20 @@ Once you have your notebook open, let's check to see which directory R Studio is
 getwd()
 ```
 
-
-If this command does *not* return the filepath of the location of your script, you can fix this in a couple ways: you can use `setwd()` and insert the correct filepath in parenthesis OR you can use `Session -> Set Working Directory -> To Source File Location`.
-
-
-Now, let's create an empty folder within our project directory to house our data.
+Take a look at the `data/` folder, and at the 
 
 ```{r}
-# make a directory
-dir.create('data')
+brca_clinical <- read_excel("data/tcga_clinical_data.xlsx",
+                            sheet = 1, 
+                            skip = 1)
 ```
+
+You can see the excel file here: 
+
+```{r}
+?read_excel
+```
+
 
 
 Now that we have a place to store our data, we can download the dataset:
@@ -61,6 +61,14 @@ Now that we have a place to store our data, we can download the dataset:
 ```{r}
 # download data from url
 download.file("https://raw.githubusercontent.com/fredhutchio/R_intro/master/extra/clinical.csv", "data/clinical.csv")
+```
+
+
+## Introducing `ggplot2`
+
+```{r}
+knitr::include_graphics("image/ggplot2_exploratory.png")
+
 ```
 
 
