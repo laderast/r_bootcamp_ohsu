@@ -24,7 +24,9 @@ By the end of this session, you should be able to:
 
 ## A note about Base R versus the Tidyverse
 
-For the remainder of this course, we'll be focusing on using functions from the [tidyverse](https://www.tidyverse.org/). The Tidyverse is essentially a library of libraries -- each contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists. You can install this library (and all of its dependencies) using `install.packages('tidyverse')`. Once you've installed `tidyverse`, let's load it up!
+For the remainder of this course, we'll be focusing on using functions from the [tidyverse](https://www.tidyverse.org/). 
+
+The Tidyverse is essentially a library of libraries -- each contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists. You can install this library (and all of its dependencies) using `install.packages('tidyverse')`. Once you've installed `tidyverse`, let's load it up!
 
 ```{r warning=F}
 library(tidyverse)
@@ -50,18 +52,148 @@ brca_clinical <- read_excel("data/tcga_clinical_data.xlsx",
 
 You can see the excel file here: 
 
+You should see `brca_clinical` appear in the Environment window on the upper right panel in RStudio. If you click on `brca_clinical` there, a new tab will appear next to your R script in the Source window.
+
+
+> Clicking on the name of an object in the Environment window 
+> is a shortcut for running `View(brca_clinical)`;
+> you'll see this code appear in the Console after clicking.
+
+## Quick Questions
+
+Take a look at the documentation for read_excel. 
+
+1. What does the `skip` argument do? 
+2. Do we need to refer to a `sheet` within an excel file as a number, or can we refer to it as the sheet name instead? 
+
 ```{r}
 ?read_excel
 ```
 
+[Your answers here]
 
 
-Now that we have a place to store our data, we can download the dataset:
+Now that we have the data imported and assigned to an object, we can take some time to explore the data we'll be using for the rest of this course:
+
+
+- These data are clinical cancer data from the [National Cancer Institute's Genomic Data Commons](https://gdc.cancer.gov), specifically from The Cancer Genome Atlas, or [TCGA](https://www.cancer.gov/about-nci/organization/ccg/research/structural-genomics/tcga).
+- Each row represents a patient, and each column represents information about demographics (race, age at diagnosis, etc) and disease (e.g., cancer type).
+- The data were downloaded and aggregated using an R script, which you can view in the [GitHub repository for this course](https://github.com/fredhutchio/R_intro/blob/master/0dataset.R).
+
+
+The function we use to import the data is from a `tidyverse` package called `readr`. If you have an Excel file, you can use a similar package (also included in `tidyverse`), `readxl,` and it's command `read_excel`.
+
+## Challenge 1:
+
+Inspect, and import the following sheets from the excel file.
+
+1. The `CESC` sheet. Save it as `cesc_clinical`.
+2. The `LUSC` sheet. Save it as `lusc_clinical`.
 
 ```{r}
-# download data from url
-download.file("https://raw.githubusercontent.com/fredhutchio/R_intro/master/extra/clinical.csv", "data/clinical.csv")
+#load cesc_clinical here
+#What should be the sheet argument?
+#do you need to skip a line?
+cesc_clinical <- read_excel("data/tcga_clinical_data.xlsx",
+                            sheet = ____, 
+                            skip = ___)  
+
+#load lusc_clinical here
+lusc_clinical <- 
 ```
+
+Importing data can be tricky and frustrating. However, if you can't get your data into R, you can't do anything to analyze or visualize it. It's worth understanding how to do it effectively to save you time and energy later.
+
+We will be covering loading in another format that you can export from many different software programs, the *comma separated value* format, or `csv` format in another section.
+
+
+
+## Tips on Formating your excel file for R
+
+
+1. Try to format your spreadsheet where the columns correspond to variables you're measuring, and a row corresponds to an observation.
+
+In our example, each row corresponds to a patient, and each column corresponds to a piece of clinical data.
+
+
+2. If your data isn't in this format, no worries! You can copy it to a new sheet and use the transpose option when you're pasting it, and then load that in.
+
+
+3. Every one of your columns should be named at the top. 
+
+
+4. Avoid using color coding of cells if that is extra information attached to a cell. Instead, make the information the color is representing its own column. 
+
+
+5. Extra lines before the column header are ok, as you've seen. It's sometimes better to have a "notes" sheet where you put extra information.
+
+
+
+
+## `data.frame`s
+
+Now that we have data imported and available, we can start to inspect the data more closely. These data have been interpreted by R to be a data frame, which is a data structure (way of organizing data) that is analogous to tabular or spreadsheet style data. By definition, a data frame is a table made of vectors (columns) of all the same length. As we learned in our last session, a vector needs to include all of the same type of data (e.g., character, numeric). A data frame, however, can include vectors (columns) of different data types.
+
+To learn more about this data frame, we'll first explore its dimensions:
+
+```{r}
+# assess size of data frame
+dim(brca_clinical)
+```
+
+This output reflects the number of rows, then the number of columns.
+
+We can also preview the content by showing the first few rows:
+
+```{r}
+# preview first few rows
+head(brca_clinical) 
+```
+
+**Challenge 2:** The default number of rows shown is six. Can you show the first 15 rows?
+
+```{r}
+
+```
+
+We often need to reference the names of columns, so it's useful to print only those to the screen:
+
+```{r}
+# view column names
+colnames(brca_clinical) 
+```
+
+It's also possible to view row names using`rownames(brca_clinical)`, but our data only possess numbers for row names so it's not very informative.
+
+
+
+
+We can use `glimpse` to provide a general overview of the object:
+
+```{r}
+# show overview of data.frame
+glimpse(birth) 
+```
+The output provided includes:
+
+- data structure: data frame
+- dimensions: 6832 rows and 20 columns
+- column-by-column information: each prefaced with a `$`, and includes the column name, data type (num, int, Factor)
+
+> Factors are how character data are interpreted by R in data frames.
+> We'll talk more about working with factors at the end of this lesson.
+
+Finally, we can also examine basic summary statistics for each column:
+
+```{r}
+# provide summary statistics for each column
+summary(brca_clinical) 
+
+```
+
+For numeric data (such as `year_of_death`), this output includes common statistics like median and mean, as well as the number of rows (patients) with missing data (as `NA`). For factors (character data, such as `disease`), you're given a count of the number of times the top six most frequent factors (categories) occur in the data frame.
+
+
 
 
 ## Introducing `ggplot2`
@@ -86,419 +218,22 @@ ggplot(data = birth,
 ```
 
 
-The code above has two arguments, both encompassed in quotation marks: first, you indicate where the data can be found online. Second, you indicate where R should store a copy of the file on your own computer. Remember, this information can be found using `?download.file`.
 
 
-You can click on the `data` folder to ensure the file is now present.
+## Assignment
 
 
-The data we've downloaded are in csv format, which stands for "comma separated values." This means the data are organized into rows and columns, with columns separated by commas. These data are arranged in a tidy format, meaning each row represents an observation, and each column represents a variable (piece of data for each observation). Moreover, only one piece of data is entered in each cell. 
+1. Load the `smoke_complete.xlsx` file into R using `read_excel`. You'll need to take a look at it to make sure that your arguments are correct.
 
 
-Now that the data are downloaded, we can import the data and assign to an object:
+2. Use `glimpse()` on `smoke_complete`. How many rows does the file have? How many variables does it have? What are the numeric variables in this dataset?
 
-```{r}
-# import data and assign to object
-clinical <- read_csv("data/clinical.csv")
-```
 
+3. Produce a scatter plot of `smoke_complete` using `geom_point()`, mapping these variables to the aesthetics.
 
-You should see `clinical` appear in the Environment window on the upper right panel in RStudio. If you click on `clinical` there, a new tab will appear next to your R script in the Source window.
+`year_of_birth` to the `x` aesthetic, 
+`cigarettes_per_day` to the `y` aesthetic, and
+`gender` to the `color` aesthetic.
 
 
-> Clicking on the name of an object in the Environment window 
-> is a shortcut for running `View(clinical)`;
-> you'll see this code appear in the Console after clicking.
-
-
-Now that we have the data imported and assigned to an object, we can take some time to explore the data we'll be using for the rest of this course:
-
-
-- These data are clinical cancer data from the [National Cancer Institute's Genomic Data Commons](https://gdc.cancer.gov), specifically from The Cancer Genome Atlas, or [TCGA](https://www.cancer.gov/about-nci/organization/ccg/research/structural-genomics/tcga).
-- Each row represents a patient, and each column represents information about demographics (race, age at diagnosis, etc) and disease (e.g., cancer type).
-- The data were downloaded and aggregated using an R script, which you can view in the [GitHub repository for this course](https://github.com/fredhutchio/R_intro/blob/master/0dataset.R).
-
-
-The function we used to import the data is from a `tidyverse` package called `readr`. If you have an Excel file, you can use a similar package (also included in `tidyverse`), `readxl,` and it's command `read_excel`.
-
-
-**Challenge 1:** Download, inspect, and import the following data files.
-The URL for each sample dataset is included along with a name to assign to the object. (Hint: you can use the same function as above, but may need to update the `sep = ` parameter). Remember to use `?download.file` if you get stuck!
-
-- URL: https://raw.githubusercontent.com/fredhutchio/R_intro/master/extra/clinical.tsv, object name: `example1`
-- URL: https://raw.githubusercontent.com/fredhutchio/R_intro/master/extra/clinical.txt, object name: `example2`
-
-```{r}
-
-```
-
-
-Importing data can be tricky and frustrating. However, if you can't get your data into R, you can't do anything to analyze or visualize it. It's worth understanding how to do it effectively to save you time and energy later.
-
-
-
-## Data frames 
-
-Now that we have data imported and available, we can start to inspect the data more closely. These data have been interpreted by R to be a data frame, which is a data structure (way of organizing data) that is analogous to tabular or spreadsheet style data. By definition, a data frame is a table made of vectors (columns) of all the same length. As we learned in our last session, a vector needs to include all of the same type of data (e.g., character, numeric). A data frame, however, can include vectors (columns) of different data types.
-
-To learn more about this data frame, we'll first explore its dimensions:
-
-```{r}
-# assess size of data frame
-dim(clinical)
-```
-
-This output reflects the number of rows first (6832), then the number of columns (20).
-
-We can also preview the content by showing the first few rows:
-
-```{r}
-# preview first few rows
-head(clinical) 
-```
-
-**Challenge 2:** The default number of rows shown is six. Can you show the first 15 rows?
-
-```{r}
-
-```
-
-We often need to reference the names of columns, so it's useful to print only those to the screen:
-
-```{r}
-# view column names
-names(clinical) 
-```
-
-It's also possible to view row names using`rownames(clinical)`, but our data only possess numbers for row names so it's not very informative.
-
-As we learned last time, we can use `str` to provide a general overview of the object:
-
-```{r}
-# show overview of object
-str(clinical) 
-```
-The output provided includes:
-
-- data structure: data frame
-- dimensions: 6832 rows and 20 columns
-- column-by-column information: each prefaced with a `$`, and includes the column name, data type (num, int, Factor)
-
-> Factors are how character data are interpreted by R in data frames.
-> We'll talk more about working with factors at the end of this lesson.
-
-Finally, we can also examine basic summary statistics for each column:
-
-```{r}
-# provide summary statistics for each column
-summary(clinical) 
-```
-
-For numeric data (such as `year_of_death`), this output includes common statistics like median and mean, as well as the number of rows (patients) with missing data (as `NA`). For factors (character data, such as `disease`), you're given a count of the number of times the top six most frequent factors (categories) occur in the data frame.
-
-## Subsetting data frames
-
-Now that our data are available for use, we can begin extracting relevant information from them. Let's grab the first column.
-
-```{r}
-# extract first column and assign to a variable
-first_column <- clinical %>%
-    select(1)
-```
-
-
-What if we want to extract the first row?
-
-```{r}
-# extract first row 
-first_row <- clinical %>%
-    slice(1)
-```
-
-
-We can also extract slices, or sections of rows and columns, such as a single cell using the above functions with pipes:
-
-```{r}
-# extract cell from first row of first column
-single_cell <- clinical %>%
-    select(1) %>%
-    slice(1)
-```
-
-
-To extract a range of cells:
-
-```{r}
-# extract a range of cells, rows 1 to 3, second column
-range_cells <- clinical %>%
-    select(2) %>%
-    slice(1:3)
-```
-
-
-We can also exclude particular parts of the dataset using a minus sign:
-
-```{r}
-# exclude first column
-exclude_col <- clinical %>%
-    select(-1)
-```
-
-
-Combining what we know about R syntax, we can also exclude a range of cells using the `c` function:
-
-```{r}
-# exclude first 100 rows
-exclude_range <- clinical %>%
-    slice(-c(1:100))
-```
-
-
-So far, we've been referencing parts of the dataset based on index position, or the number of the row/column. Because we have included column names in our dataset, we can also reference columns using those names:
-
-```{r}
-# extract column by name
-name_col1 <- clinical %>%
-    select(tumor_stage)
-```
-
-We can also extract multiple columns (in any order we'd like) using commas:
-
-```{r}
-multiple_col <- clinical %>%
-    select(tumor_stage, primary_diagnosis, days_to_last_follow_up)
-```
-
-
-
-The following challenges all use the `clinical` object:
-
-**Challenge 3:** Extract the column `days_to_death` in two ways.
-
-```{r}
-
-```
-
-
-**Challenge 4:** Extract the first 6 rows for only age at diagnosis and days to death.
-
-```{r}
-
-```
-
-
-**Challenge 5:** Calculate the range and mean for cigarettes per day using two different methods.
-
-```{r}
-
-```
-
-
-
-
-
-
-                        DO YOU WANT TO COVER THIS??
-                                |||||
-                                vvvvv
-
-
-
-
-
-## Factors
-
-This section explores one of the trickier types of data you're likely to encounter:
-factors, which are how R interprets categorical data.
-
-When we imported our dataset into R,
-the `read.csv` function automatically assumed that all the character data
-in our dataset are factors, or categories. 
-Factors have predefined sets of values, called levels.
-We can explore what this means by first creating a factor vector:
-
-```{r}
-# create vector with factor data
-test_data <- factor(c("placebo", "test_drug", "placebo", "known_drug"))
-# show factor
-test_data
-```
-
-This vector includes four pieces of data 
-(often referred to as items or elements),
-which are printed as output above.
-The second line of the output shows information about the levels,
-or categories, of our vector.
-We can also access this information separately,
-which is useful if the data (vector) has a large number of elements:
-
-```{r}
-# show levels of factor
-levels(test_data) 
-```
-
-The levels in this test dataset are currently listed in alphabetical order,
-which is the default presentation in R.
-The order of factors dictates how they are presented in subsequent analyses,
-so there are definitely cases in which you may want the levels in a specific order. 
-In the case of `test_data`, 
-we may want to keep the two drug treatments together, 
-with placebo at the end:
-
-```{r}
-# reorder factors to put placebo at end
-test_data <- factor(test_data, levels = c("known_drug", "test_drug", "placebo"))
-# show reordered
-test_data
-```
-
-This doesn't change the data itself,
-but does make it easier to manage the data later.
-
-Another useful aspect of factors is that they are stored as integers with labels.
-This means that you can easily convert them to numeric data:
-
-```{r}
-# converting factors to numeric
-as.numeric(test_data)
-```
-
-This can be handy for some types of statistical analyses, 
-and also illustrates the importance of ordering your levels appropriately.
-
-We can apply this knowledge to our clinical dataset,
-by first observing how the data are presented when creating a basic plot:
-
-```{r}
-# quick and dirty plot
-plot(clinical$race) 
-```
-
-The labels as presented by default are not particularly readable, 
-and also lack appropriate capitalization and formatting.
-While it is possible to modify only the plot labels,
-we would have to do that for all of our subsequent analyses.
-It is more efficient to modify the levels once:
-
-```{r}
-# assign race data to new object 
-race <- clinical$race 
-levels(race)
-```
-
-By assigning the data to a new object, 
-we can more easily perform manipulations without altering the original dataset.
-
-The output above shows the current levels for race.
-We can access each level using their position in this order,
-combined with our knowledge of square brackets for subsetting:
-
-```{r}
-levels(race)[1]
-```
-
-We can modify them to improve their formatting by assigning a new level
-(name) of our choosing:
-
-```{r}
-# correct factor levels
-levels(race)[1] <- "Am Indian"
-levels(race)[2] <- "Asian" # capitalize asian
-levels(race)[3] <- "black"
-levels(race)[4] <- "Pac Isl"
-levels(race)[5] <- "unknown"
-# show revised levels
-levels(race) 
-```
-
-Although we're not doing so here, 
-we could also reorder the levels 
-(as we did for `test_data`).
-
-Once we are satisfied with the resulting levels,
-we assign the modified factor back to the original dataset:
-
-```{r}
-# replace race in data frame
-clinical$race <- race
-# replot with corrected names
-plot(clinical$race)
-```
-
-This section was a very brief introduction to factors,
-and it's likely you'll need more information when working with categorical data of your own.
-A good place to start would be [this article](https://peerj.com/preprints/3163/),
-and exploring some of the tools in the tidyverse (which we'll discuss in the next lesson).
-
-**Challenge:** In your clinical dataset, 
-replace "not reported" in ethnicity with NA
-(solutions [here](solutions/class2_solutions.R))
-
-**Challenge:** What Google search helps you identify additional strategies for renaming missing data?
-(solutions [here](solutions/class2_solutions.R))
-
-## Optional: Creating a data frame by hand
-
-This last section shows two different approaches to creating a data frame by hand
-(in other words, without importing the data from a spreadsheet).
-It isn't particularly useful for most of your day-to-day work,
-and also not a method you want to use often,
-as this type of data entry can introduce errors.
-However, it's frequently used in online tutorials, 
-which can be confusing,
-and also helps illustrate how data frames are composed.
-
-The first approach is to create separate vectors (columns),
-and then join them together in a second step:
-
-```{r}
-# create individual vectors
-cancer <- c("lung", "prostate", "breast")
-metastasis <- c("yes", "no", "yes")
-cases <- c(30, 50, 100)
-# combine vectors
-example_df1 <- data.frame(cancer, metastasis, cases)
-str(example_df1)
-```
-
-The resulting data frame has column headers,
-identified from the names of the vectors combined together.
-
-The next way seems more complex,
-but represents the code above combined into one step:
-
-```{r}
-# create vectors and combine into data frame simultaneously
-example_df2 <- data.frame(cancer = c("lung", "prostate", "breast"),
-                          metastasis = c("yes", "no", "yes"),
-                          cases = c(30, 50, 100), stringsAsFactors = FALSE)
-str(example_df2)
-```
-
-As we learned above, 
-factors can be particularly difficult, 
-so it's useful to know that you can use `stringsAsFactors = FALSE` 
-to import such data as character instead.
-
-## Wrapping up
-
-In this session, 
-we learned to import data into R from a csv file,
-learned multiple ways to access parts of data frames, 
-and manipulated factors.
-
-In the next session, 
-we'll begin to explore a set of powerful, elegant data manipulation tools 
-for data cleaning, transforming, and summarizing,
-and we'll prepare some data to visualize in our final session.
-
-## Errata
-
-**If you would like more practice,** 
-the [`exercises`](exercises/) directory contains additional tasks for practice.
-Answers to those and in-class questions are available in the [`solutions`](solutions/) directory. 
-
-**This document is written in [R markdown](http://rmarkdown.rstudio.com),**
-which is a method of formatting text, code, and output to create documents that are sharable with other people. 
-While this document is intended to serve as a reference for you to read while typing code into your own script,
-you may also be interested in modifying and running code in the original R markdown file ([`class2.Rmd`](class2.Rmd) in the GitHub repository).
+4. Pick two `numeric` variables in the dataset and produce a scatterplot by mapping them to `x`, `y`, and `color`. 
