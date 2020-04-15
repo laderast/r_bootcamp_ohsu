@@ -26,7 +26,7 @@ By the end of this session, you should be able to:
 
 For the remainder of this course, we'll be focusing on using functions from the [tidyverse](https://www.tidyverse.org/). 
 
-The Tidyverse is essentially a library of libraries -- each contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists. You can install this library (and all of its dependencies) using `install.packages('tidyverse')`. Once you've installed `tidyverse`, let's load it up!
+The Tidyverse is essentially a library of libraries -- each contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists. You can install this library (and all of its dependencies) using `install.packages('tidyverse')`. Once you've installed `tidyverse`, load it up!
 
 ```{r warning=F}
 library(tidyverse)
@@ -61,7 +61,7 @@ You should see `brca_clinical` appear in the Environment window on the upper rig
 
 ## Quick Questions
 
-Take a look at the documentation for read_excel. 
+Take a look at the documentation for `read_excel()`. This is a package in the package `readxl`, which is installed as part of the `tidyverse`. 
 
 1. What does the `skip` argument do? 
 2. Do we need to refer to a `sheet` within an excel file as a number, or can we refer to it as the sheet name instead? 
@@ -81,7 +81,6 @@ Now that we have the data imported and assigned to an object, we can take some t
 - The data were downloaded and aggregated using an R script, which you can view in the [GitHub repository for this course](https://github.com/fredhutchio/R_intro/blob/master/0dataset.R).
 
 
-The function we use to import the data is from a `tidyverse` package called `readr`. If you have an Excel file, you can use a similar package (also included in `tidyverse`), `readxl,` and it's command `read_excel`.
 
 ## Challenge 1:
 
@@ -119,13 +118,13 @@ In our example, each row corresponds to a patient, and each column corresponds t
 2. If your data isn't in this format, no worries! You can copy it to a new sheet and use the transpose option when you're pasting it, and then load that in.
 
 
-3. Every one of your columns should be named at the top. 
+3. Every one of your columns should be named at the top, and should begin with a letter. Numbers and special characters can cause errors in your data analysis pipeline.
 
 
 4. Avoid using color coding of cells if that is extra information attached to a cell. Instead, make the information the color is representing its own column. 
 
 
-5. Extra lines before the column header are ok, as you've seen. It's sometimes better to have a "notes" sheet where you put extra information.
+5. Extra lines before the column header are ok, as you've seen. It's sometimes better to have a "notes" sheet where you put extra information or, better yet, a data dictionary.
 
 
 
