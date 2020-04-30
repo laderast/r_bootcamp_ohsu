@@ -1,0 +1,533 @@
+---
+title: 'Introduction to R, Class 4: Data Visualization'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objectives
+
+- create and modify scatterplots and boxplots
+- represent time series data as line plots
+- split figures into multiple panels using `facet_wrap()`
+- customize your plots using built in `theme()`s
+
+- Sort by a variable in a dataset using `arrange()`
+- Select variables in a dataset using `select()`
+- Filter a dataset using the `filter()` function
+
+## Getting set up
+
+```{r prep}
+# load library
+library(tidyverse)
+library(readxl)
+library(here)
+# read in second filtered data from last class
+smoke_complete <- read_excel("data/smoke_complete.xlsx", sheet=1, na="NA")
+
+smoke_complete <- smoke_complete %>% select(age_at_diagnosis, tumor_stage, cigarettes_per_day, gender, vital_status, disease)
+```
+
+## Customizing a Scatterplot
+
+Now that we have the data generally displayed the way we'd like, we can start to customize a plot.
+
+```{r}
+our_plot <- 
+  
+  ggplot(smoke_complete) +
+
+  aes(x = age_at_diagnosis, 
+      y = cigarettes_per_day, 
+      color = disease) +
+  
+  geom_point() +
+  
+  labs(title = "Cigarettes per Day versus Age at Diagnosis",
+       x = "Age at Diagnosis",
+       y = "Cigarettes Smoked per Day")
+  
+our_plot
+```
+
+# Changing visual properties using built in themes
+
+```{r}
+our_plot +
+  theme_bw()
+```
+
+### Make the points more transparent
+
+```{r theme}
+ggplot(smoke_complete) +
+  aes(x = age_at_diagnosis, 
+      y = cigarettes_per_day, 
+      color = disease) +
+
+  geom_point(alpha=0.3) +
+  
+  theme_bw() # change background theme
+```
+
+
+```{r color}
+# change color of points
+ggplot(smoke_complete) +
+  aes(x = age_at_diagnosis, 
+      y = cigarettes_per_day) +
+  geom_point(color = "green")
+```
+
+For more information on colors available, look [here](http://sape.inf.usi.ch/quick-reference/ggplot2/colour).
+
+A complete list of pre-set themes is available [here](https://ggplot2.tidyverse.org/reference/ggtheme.html), 
+and we'll cover ways to customize our own themes later in this lesson.
+
+
+```{r alpha}
+# add transparency with alpha argument
+ggplot(smoke_complete) +
+  aes(x = age_at_diagnosis, y = cigarettes_per_day) +
+  geom_point(alpha = 0.1)
+```
+
+Transparency is useful to help see the distribution of data, 
+especially when points are overlapping.
+
+Alternatively, you can alter only one specific type of text:
+```{r x_text}
+ggplot(smoke_complete) +
+  geom_point(aes(x = age_at_diagnosis, y = cigarettes_per_day, color = disease)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) # rotate and adjust x axis text
+```
+This rotates and adjusts the horizontal and vertical arrangement of the labels on only the x axis.
+Of course, you can also modify other text (y axis, axis labels, legend).
+
+After you're satisfied with a plot, 
+it's likely you'd want to share it with other people or include in a manuscript or report.
+```{r dir, eval=FALSE}
+# create directory for output
+dir.create("figures")
+```
+```{r save}
+# save plot to file
+ggsave("figures/awesomePlot.jpg", width = 10, height = 10, dpi = 300)
+```
+
+This automatically saves the last plot for which code was executed. 
+You can view your `figures/` directory to see the exported jpeg file.
+This command interprets the file format for export using the file suffix you specify. The other arguments dictate the size (`width` and `height`) and resolution (`dpi`).
+
+**Challenge:**
+Create a scatterplot showing age at diagnosis vs years smoked with points colored by gender and appropriate axis labels 
+(solutions [here](solutions/class4_solutions.R))
+
+
+
+## Brief Aside: Categorical Data (`factor`s)
+
+
+One data type that we haven't yet looked at are `factor`s - factors are how R represents *categorical data*.
+
+For the most part, you can use `character` and `factors` interchangably for categorical data.
+
+However, there is one main difference. `factor`s define the permissible values in a vector with an argument called `levels`. They also define the order in which these values are displayed.
+
+
+```{r}
+character_vector <- c("Dog", "Dog", "Cat", "Mouse")
+table(character_vector)
+```
+
+You can make a character vector into a factor vector by using the `factor()` function, and supplying an argument called `levels`.
+
+## Levels of a Factor
+
+The `levels` of a factor are the permissible values in a `factor`. The order of the values in a factor also control the order in which the values appear in tables and on the axes in a plot. 
+
+So, you can control the order of the categories in a factor by specifying the order of the categories in the `levels` argument.
+
+```{r}
+factor_vector <- factor(character_vector, 
+                        levels = c("Dog", "Cat", "Mouse"))
+
+table(factor_vector)
+```
+
+This ordering is the main reason to use `factors`. We will revisit this again in Part 4 when we learn how to manipulate the data type of a variable in a `data.frame`.
+
+
+
+
+## Boxplots
+
+Boxplots compare the distribution of a quantitative variable among categories.
+
+Remember, `vital_status` is a `character` vector, but we're not too worried about the implicit order of the categories, so we can use it as is in our boxplot.
+
+```{r box}
+# creating a boxplot
+
+ggplot(smoke_complete) +
+  
+  aes(x = vital_status, y = cigarettes_per_day) +
+  
+  geom_boxplot()
+```
+
+The main differences from the scatterplots we created earlier are the `geom` type and the variables plotted.
+
+We can change the color similarly to scatterplots. However, we map to `fill` and not `color`
+
+```{r box_color}
+# adding color
+ggplot(smoke_complete) +
+  
+  aes(x = vital_status, 
+      y = cigarettes_per_day, 
+      fill = vital_status) +
+  
+  geom_boxplot()
+```
+
+## Faceting our boxplot
+
+One of the most powerful ways to change a visualization is by *faceting*: 
+
+
+```{r box_color}
+# adding color
+ggplot(smoke_complete) +
+  
+  aes(x = vital_status, 
+      y = cigarettes_per_day, 
+      fill = vital_status) +
+  
+  geom_boxplot() +
+  
+  ylim(c(0,20)) +
+  
+  facet_wrap(vars(disease))
+```
+
+**Challenge:** 
+Write code comments for each of the following lines of code. 
+What is the advantage of writing code like this? 
+(solutions [here](solutions/class4_solutions.R))
+```{r challenge}
+my_plot <- ggplot(smoke_complete, aes(x = vital_status, y = cigarettes_per_day)) 
+my_plot +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(alpha = 0.2, color = "purple")
+```
+
+**Challenge:** 
+Does the order of layers in the last plot matter? What happens if `jitter` is coded before `boxplot`? 
+(solutions [here](solutions/class4_solutions.R))
+
+## Time series data as line plots
+
+So far we've been able to work with the data as it appears in our filtered dataset.
+Now that we're moving on to time series plots (changes in variables over time),
+we need to manipulate the data.
+We'll also be working with the `birth_reduced` dataset,
+which we created last class (primarily by removing all missing data for year of birth).
+We'd like to plot the number of individuals in the dataset born by year,
+so we need to first count our observations based on both disease and year of birth:
+```{r time_prep}
+# count number of observations for each disease by year of birth
+yearly_counts <- birth_reduced %>%
+  count(year_of_birth, disease) 
+```
+
+We can plot these data as a single line:
+```{r time_plot}
+# plot all counts by year
+ggplot(yearly_counts) +
+  geom_line(aes(x = year_of_birth, y = n))
+```
+
+Here, `n` represents the number of patients born in each year,
+from the count table created above.
+The result isn't very satisfying, because we also grouped by disease.
+We can improve this by plotting each disease on a separate line, 
+which is more appropriate when there are multiple data points per year:
+```{r time_disease}
+# plot one line per cancer type
+ggplot(yearly_counts) +
+  geom_line(aes(x = year_of_birth, y = n, 
+                group = disease))
+```
+
+Moreover, we can color each line individually:
+```{r time_color}
+# color each line per cancer type
+ggplot(yearly_counts) +
+  geom_line(aes(x = year_of_birth, y = n, color = disease))
+```
+
+Note that you don't have to include a separate argument for `group = disease` because grouping is assumed by `color = disease`.
+
+**Challenge:** 
+Create a line plot for year of birth and number of patients with lines representing each gender.
+Hint: you'll need to manipulate the `birth_reduced` dataset first. 
+(solutions [here](solutions/class4_solutions.R))
+
+**Challenge:** 
+How do you show differences in lines using dashes/dots instead of color?
+(solutions [here](solutions/class4_solutions.R))
+
+## Faceting 
+
+So far we've been working on building single plots,
+which can show us two main variables (for the x and y axes)
+and additional variables using color (and potentially size/shape/etc).
+Scientific visualizations often need to compare among categories 
+(e.g., control vs various treatments),
+which is generally clearer if those categories are presented in separate panels.
+ggplot provides this capacity through faceting.
+
+Let's revisit the scatterplot we initially created,
+plotting age at diagnosis by cigarettes per day,
+with points colored by disease.
+We add an additional layer to create facets, or separate panels,
+for a given variable 
+(in this case, the same variable being used to color points):
+```{r facet}
+# use previous scatterplot, but separate panels by disease
+ggplot(smoke_complete) +
+  geom_point(aes(x = age_at_diagnosis, y = cigarettes_per_day, color = disease)) +
+  facet_wrap(vars(disease)) # wraps panels to make a square/rectangular plot
+```
+
+`vars` is used for faceting in the same way that `aes()` is used for mapping:
+it is used to specify the variable to form facet groups.
+
+`facet_wrap` determines how many rows and columns of panels are needed to create the most square-shaped final plot possible.
+This becomes useful when there are many more categories:
+```{r facet_wrap}
+# add a variable by leaving color but changing panels to other categorical data
+ggplot(smoke_complete) +
+  geom_point(aes(x = age_at_diagnosis, y = cigarettes_per_day, color = disease)) +
+  facet_wrap(vars(tumor_stage))
+```
+
+In this case, we're now visualizing an additional variable (tumor stage), 
+in addition to the original three (age at diagnosis, cigarettes per day, and disease).
+
+If you want to control the specific layout of panels, you can use `facet_grid` instead of `facet_wrap`:
+```{r facet_grid}
+# scatterplots with panels for vital status in one row
+ggplot(smoke_complete) +
+  geom_point(aes(x = age_at_diagnosis, y = cigarettes_per_day, color = disease)) +
+  facet_grid(rows = vars(vital_status)) 
+```
+
+This method can also plot panels in columns.
+
+We may want to show interactions between two categorical variables,
+by arranging panels into rows according to one variable and columns according to another:
+```{r facet_both}
+# add another variable using faceting
+ggplot(smoke_complete) +
+  geom_point(aes(x = age_at_diagnosis, y = cigarettes_per_day, color = disease)) +
+  facet_grid(rows = vars(vital_status), cols = vars(disease)) # arrange plots via variables in rows, columns
+```
+
+Don't forget to look at the help documentation (e.g., `?facet_grid`) to learn more about additional ways to customize your plots!
+
+**Challenge**: 
+Alter your last challenge plot of (birth year by number of patients) to show each gender in separate panels.
+(solutions [here](solutions/class4_solutions.R))
+
+**Challenge**: How do you change axis formatting, like tick marks and lines?
+Hint: You may want to use Google!
+(solutions [here](solutions/class4_solutions.R))
+
+## Wrapping up
+
+This material introduced you to ggplot as a tool for data visualization, 
+allowing you to now create publication-quality images using R code.
+Combined with our previous explorations of the basic principles of R syntax, 
+importing and extracting data with base R,
+and manipulating data using tidyverse, 
+you should be equipped to continue learning about R on your own and developing code to meet your research needs. 
+
+If you are interested in learning more about ggplot:
+- Documentation for all `ggplot` features is available [here](https://ggplot2.tidyverse.org).
+- RStudio also publishes a [ggplot cheat sheet](https://github.com/rstudio/cheatsheets/raw/master/data-visualization-2.1.pdf) that is really handy!
+
+
+
+
+
+# Data Manipulation
+
+What we have learned is pretty great overall for plotting. But there are a lot of other things we can do with `data.frame`s!
+
+
+
+## Introducing the pipe (`%>%`)
+
+
+Often times, we want to do multiple operations on our data and in a specific order.
+
+For example I might want to do the following:
+
+
+*Take* my dataset `smoke_complete` **and then**
+*Sort* it by `cigarettes_per_day` **and then**
+*filter* to have only `males` from the data.
+
+The pipe (`%>%`) function acts like the **and then**:
+
+
+```{r}
+smoke_complete %>%
+  arrange(cigarettes_per_day) %>%
+  filter(gender == "male")
+
+```
+
+
+You can think of a pipe as putting the output of one step as an input of another. These two statements are equivalent:
+
+
+```{r}
+smoke_complete %>%
+  arrange(cigarettes_per_day)
+```
+
+and
+
+```{r}
+arrange(smoke_complete, cigarettes_per_day)
+```
+
+
+
+
+## Sorting Data Frames using `arrange()`
+
+
+Ok, we already have encountered `arrange()`. It's a function that lets us sort a `data.frame` by a variable.
+
+By default, it sorts in *ascending* order:
+
+```{r}
+smoke_complete %>% 
+  arrange(cigarettes_per_day)
+```
+
+```{r}
+smoke_complete %>%
+  arrange(desc(cigarettes_per_day))
+```
+
+
+You can also arrange by multiple variables. 
+
+```{r}
+smoke_complete %>%
+  arrange(desc(cigarettes_per_day),
+          tumor_stage)
+
+```
+
+
+Note that order of variables in `arrange()` matters!
+
+```{r}
+smoke_complete %>%
+  arrange(
+    tumor_stage,
+    desc(cigarettes_per_day)
+          )
+```
+
+
+
+## `filter()`ing our data
+
+
+`filter()` is an extremely powerful function. It lets us subset our data according to specific criterion.
+
+Let's filter on a `numeric` variable, `cigarettes_per_day`:
+
+
+```{r}
+smoke_complete %>%
+  filter(cigarettes_per_day < 20)
+
+```
+
+
+We can also filter on a category. But that does require us to know the values of that categorical variable.
+
+
+```{r}
+smoke_complete %>%
+  filter(tumor_stage == "stage iv")
+```
+
+
+## Filters a little logical
+
+We can chain multiple criteria using the `&` (AND) or `|` (OR) operators. But we need to review a little logic before we do this.
+
+If I wanted to return patients who were 
+
+`male` **and** `stage iv`, 
+
+I would want use an `&` to chain these criteria together:
+
+```
+gender == "male" & tumor_stage == "stage_iv"
+```
+
+```{r}
+smoke_complete %>%
+  filter(gender == "male" & 
+           tumor_stage == "stage iv")
+
+```
+
+
+If I wanted patients who were
+
+`male` **or** `stage iv`
+
+I would use an `|` to chain these criteria together.
+
+```{r}
+smoke_complete %>%
+  filter(gender == "male" |
+           tumor_stage == "stage iv")
+```
+
+
+Think about it: which of the two code blocks will return a larger number of patients?
+
+
+
+## Removing columns: using `select()`
+
+
+
+
+
+
+## Errata
+
+**If you would like more practice,** 
+the [`exercises`](exercises/) directory contains additional tasks for practice.
+Answers to those and in-class questions are available in the [`solutions`](solutions/) directory. 
+
+**This document is written in [R markdown](http://rmarkdown.rstudio.com),**
+which is a method of formatting text, code, and output to create documents that are sharable with other people. 
+While this document is intended to serve as a reference for you to read while typing code into your own script,
+you may also be interested in modifying and running code in the original R markdown file ([`class4.Rmd`](class4.Rmd) in the GitHub repository).
