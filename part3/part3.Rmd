@@ -1,6 +1,7 @@
 ---
-title: 'Introduction to R, Class 4: Data Visualization'
+title: 'Ready for R, Part 3: Data Visualization and Data Manipulation'
 output: html_document
+author: "you!"
 ---
 
 ```{r setup, include=FALSE}
@@ -20,15 +21,22 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Getting set up
 
-```{r prep}
+```{r prep, message=FALSE, warning=FALSE}
 # load library
 library(tidyverse)
 library(readxl)
-library(here)
-# read in second filtered data from last class
-smoke_complete <- read_excel("data/smoke_complete.xlsx", sheet=1, na="NA")
 
-smoke_complete <- smoke_complete %>% select(age_at_diagnosis, tumor_stage, cigarettes_per_day, gender, vital_status, disease)
+
+smoke_complete <- read_excel("data/smoke_complete.xlsx", 
+                             sheet=1, 
+                             na="NA")
+
+
+#remove some columns - we'll talk about this later
+smoke_complete <- smoke_complete %>% 
+  select(age_at_diagnosis, tumor_stage,
+         cigarettes_per_day, gender, 
+         vital_status, disease)
 ```
 
 
@@ -54,11 +62,13 @@ our_plot <- ggplot(smoke_complete) +
 our_plot
 ```
 
+
+
 # Changing visual properties using built in themes
 
 ```{r}
 our_plot +
-  theme_bw()
+  theme_minimal()
 ```
 
 A complete list of pre-set themes is available [here](https://ggplot2.tidyverse.org/reference/ggtheme.html), 
@@ -72,13 +82,18 @@ Adding the `theme()` function will let us customize our plot further.
 
 There are a few arguments that are really helpful to modify:
 
-- `axis.title`, `axis.title.x` and `axis.title.y` (The labels for the axes)
+- `axis.title`
+- `axis.title.x` 
+- `axis.title.y` 
+- (The labels for the axes)
 - `legend.position` (Placing the legend, including removing it)
+
+
 
 ```{r}
 our_plot + 
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 90))
+  theme(axis.text.x = element_text(angle = 45))
 ```
 
 
@@ -89,43 +104,19 @@ our_plot +
 ```
 
 
-### Make the points more transparent
-
-```{r theme}
-ggplot(smoke_complete) +
-
-  aes(x = age_at_diagnosis, 
-      y = cigarettes_per_day, 
-      color = disease) +
-
-  geom_point(alpha=0.3) +
-  
-  theme_bw() # change background theme
-```
-
-
-
-
 
 ## Saving your work
 
-After you're satisfied with a plot, 
-it's likely you'd want to share it with other people or include in a manuscript or report.
+
+After you're satisfied with a plot, it's likely you'd want to share it with other people or include in a manuscript or report.
+
 ```{r save}
 # save plot to file
 ggsave("awesomePlot.jpg", width = 10, height = 10, dpi = 300)
 ```
 
-This automatically saves the last plot for which code was executed. 
-You can view your `figures/` directory to see the exported jpeg file.
-This command interprets the file format for export using the file suffix you specify. The other arguments dictate the size (`width` and `height`) and resolution (`dpi`).
 
-**Challenge:**
-Create a scatterplot showing age at diagnosis vs years smoked with points colored by gender and appropriate axis labels 
-(solutions [here](solutions/class4_solutions.R))
-
-
-
+This automatically saves the last plot for which code was executed. This command interprets the file format for export using the file suffix you specify. The other arguments dictate the size (`width` and `height`) and resolution (`dpi`).
 
 
 
@@ -166,7 +157,7 @@ This ordering is the main reason to use `factors`. We will revisit this again in
 
 
 
-## Boxplots
+## Back to `ggplot2`: Boxplots
 
 Boxplots compare the distribution of a quantitative variable among categories.
 
@@ -228,7 +219,7 @@ ggplot(smoke_complete) +
 Don't forget to look at the help documentation (e.g., `?facet_wrap`) to learn more about additional ways to customize your plots!
 
 
-## Wrapping up
+## Further learning
 
 If you are interested in learning more about ggplot:
 - Documentation for all `ggplot` features is available [here](https://ggplot2.tidyverse.org).
@@ -326,7 +317,7 @@ arranged_smokers <- smoke_complete %>%
 
 ggplot(data=arranged_smokers) +
   aes(x = cigarettes_per_day) +
-  geom_histogram
+  geom_histogram()
 ```
 
 
@@ -473,26 +464,52 @@ Keep that in mind!
 
 
 
+## Saving our results
+
+Let's save our processed data in the `data/` directory. We'll save it as a `csv` file, which is short for *comma separated value*. This is a file type that can be easily imported into excel.
+
+
+```{r}
+processed_data <- smoke_complete %>%
+  select(-gender) %>%
+  filter(cigarettes_per_day < 20)
+
+write_excel_csv(x = processed_data,
+                path = "data/processed_data.csv")
+```
+
+
 ## What you learned today
 
 - customizing `ggplots` using `theme()` 
 - making boxplots 
 - faceting plots
 - a little bit about factors
-- 
+- pipes
+- `arrange()`
+- `filter()`
+- `select()`
 
 
-## Errata
+## Survey
 
-**If you would like more practice,** 
-the [`exercises`](exercises/) directory contains additional tasks for practice.
-Answers to those and in-class questions are available in the [`solutions`](solutions/) directory. 
+Don't forget to fill out the survey (fill it out for Week 4)!
 
-**This document is written in [R markdown](http://rmarkdown.rstudio.com),**
-which is a method of formatting text, code, and output to create documents that are sharable with other people. 
-While this document is intended to serve as a reference for you to read while typing code into your own script,
-you may also be interested in modifying and running code in the original R markdown file ([`class4.Rmd`](class4.Rmd) in the GitHub repository).
+https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn
 
+
+
+## Practice
+
+Try out chapters 2 and 3 in the R-Bootcamp:
+
+https://r-bootcamp.netlify.app/chapter2 
+https://r-bootcamp.netlify.app/chapter3
+
+
+## Acknowledgements
+
+This notebook was adapted from material from Kate Hertweck and https://fredhutch.io and from the R-Bootcamp by Ted Laderas and Jessica Minnier.
 
 
 
@@ -548,3 +565,4 @@ Color your plot by `disease` and facet by `vital_status`.
 
 
 ```
+
