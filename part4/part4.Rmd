@@ -98,6 +98,10 @@ These two verbs always go together.
 # Wide versus long data: `pivot_longer()`
 
 
+One of the common patterns of a dataset is that some columns should actually be combined into a single pattern 
+
+
+
 
 
 # Standardizing variable names: `clean_names()`
