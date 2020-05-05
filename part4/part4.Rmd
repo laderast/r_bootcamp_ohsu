@@ -104,7 +104,7 @@ These two verbs always go together.
 
 The last package we'll talk about today is the `janitor` package. This package adds some really useful functions for *cleaning* data.
 
-The one I use the most is called `clean_names`. 
+The one I use the most is called `clean_names()`. 
 
 
 ```{r}
