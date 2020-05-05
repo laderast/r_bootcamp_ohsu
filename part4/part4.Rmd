@@ -1,0 +1,122 @@
+---
+title: 'Part 4: mutate, group_by/summarize'
+author: "you"
+date: "5/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Learning Objectives
+
+- **Learn** and apply `mutate()` to change the data type of a variable
+- **Apply** `mutate()` to calculate a new variable based on other variables in a `data.frame`.
+- **Apply** `case_when` in a `mutate()` statement to make a continuous variable categorical
+- **Apply** `group_by()/summarize()` as a pattern to get summary statistics, including counts, means, and standard deviations within a category.
+- **Identify** and **transform** wide form data to long form data using `pivot_longer()`
+- **Standardize** variable names using `clean_names()`
+
+
+
+# `mutate()` - A confusing name, a powerful `dplyr` verb
+
+
+So what is mutate? `mutate()` is one of the most useful `dplyr` verbs. You can use it to transform data (variables in your `data.frame`) and add it as a new variable into the data.frame.
+
+I tend to think of this much like adding a formula in excel to calculate the value of a new variable 
+
+
+
+
+## Using `mutate` to make our `character` variables into `factors`
+
+Remember `factor`s? Well, we can use `mutate()` to make a `character` variable a `factor`.
+
+
+```{r}
+
+```
+
+
+
+## Using `mutate` to calculate a new variable based on other variables
+
+Another use for `mutate` is to do Excel type calculations using other columns on the data. For instance, we might want to calcluate the difference between `age_at_diagnoses`and 
+
+```{r}
+
+```
+
+
+
+
+## Using `mutate` to make a continuous variable categorical using `case_when`
+
+Say we want to make the `cigarettes_per_day` into a categorical variable with the values
+
+
+* 0-1 cigarettes/day
+* 2-5 cigarettes/day
+* 6 or more cigarettes/day
+
+
+How would we do that? 
+
+
+```{r}
+
+```
+
+
+
+# `group_by()/summarize()`
+
+These two verbs always go together.
+
+
+
+## `group_by()/summarize` to calculate mean and standard deviation values
+
+```{r}
+
+```
+
+
+
+
+## `group_by()/summarize()` to count things
+
+
+```{r}
+
+
+```
+
+
+# Wide versus long data: `pivot_longer()`
+
+
+
+
+# Standardizing variable names: `clean_names()`
+
+The last package we'll talk about today is the `janitor` package. This package adds some really useful functions for *cleaning* data.
+
+The one I use the most is called `clean_names`. 
+
+
+```{r}
+
+```
+
+
+```{r}
+
+
+```
+
+
+
+

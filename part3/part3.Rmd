@@ -93,7 +93,7 @@ There are a few arguments that are really helpful to modify:
 ```{r}
 our_plot + 
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 45))
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
 
@@ -427,6 +427,12 @@ smoke_complete %>%
 
 
 Think about it: which of the above two code blocks will return a larger number of patients?
+
+
+## More about Comparison and Logical Operators
+
+
+This is a useful reference for all the different operators (both logical and comparison) that you can use: https://www.datamentor.io/r-programming/operator/
 
 
 
