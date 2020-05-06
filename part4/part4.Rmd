@@ -356,10 +356,18 @@ smoke_filtered <-
     mutate(age_category = 
                case_when(age_years <= 40 ~ "0-40",
                          
-                         )) %>%
+                         
+                         
+                         )
+           ) %>%
     mutate(age_category = factor(age_category,
                                  levels = c("0-40",
-                                            )))
+                                            
+                                            
+                                            
+                                            )
+                                 )
+           )
 
 
 ```
