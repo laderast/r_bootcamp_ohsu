@@ -1,5 +1,5 @@
 ---
-title: 'Supplemental: bind'
+title: 'Common things to Do with multiple tables'
 author: "you"
 date: "5/5/2020"
 output: html_document
@@ -11,8 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Learning Objectives
 
-- **Learn** and apply `bind_rows()` to combine rows from two or more datasets
-- **Standardize** and apply variable names using `clean_names()`
+- **Learn** and **apply** `bind_rows()` to combine rows from two or more datasets
+- **Learn** about the different kinds of joins and how they merge data
+- **Apply** `inner_join()` and `left_join()` to join tables on columns
+- **Standardize** variable names using `clean_names()`
 
 
 ## Getting set up
@@ -23,10 +25,11 @@ library(readxl)
 library(janitor)
 ```
 
+## Motivation for `bind_rows()`
 
 Imagine that your lab is part of a large consortium studying the effects of smoking. As the lead data scientist, you've helped oversee the collection and documentation several observations for many variables of interest.
 
-Many labs within the consortium have accumulated data...
+Many labs within the consortium have accumulated data, and not all were following the guidelines you set for the tables.
 
 ```{r}
 smoke_1 <- read_excel('data/smoke_1.xlsx', 
@@ -52,6 +55,8 @@ smoke_3 <- read_excel('data/smoke_3.xlsx',
 smoke_3
 ```
 
+## Binding two tables together
+
 Maybe you want to create some figures to show the overall demographics of your dataset, maybe you want to check for batch effects between sites, or maybe you want to create some powerful machine learning models. How can you combine  datasets from individual labs? Enter `bind_rows()`...
 
 ```{r}
@@ -59,9 +64,11 @@ smoke_1 %>% bind_rows(smoke_2)
 ```
 
 
-`bind_rows()` allows you to append one dataset to another. We can see that `smoke_1` contained 549 rows and `smoke_2` contained 603 rows. After using `bind_rows()`, we now have a single dataset containing 1152 rows.
+`bind_rows()` allows you to append one dataset to the bottom of another dataset. We can see that `smoke_1` contained 549 rows and `smoke_2` contained 603 rows. After using `bind_rows()`, we now have a single dataset containing 1152 rows.
 
-That's all pretty cool, until you meet a rogue lab. This lab almost seems as if they've gone out of their way to make things difficult. Rather than putting columns in the standard order specified, they've switched them around. Even worse, they've named the columns differently! If there are only a few columns, sure, we could manually fix this. But what if this was RNASeq data, with thousands of column names to fix?!
+That's all pretty cool, until you meet a rogue lab. This lab almost seems as if they've gone out of their way to make things difficult. Rather than putting columns in the standard order specified, they've switched them around. 
+
+Even worse, they've named the columns differently! If there are only a few columns, sure, we could manually fix this. But what if this was RNASeq data, with thousands of column names to fix?!
 
 Well, let's remember we still have `clean_names()`. That can at least help us get the column names into the standard format.
 
@@ -79,3 +86,26 @@ smoke_1 %>%
 ```
 
 Well look at that. `bind_rows()` takes care of the out-of-order columns for us!
+
+
+
+# Joining Tables
+
+## Motivation
+
+You have data on patients from two sources - one are labs, and they supply patient identifiers. The second source comes from an electronic medical record. How do you combine these two?
+
+```{r}
+
+```
+
+## Do you keep rows that don't match, or do you throw them away?
+
+
+
+
+## Inner Joins
+
+
+
+## Left Joins
