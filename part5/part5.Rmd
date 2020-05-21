@@ -90,6 +90,8 @@ smoke_1 %>%
 
 Well look at that. `bind_rows()` takes care of the out-of-order columns for us!
 
+
+
 ## Joining Tables
 
 
@@ -181,6 +183,8 @@ In the example above, we keep row 3 in table x even though it doesn't have a mat
 Because there is no information from the right table, these rows will have an `NA`. That is, the information is missing for the columns that come from the right table.
 
 
+
+
 ### Let's work through an example
 
 
@@ -218,6 +222,8 @@ patient_table %>%
 
 ```
 
+
+
 ### Your Turn
 
 Modify the code below to do a `left_join()` on `patient_table` and `wbc_table`. 
@@ -232,7 +238,7 @@ patient_table %>%
 Which patient in `patient_table` didn't get a WBC?
 
 
-## Making your data long: `pivot_long()`
+## Making your data long: `pivot_longer()`
 
 The last thing we'll talk about is the difference between the *wide* data format and the *long* data format.
 
@@ -244,7 +250,125 @@ In an *expression matrix*,
 
 
 ```{r}
+expression_example <- read_excel("data/expression_example.xlsx", sheet=1)
+
+expression_example
+```
+
+
+### However...
+
+This format isn't super useful for a lot of data manipulations.
+
+It's because the columns correspond to samples, and this prevents us from plotting things like PTEN expression across the samples. 
+
+This kind of data is in a format that is called *wide* format. What we need to do is collapse the numerical values into a single column.
+
+
+### The magic of `pivot_longer()`
+
+`pivot_longer()` is the function that will let us make our *wide* data *long*.
+
+It takes three arguments
+
+- `cols` - the columns to collapse. We haven't talked about `tidyselect` verbs, but there are a few that let you select columns based on naming criteria. Here we're using the `starts_with()` selector to grab the columns that begin with `tcga`
+
+- `names_to` - the name of the column where the labels will be consolidated to
+
+- `values_to` - the name of the column where the values in the columns in the wide data will be consolidated to.
+
+
+```{r}
+expression_long <- 
+  expression_example %>%
+    pivot_longer(cols= starts_with("tcga"), 
+                 names_to = "sample", 
+                 values_to = "expression")
+
+expression_long
+```
+
+### Doing things with the long data
+
+Now that we have our long data, we can do our usual kinds of plotting.
+
+```{r}
+ggplot(expression_long) +
+  aes(x=gene_symbol, y=expression, fill=gene_symbol) +
+  geom_boxplot()
+```
+
+We can even make expression heatmaps with `geom_tile`. 
+
+```{r}
+ggplot(expression_long) +
+  aes(x=sample, y= gene_symbol, fill=expression) +
+  geom_tile()
+
+```
+
+### `pivot_wider()` exists too!
+
+
+## Assignment
+
+1. Use `bind_rows()` to bind all three `smoke` datasets (`smoke_1`, `smoke_2`, and `smoke_3`) together. Hint: you'll have to do two `bind_row()` operations.
+
+```{r}
 
 
 ```
 
+2. Take a look at the `patient` and `patient_encounter` tables loaded below.
+
+```{r}
+patient <- read_csv("data/patient_example.csv")
+patient_encounter <- read_csv("data/patient_enc_example.csv")
+
+```
+
+How many rows does each table have?
+
+```{r}
+nrow()
+nrow()
+```
+
+Write a `inner_join()` and assign it to `inner_patient` with 
+
+- `patient` as the *left* table
+- `patient_encounter` as the *right* table
+- joining on the approriate columns (look at the column names carefully!)
+
+```{r}
+inner_patient <- patient %>%
+  inner_join(y = ____, by = c())
+
+inner_patient
+```
+
+How many rows does `inner_patient` have?
+
+Do a `left_join` of the two tables with the same criteria as above. Assign it to `left_patient`. 
+
+Count the number of rows in `left_patient`. Is it what you expected?
+
+```{r}
+left_patient <- patient %>%
+  left_join()
+
+nrow(left_patient)
+```
+
+3. Look up the documentation for `pivot_wider`. Transform `expression_longer` back to a *wide* format, but this time with columns as genes and rows as samples.
+
+Hint: Always look at the examples in the documentation! They'll help you.
+
+```{r}
+expression_longer %>%
+  pivot_wider(id_cols = ,
+              names_from = ,
+              values_from)
+
+
+```
