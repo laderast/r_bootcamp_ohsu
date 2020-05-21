@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 - **Learn** about the different kinds of joins and how they merge data
 - **Apply** `inner_join()` and `left_join()` to join tables on columns
 - **Standardize** variable names using `clean_names()`
+- **Utilize** `pivot_longer()` to make a *wide* dataset *long*
 
 
 ## Getting set up
@@ -23,9 +24,12 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
 library(janitor)
+library(here)
 ```
 
-## Motivation for `bind_rows()`
+## `bind_rows()`
+
+### Motivation for `bind_rows()`
 
 Imagine that your lab is part of a large consortium studying the effects of smoking. As the lead data scientist, you've helped oversee the collection and documentation several observations for many variables of interest.
 
@@ -57,12 +61,11 @@ smoke_3
 
 ## Binding two tables together
 
-Maybe you want to create some figures to show the overall demographics of your dataset, maybe you want to check for batch effects between sites, or maybe you want to create some powerful machine learning models. How can you combine  datasets from individual labs? Enter `bind_rows()`...
+How can you combine  datasets from individual labs? Enter `bind_rows()`...
 
 ```{r}
 smoke_1 %>% bind_rows(smoke_2)
 ```
-
 
 `bind_rows()` allows you to append one dataset to the bottom of another dataset. We can see that `smoke_1` contained 549 rows and `smoke_2` contained 603 rows. After using `bind_rows()`, we now have a single dataset containing 1152 rows.
 
@@ -87,11 +90,11 @@ smoke_1 %>%
 
 Well look at that. `bind_rows()` takes care of the out-of-order columns for us!
 
+## Joining Tables
 
 
-# Joining Tables
 
-## Motivation
+### Motivation
 
 You have data on patients from two sources - one are labs, and they supply patient identifiers. The second source comes from an electronic medical record. How do you combine these two?
 
@@ -99,13 +102,149 @@ You have data on patients from two sources - one are labs, and they supply patie
 
 ```
 
-## Do you keep rows that don't match, or do you throw them away?
+### Naming conventions
+
+![](image/original-dfs.png)
+source: https://github.com/gadenbuie/tidyexplain
+
+
+Before we talk about joins, we need to define some terms.
+
+`left table` and `right table`: Whenever we join two tables, we will have a *left* table (in this case, the `x` table) and a *right* table (in this case, `y` table). 
+
+`key`: In order to join the two tables, we have to somehow map the rows of our left table (`x`) with the rows of our other table (`y`). We do this by joining together rows with a common variable. In our case, we need to join rows based on the first column in both tables. The variable that we join on is called a *key*. 
+
+![](image/original-dfs.png)
+source: https://github.com/gadenbuie/tidyexplain
+
+In the above example, we see that there is a row in `x` whose *key* is 2, and there is a row in `y` whose *key* is 2 as well. So it makes sense to join these two rows together.
+
+So, by matching the rows with identical keys, we can put together a table that incorporates information from both tables. 
 
 
 
+### Inner Joins
 
-## Inner Joins
+![Inner join animation](image/inner-join.gif)
+source: https://github.com/gadenbuie/tidyexplain
+
+With an inner join, we are matching rows based on our *key*. If there is not a match in both tables, we don't include the row with that key.
+
+In the example above, we don't keep row 3 in table x or row 4 in table y.
+
+
+
+## Joining Syntax
+
+Keeping these terms in mind, let's look at the syntax for joining two tables together.
+
+```
+inner_join(table_x, table_y,
+          by = c(key_column_x = key_column_y)
+          )
+```
+
+If we just wanted to join the two tables, the above is enough. We first specify the left table (`table_x`), and the right table (`table_y`).
+
+Note the `by` argument. This is the argument where we specify which column in each table contains our key. 
+
+
+
+### The more `dplyr` way to do joins
+
+The more `dplyr` way to do joins is below:
+
+```
+#start with left table
+table_x %>% 
+
+  #join left table with right table
+  inner_join(y = table_y, 
+  
+  #point out the key column in each table
+    by = c(key_column_x= key_column_y)
+    )
+```
+
+We start with our *left* table, `table_x`. The main difference is that we don't need to specify the `x` argument in `inner_join()`, because we are piping `table_x` as the first argument of `inner_join()`.
 
 
 
 ## Left Joins
+
+![](image/left-join.gif)
+
+Left joins are a little different. In a *left join*, we keep all the rows in the left table regardless of whether there is a match in the right table.
+
+In the example above, we keep row 3 in table x even though it doesn't have a match in table y. 
+
+Because there is no information from the right table, these rows will have an `NA`. That is, the information is missing for the columns that come from the right table.
+
+
+### Let's work through an example
+
+
+Say we have a set of patients. We want to join their information with their labs, in particular a white blood cell count (a WBC). 
+
+We also need to know whether there are patients in our set who haven't gotten a CBC.
+
+Because the lab system isn't part of the electronic health record, we'll need to make a join on the patient table to the lab table.
+
+
+```{r}
+patient_table <- read_excel("data/patient_example.xlsx", sheet = 1)
+
+wbc_table <- read_excel("data/patient_example.xlsx", sheet = 2)
+```
+
+Let's look at `patient_table`, which we'll use as our *left table*:
+
+```{r}
+patient_table
+```
+
+Here is `wbc_table`, which we'll use as our *right table*:
+
+```{r}
+wbc_table
+```
+
+Let's do an `inner_join()`:
+
+```{r}
+patient_table %>%
+  inner_join(y = wbc_table,
+            by = c("patient_id" = "patient_id"))
+
+```
+
+### Your Turn
+
+Modify the code below to do a `left_join()` on `patient_table` and `wbc_table`. 
+
+```{r}
+patient_table %>%
+  inner_join(y = wbc_table,
+            by = c("patient_id" = "patient_id"))
+
+```
+
+Which patient in `patient_table` didn't get a WBC?
+
+
+## Making your data long: `pivot_long()`
+
+The last thing we'll talk about is the difference between the *wide* data format and the *long* data format.
+
+A really common format in bioinformatics is the *expression matrix*.
+
+In an *expression matrix*, 
+  the *rows* correspond to different *genes* and
+  the *columns* correspond to different *samples*.
+
+
+```{r}
+
+
+```
+
