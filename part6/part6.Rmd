@@ -13,12 +13,18 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Learning Objectives
 
+- Learn some basic Exploratory Data Analysis techniques
 - **Learn** about t Tests and how to **apply** them to your dataset
+- **
+
+
 
 
 
 ## The Dataset
-A study by Goran et.al (1996) examined the accuracy of some widely used body-composition techniques for children using three different methods: dual-energy X-ray absorptiometry (`DXA`) technique, skin-fold thickness (`ST`), and bioelectric resistance (`BR`). Subjects were children between 4 and 10 years old. Data were collected on 98 subjects (49 males and 49 females). One purpose of the study was to determine whether there was a difference in fat mass measurements using `DXA` (considered the gold standard method) compared to the skin-fold thickness method. We also wish to determine if `DXA` levels are significantly different between males and females.
+A study by Goran et.al (1996) examined the accuracy of some widely used body-composition techniques for children using three different methods: dual-energy X-ray absorptiometry (`DXA`) technique, skin-fold thickness (`ST`), and bioelectric resistance (`BR`). Subjects were children between 4 and 10 years old. Data were collected on 98 subjects (49 males and 49 females). 
+
+One purpose of the study was to determine whether there was a difference in fat mass measurements using `DXA` (considered the gold standard method) compared to the skin-fold thickness method. We also wish to determine if `DXA` levels are significantly different between males and females.
 
 
 
@@ -29,12 +35,16 @@ library(tidyverse)
 library(broom)
 library(readxl)
 library(janitor)
+library(GGally)
+library(broom)
 ```
 
 
 ```{r message=FALSE}
 body_comp <- read_csv('data/body_composition.csv', na="NA") %>%
   clean_names()
+
+head(body_comp)
 ```
 
 ## Exploratory Data Analysis
@@ -46,7 +56,10 @@ body_comp_long <- body_comp %>%
   pivot_longer(cols = c('dxa', 'st', 'br'),
                names_to = 'method',
                values_to = 'body_fat_percentage')
+
+head(body_comp_long)
 ```
+
 
 Now that we've done that, we can set `x = method` and `y = body_fat_percentage`.
 
@@ -109,4 +122,35 @@ Now *if* our F statistic probability had come back below 0.05, then we could per
 pairwise.t.test(body_comp_long$body_fat_percentage, body_comp_long$method, p.adjust = "bonferroni")
 ```
 
+
+# How Correlated are the Three Variables?
+
+Another question we'd like to check is whether the measurements are correlated or not. 
+
+```{r message=FALSE}
+cor(body_comp$dxa, body_comp$st)
+
+bodycomp <- body_comp %>% mutate(gender=factor(gender))
+
+ggpairs(bodycomp,  aes(color=gender))  
+```
+
+```{r}
+body_comp %>%
+  ggplot() +
+  aes(x=dxa, y=st) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+```
+
+```{r}
+lm(dxa ~ st, data=body_comp) %>%
+  tidy()
+```
+
+```{r}
+lm(dxa ~ br + gender, data=bodycomp) %>%
+  tidy()
+```
 
