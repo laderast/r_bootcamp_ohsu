@@ -6,7 +6,10 @@ This course is a remix of the R-Bootcamp by Ted Laderas and Jessica Minnier: htt
 
 Content has been edited and remixed by Ted Laderas and Aaron Coyner.
 
-Tidyverse Illustrations gratefully used from Allison Horst. Thank you so much! https://github.com/allisonhorst/stats-illustrations
+Tidyverse Illustrations gratefully used from Allison Horst and Garrick Aden-Buie. Thank you so much! 
+
+https://github.com/allisonhorst/stats-illustrations
+https://github.com/gadenbuie/tidyexplain
 
 ## Resources
 
