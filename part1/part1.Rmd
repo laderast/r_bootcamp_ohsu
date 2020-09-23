@@ -6,6 +6,7 @@ output: html_notebook
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(vembedr)
 ```
 
 
@@ -30,13 +31,40 @@ By the end of this session, you should be able to:
 2. **Understand** basic R syntax to **use** functions and **assign** values to objects
 3. **Create** and **manipulate** vectors and **understand** how R deals with missing data 
 
-`# Introduction to R: Class 1`
+
+## Introduction to the Ready for R course
+
+To get started, start playing the video below. If there's no video, click on the green play button in the box below.
+
+Direct link to video: https://youtu.be/Q0tMCuHbIkw
+
+```{r}
+vembedr::embed_youtube("Q0tMCuHbIkw", width = 600, height=300)
+
+```
+
+
+## Introduction to R: Class 1
 
 [Tour of R and R Notebooks]
+
+Link to video: https://youtu.be/oFmjHxl28H0
+
+```{r}
+vembedr::embed_youtube("oFmjHxl28H0", width = 600, height=300)
+
+```
+
 
 `Help -> Cheetsheets -> RStudio IDE cheat sheet`
 
 ## Code Blocks
+
+Link to video: https://youtu.be/0iETdE7WkqU
+
+```{r}
+vembedr::embed_youtube("0iETdE7WkqU", width = 600, height=300)
+```
 
 Now that we have our notebook open, we're ready to start.
 
@@ -60,7 +88,15 @@ Try this one out. It's the same code as above, but with no spaces. Does it still
 4+5
 ```
 
+
 ## Using Functions
+
+Link to video: https://youtu.be/aQPOhhLinZM
+
+```{r}
+vembedr::embed_youtube("aQPOhhLinZM", width = 600, height=300)
+```
+
 
 R includes functions for other types of math:
 
@@ -100,7 +136,12 @@ round(digits = 1, x = 3.14)
 
 ## Assigning objects
 
-[objects and variables]
+Link to video: https://youtu.be/pW9wkwob1Es
+
+```{r}
+vembedr::embed_youtube("pW9wkwob1Es", width = 600, height=300)
+```
+
 
 ```{r}
 # assigning value to an object
@@ -186,6 +227,12 @@ Make your answers here:
 
 ## Vectors
 
+Link to video: https://youtu.be/0qLgfpvzBqI
+
+```{r}
+vembedr::embed_youtube("0qLgfpvzBqI", width = 600, height=300)
+```
+
 [creating vectors]
 [c is for combine]
 
@@ -269,6 +316,13 @@ tricky <- c(1, 2, 3, "4")
 
 ## Manipulating vectors
 
+Link to video: https://youtu.be/J0y8Dtvm7bQ
+
+```{r}
+vembedr::embed_youtube("J0y8Dtvm7bQ",  width = 600, height=300)
+```
+
+
 ```{r}
 # add a value to end of vector
 ages <- c(ages, 90) 
@@ -298,6 +352,11 @@ organs[c(1, 3)]
 
 
 ## Missing data
+
+```{r}
+vembedr::embed_youtube("r8RFoTXDs_U")
+```
+
 
 ```{r}
 # create a vector with missing data
@@ -421,6 +480,3 @@ vacation_days <- c(5, 7, 20, 1, 0, 0, 12, 4, 2, 2, 2, 4, 5, 6, 7, 10, 4)
 ```
 
 
-## Submitting your homework
-
-Submit your `part1-FIRSTNAME-LASTNAME.nb.html` file in Sakai. To download it, click on the `More` gear icon, and click **Export** to download it to your computer.

@@ -6,6 +6,7 @@ output: html_notebook
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(vembedr)
 
 ```
 
@@ -18,6 +19,11 @@ In this session, we'll continue our introduction to R by working with a large da
 
 Remember to save this notebook under a new name, such as `part2_laderas.Rmd`.
 
+Link to video: https://youtu.be/DKLT8M0lBOg
+
+```{r}
+vembedr::embed_youtube("DKLT8M0lBOg",  width = 600, height=300)
+```
 
 
 # Learning Objectives
@@ -52,6 +58,12 @@ library(readxl)
 
 
 ## Importing spreadsheet-style data into R
+
+Link to video: https://youtu.be/gCUkZUtNHVU
+
+```{r}
+vembedr::embed_youtube("gCUkZUtNHVU", width = 600, height=300)
+```
 
 ```{r}
 knitr::include_graphics("image/project2.JPG")
@@ -213,6 +225,13 @@ We'll be seeing that this format is called **Tidy Data**, and it lets us do all 
 
 ## `data.frame`s
 
+Link to video: https://youtu.be/Ur-Lzkan8zI
+
+```{r}
+vembedr::embed_youtube("Ur-Lzkan8zI", width = 600, height=300)
+```
+
+
 Now that we have data imported and available, we can start to inspect the data more closely. These data have been interpreted by R to be a data frame, which is a data structure (way of organizing data) that is analogous to tabular or spreadsheet style data. 
 
 
@@ -315,6 +334,12 @@ We will talk more about `factors` in the next lab.
 
 
 ## Introducing `ggplot2`
+
+Link to video: https://youtu.be/wTU8i_vPnQ4
+
+```{r}
+vembedr::embed_youtube("wTU8i_vPnQ4", width = 600, height=300)
+```
 
 Click the button below to load up the graphic.
 
