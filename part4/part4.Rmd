@@ -105,7 +105,15 @@ smoke_complete %>%
 Notice that the `female` value goes before the `male`, which is what we wanted.
 
 
+## Using `mutate` to replace missing values with `replace_na`
 
+Sometimes we want to fill in missing values with a certain value. We can use the `replace_na()` function inside of `mutate()` to specify this. For example, if the days to last follow up is missing, we want to set their days to follow up to 0. The first two observations in this data have missing follow up, but when we replace them we note they are now equal to 0:
+
+```{r}
+smoke_complete %>%
+    mutate(days_to_last_follow_up = replace_na(days_to_last_follow_up, 0)) %>%
+    glimpse()
+```
 
 
 
