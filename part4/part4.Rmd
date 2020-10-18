@@ -51,7 +51,7 @@ I tend to think of this much like adding a formula in Excel to calculate the val
 
 ## Using `mutate` to calculate a new variable based on other variables
 
-One use for `mutate` is to do Excel type calculations using other columns on the data. For instance, we might want to calcluate the sum of `age_at_diagnoses`and `days_to_death` to get the `age_at_death`.
+One use for `mutate` is to do Excel type calculations using other columns on the data. For instance, we might want to calculate the sum of `age_at_diagnoses`and `days_to_death` to get the `age_at_death`.
 
 ```{r}
 smoke_complete %>% 
@@ -201,6 +201,17 @@ smoke_complete %>%
 
 ```
 
+Note we need to be careful if there are missing values in the variable we are summarizing, compare these two results:
+
+```{r}
+smoke_complete %>%
+    summarize(average_yrs_smoked = mean(years_smoked))
+
+smoke_complete %>%
+    summarize(average_yrs_smoked = mean(years_smoked, na.rm = TRUE))
+
+```
+
 What are the kinds of things that summarize is useful for?
 
 Useful functions (from https://dplyr.tidyverse.org/reference/summarise.html)
@@ -259,6 +270,14 @@ smoke_complete %>%
     summarize(count = n())
 ```
 
+We can also use the `count()` function directly:
+
+```{r}
+smoke_complete %>%
+    count(disease)
+```
+
+
 
 ## Your Turn
 
@@ -273,6 +292,74 @@ smoke_complete %>%
 ```
 
 
+# `summarize()` and `mutate()` across multiple columns with `across()`
+
+Often we may want to summarize or mutate multiple variables in the same way. We can follow the examples above and specify each operation individually. For instance, suppose we want to calculate the mean of multiple numeric variables:
+
+```{r}
+smoke_complete %>%
+    summarize(mean_days_to_death = mean(days_to_death, na.rm = TRUE),
+              mean_days_to_birth = mean(days_to_birth),
+              mean_days_to_last_followup = mean(days_to_last_follow_up, na.rm = TRUE))
+```
+Phew, that's a lot of typing! But there's an easier way:
+
+```{r}
+smoke_complete %>%
+    summarize(
+        across(c(days_to_death, days_to_birth, days_to_last_follow_up), 
+               mean, na.rm = TRUE))
+```
+The `across()` function used above, first asks which variables, then asks which operation. In the example above, we named the variables first, and then we named the function `mean` and added an argument `na.rm = TRUE` which is applied to the mean function. If we had not done this, we would have `NA`s in our results.
+
+We can also use the syntax from `select()` to choose our variables, for instance, we could call the same variables by using `starts_with("days")`:
+
+```{r}
+smoke_complete %>%
+    summarize(
+        across(starts_with("days"), 
+               mean, na.rm = TRUE))
+```
+
+Or we can calculate the mean on all numeric variables:
+
+```{r}
+smoke_complete %>%
+    summarize(
+        across(where(is.numeric), 
+               mean, na.rm = TRUE))
+```
+
+Using `across()` takes some getting used to, but seeing more examples will help you see how it works. There are also more complex ways to use your own functions and naming conventions. Look at this vignette for many examples:  [dplyr colwise vignette](https://dplyr.tidyverse.org/articles/colwise.html).
+
+
+For an example of using our own function, we calculate the number of `NA`s across all columns with `everything()` and a custom function defined with `~` operating on the argument `.x`:
+
+```{r}
+smoke_complete %>%
+    summarize(across(everything(), ~sum(is.na(.x)))) %>%
+    glimpse()
+```
+
+We can also use `across()` with `mutate()` in a similar way. For example, if we want to convert all character columns to factors:
+
+```{r}
+smoke_complete %>%
+    mutate(
+        across(where(is.character), factor)) %>%
+    glimpse()
+```
+
+## Your turn
+
+Convert all variables that start with `days_to` into years:
+
+```{r}
+smoke_complete %>%
+    mutate(
+        across(starts_with(----), ~ .x/-----)) %>%
+    glimpse()
+```
 
 # Standardizing variable names: `clean_names()`
 
@@ -302,6 +389,15 @@ smoke_good_colnames
 
 By default, `clean_names()` converts to snake case (spaces between words are replaced by an underscore `_`).  `clean_names()` will help you standardize your dataset's column names.
 
+## Using `rename()` to rename!
+
+We can easily change names by hand, as well, with the `rename()` function in `dplyr` which is essentially a wrapper for `mutate()`:
+
+```{r}
+smoke_good_colnames %>%
+    rename(age = age_at_diagnosis) %>%
+    glimpse()
+```
 
 
 ## Assignment 4
@@ -381,6 +477,49 @@ ggplot(smoke_complete) +
     aes(x = , y= ) +
     geom_point()
 
+```
+
+
+6. Create a column called `survival_time` that is equal to `days_to_death` if non=missing, and is equal to `days_to_last_follow_up` if missing.
+
+```{r}
+smoke_filtered <- 
+    smoke_filtered %>% 
+    mutate(survival_time = )
+```
+
+7. Create a column called `survival_event` that is 1 if the person has a non missing `days_to_death` and 0 if not.
+
+```{r}
+smoke_filtered <- 
+    smoke_filtered %>% 
+    mutate(survival_event = )
+```
+
+8. Calculate median `survival_time` in patients who died versus those who were lost to follow up. Be careful with missing values in `survival_time`.
+
+```{r}
+smoke_filtered %>% 
+    group_by(   ) %>%
+    summarize(median_surv_time = )
+```
+
+9. Calculate median `survival_time` in patients who died versus those who were lost to follow up, stratified by disease type. Hint: `group_by()` can take multiple arguments to group by multiple variables.
+
+```{r}
+smoke_filtered %>% 
+    group_by(  , ) %>%
+    summarize(median_surv_time = )
+```
+
+10. Create a boxplot of `survival_time` by `factor(survival_event)` with color mapped to `disease`.
+
+```{r}
+ggplot(smoke_filtered, 
+       aes(x = factor( ), 
+           y =  , 
+           color =  )) + 
+    geom_boxplot()
 ```
 
 
