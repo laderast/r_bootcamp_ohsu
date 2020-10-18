@@ -525,6 +525,6 @@ ggplot(smoke_filtered,
 
 # Acknowledgments
 
-Written by Aaron Coyner and Ted Laderas.
+Written by Aaron Coyner and Ted Laderas and Jessica Minnier.
 
 Based on the Intro to R materials from fredhutch.io and the R-Bootcamp
