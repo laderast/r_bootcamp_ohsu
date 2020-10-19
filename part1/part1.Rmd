@@ -1,5 +1,5 @@
 ---
-title: "Ready for R Part 1: Functions and objects"
+title: "R Programming Part 1: Functions and objects"
 author: "Your Name"
 output: html_notebook
 ---
@@ -15,9 +15,15 @@ library(vembedr)
 Please save a copy of this as `part1_FIRSTNAME_LASTNAME.Rmd` and work from that (where FIRSTNAME is your first name, and LASTNAME is your last name). This way, you'll have the original as a reference just in case.
 
 
-# Welcome to Ready for R!
+# Welcome to R Programming!
 
-This course introduces you R by working through common tasks in data science: importing, manipulating, and visualizing data. 
+This course introduces you to R in two parts: 
+
+Part 1 focuses on working through common tasks in data science: importing, wrangling, visualizing, and modeling data. Throughout, we'll work on concepts of reproducibility by utilizing project-based workflows and RMarkdown as a way of reproducibly sharing our work.
+
+Part 2 focuses on more advanced topics: automating analyses using metadata, machine learning using `tidymodels`, using Git/GitHub, and an introduction to Bioconductor for bioinformatics analysis.
+
+# What is R?
 
 R is a statistical and programming computer language widely used for a variety of applications.
 
@@ -32,16 +38,13 @@ By the end of this session, you should be able to:
 3. **Create** and **manipulate** vectors and **understand** how R deals with missing data 
 
 
-## Introduction to the Ready for R course
+## Function of the Week
 
-To get started, start playing the video below. If there's no video, click on the green play button in the box below.
+Signup and learn about a function and share it with others.
 
-Direct link to video: https://youtu.be/Q0tMCuHbIkw
-
-```{r}
-vembedr::embed_youtube("Q0tMCuHbIkw", width = 600, height=300)
-
-```
+1. What is it for?
+2. How do you use it?
+3. Is it helpful or not?
 
 
 ## Introduction to R: Class 1
@@ -87,7 +90,6 @@ Try this one out. It's the same code as above, but with no spaces. Does it still
 # same code as above, without spaces
 4+5
 ```
-
 
 ## Using Functions
 
