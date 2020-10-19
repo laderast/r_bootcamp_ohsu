@@ -14,39 +14,35 @@ library(vembedr)
 
 In this session, we'll continue our introduction to R by working with a large dataset that more closely resembles that which you may encounter while analyzing data for research.
 
-
 # Before you get started
 
 Remember to save this notebook under a new name, such as `part2_laderas.Rmd`.
 
-Link to video: https://youtu.be/DKLT8M0lBOg
+Link to video: <https://youtu.be/DKLT8M0lBOg>
 
 ```{r}
 vembedr::embed_youtube("DKLT8M0lBOg",  width = 600, height=300)
 ```
 
-
 # Learning Objectives
 
 By the end of this session, you should be able to:
 
-1. **Import** spreadsheet-style data into R as a `data.frame`.
-2. **Understand** properties of `data.frames`, especially variables.
-3. **Visualize** `numeric` vectors in this dataset using `ggplot2`
-
-
+1.  **Import** spreadsheet-style data into R as a `data.frame`.
+2.  **Understand** properties of `data.frames`, especially variables.
+3.  **Install** new packages to your R installation.
+4.  **Utilize** `skimr` and `visdat` to gain an overview of your data
+5.  **Visualize** `numeric` vectors in this dataset using `ggplot2`
 
 ## A note about Base R versus the Tidyverse
 
-
-For the remainder of this course, we'll be focusing on using functions from the [tidyverse](https://www.tidyverse.org/). 
+For the remainder of this course, we'll be focusing on using functions from the [tidyverse](https://www.tidyverse.org/).
 
 It is set up as a *library* - functions someone else wrote that are not built into R. We'll use a few libraries in this course.
 
-The Tidyverse is essentially a library of libraries -- each contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists. 
+The Tidyverse is essentially a library of libraries -- each contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists.
 
 We have already installed the `tidyverse` for you. For reading excel files, we need also load up an additional library called `readxl`.
-
 
 ```{r warning=F, message=FALSE}
 #load the required libraries
@@ -55,11 +51,9 @@ library(tidyverse)
 library(readxl)
 ```
 
-
-
 ## Importing spreadsheet-style data into R
 
-Link to video: https://youtu.be/gCUkZUtNHVU
+Link to video: <https://youtu.be/gCUkZUtNHVU>
 
 ```{r}
 vembedr::embed_youtube("gCUkZUtNHVU", width = 600, height=300)
@@ -70,16 +64,13 @@ knitr::include_graphics("image/project2.JPG")
 
 ```
 
+Once you have your notebook open, let's talk about its location. It is located where the `project.rproj` file. The location of this file (also called an "RProject" file) is always considered the `root` directory of the project.
 
-Once you have your notebook open, let's talk about its location. It is located where the `project.rproj` file. The location of this file (also called an "RProject" file) is always considered the `root` directory of the project. 
-
-It's where you start from that determines the file directory path for loading data. 
+It's where you start from that determines the file directory path for loading data.
 
 Since this notebook, `part2.Rmd` is in the same folder as the `project.rproj` file, then when we need to refer to data files, it is *relative* to the root folder.
 
 When you're starting out, it's best to keep your RMarkdown notebooks and files in the **root** folder. It will help prevent you from dealing with a lot of headaches.
-
-
 
 ## A good place to put your data
 
@@ -88,8 +79,6 @@ Take a look at the `data/` folder, and where the `tcga_clinical_data.xlsx` file 
 In our notebook, how do we refer to that file name? Since we're in the root, we can refer to it as
 
 `data/tcga_clinical_data.xlsx`
-
-
 
 ## Loading our excel file
 
@@ -103,26 +92,19 @@ brca_clinical <- read_excel("data/tcga_clinical_data.xlsx",
                             )
 ```
 
-You can see the excel file here: https://docs.google.com/spreadsheets/d/1E6jmCB9nfeIJ_zlSH6HJCUmKwwcMTWwP0EwEcAHo0CU/edit?usp=sharing
-
-
+You can see the excel file here: <https://docs.google.com/spreadsheets/d/1E6jmCB9nfeIJ_zlSH6HJCUmKwwcMTWwP0EwEcAHo0CU/edit?usp=sharing>
 
 You should see `brca_clinical` appear in the Environment window on the upper right panel in RStudio. If you click on `brca_clinical` there, a new tab will appear next to your R script in the Source window.
 
-
-> Clicking on the name of an object in the Environment window 
-> is a shortcut for running `View(brca_clinical)`;
-> you'll see this code appear in the Console after clicking.
-
-
+> Clicking on the name of an object in the Environment window is a shortcut for running `View(brca_clinical)`; you'll see this code appear in the Console after clicking.
 
 ## Challenge 1 (5 minutes)
 
-Take a look at the documentation for `read_excel()`. This is a package in the package `readxl`, which is installed as part of the `tidyverse`. 
+Take a look at the documentation for `read_excel()`. This is a package in the package `readxl`, which is installed as part of the `tidyverse`.
 
-1. What does the `skip` argument do? 
-2. Do we need to refer to a `sheet` within an excel file as a number, or can we refer to it as the sheet name instead? 
-3. What does the `guess_max` argument do?
+1.  What does the `skip` argument do?
+2.  Do we need to refer to a `sheet` within an excel file as a number, or can we refer to it as the sheet name instead?
+3.  What does the `guess_max` argument do?
 
 ```{r}
 ?read_excel
@@ -130,28 +112,22 @@ Take a look at the documentation for `read_excel()`. This is a package in the pa
 
 [Your answers here]
 
-
 Now that we have the data imported and assigned to an object, we can take some time to explore the data we'll be using for the rest of this course.
-
-
 
 ## Notes on the Data
 
-- These data are clinical cancer data from the [National Cancer Institute's Genomic Data Commons](https://gdc.cancer.gov), specifically from The Cancer Genome Atlas, or [TCGA](https://www.cancer.gov/about-nci/organization/ccg/research/structural-genomics/tcga).
-- Each row represents a patient, and each column represents information about demographics (race, age at diagnosis, etc) and disease (e.g., cancer type).
-- The data were downloaded and aggregated using an R script, which you can view in the [GitHub repository for this course](https://github.com/fredhutchio/R_intro/blob/master/0dataset.R).
-
-
+-   These data are clinical cancer data from the [National Cancer Institute's Genomic Data Commons](https://gdc.cancer.gov), specifically from The Cancer Genome Atlas, or [TCGA](https://www.cancer.gov/about-nci/organization/ccg/research/structural-genomics/tcga).
+-   Each row represents a patient, and each column represents information about demographics (race, age at diagnosis, etc) and disease (e.g., cancer type).
+-   The data were downloaded and aggregated using an R script, which you can view in the [GitHub repository for this course](https://github.com/fredhutchio/R_intro/blob/master/0dataset.R).
 
 ## Challenge 2 (5 minutes):
 
-Inspect, and import the following sheets from the `tcga_clinical_data.xlsx` excel file. 
+Inspect, and import the following sheets from the `tcga_clinical_data.xlsx` excel file.
 
 Confirm that you have loaded them correctly by clicking on the objects in the `Environment` pane in the top right.
 
-
-1. The `CESC` sheet. Save it as `cesc_clinical`.
-2. The `LUSC` sheet. Save it as `lusc_clinical`.
+1.  The `CESC` sheet. Save it as `cesc_clinical`.
+2.  The `LUSC` sheet. Save it as `lusc_clinical`.
 
 ```{r}
 #load cesc_clinical here
@@ -178,11 +154,7 @@ Importing data can be tricky and frustrating. However, if you can't get your dat
 
 We will be covering loading in another format that you can export from many different software programs, the *comma separated value* format, or `csv` format in another section.
 
-
-
-
-### Tips on Formating your excel file for R
-
+### Tips on Formating your Excel file for R
 
 Here are some tips on formatting your data to get it into R easier.
 
@@ -192,62 +164,43 @@ Click on the code block below to load up a graphic.
 knitr::include_graphics("image/tidy-1.png")
 ```
 
-
-1. **Tidy is Best**. Try to format your spreadsheet where the columns correspond to variables you're measuring, and a row corresponds to an observation.
-
+1.  **Tidy is Best**. Try to format your spreadsheet where the columns correspond to variables you're measuring, and a row corresponds to an observation.
 
 In our example:
 
-- each row corresponds to a patient 
-- each column corresponds to a *variable* of clinical data
-- each cell has a value
+-   each row corresponds to a patient
+-   each column corresponds to a *variable* of clinical data
+-   each cell has a value
 
 We'll be seeing that this format is called **Tidy Data**, and it lets us do all sorts of things in R successfully.
 
+2.  **Transpose is your Friend in Excel.**\* If your data isn't in this format, no worries! You can copy it to a new sheet and use the transpose option when you're pasting it, and then load that in.
 
+3.  **Every column needs a name.** Every one of your columns should be named at the top, and should begin with a letter. Numbers and special characters can cause errors in your data analysis pipeline.
 
-2. **Transpose is your Friend in Excel.*** If your data isn't in this format, no worries! You can copy it to a new sheet and use the transpose option when you're pasting it, and then load that in.
+4.  **Color information is hard to get into R**. Avoid using color coding of cells if that is extra information attached to a cell. Instead, make the information the color is representing its own column.
 
-
-
-3. **Every column needs a name.**  Every one of your columns should be named at the top, and should begin with a letter. Numbers and special characters can cause errors in your data analysis pipeline.
-
-
-
-4. **Color information is hard to get into R**. Avoid using color coding of cells if that is extra information attached to a cell. Instead, make the information the color is representing its own column. 
-
-
-
-5. **Extra Lines are OK!** Extra lines before the column header are ok, as you've seen. It's sometimes better to have a "notes" sheet where you put extra information or, better yet, a data dictionary.
-
-
-
+5.  **Extra Lines are OK!** Extra lines before the column header are ok, as you've seen. It's sometimes better to have a "notes" sheet where you put extra information or, better yet, a data dictionary.
 
 ## `data.frame`s
 
-Link to video: https://youtu.be/Ur-Lzkan8zI
+Link to video: <https://youtu.be/Ur-Lzkan8zI>
 
 ```{r}
 vembedr::embed_youtube("Ur-Lzkan8zI", width = 600, height=300)
 ```
 
+Now that we have data imported and available, we can start to inspect the data more closely. These data have been interpreted by R to be a data frame, which is a data structure (way of organizing data) that is analogous to tabular or spreadsheet style data.
 
-Now that we have data imported and available, we can start to inspect the data more closely. These data have been interpreted by R to be a data frame, which is a data structure (way of organizing data) that is analogous to tabular or spreadsheet style data. 
-
-
-
-By definition, a `data.frame` is: 
+By definition, a `data.frame` is:
 
 a table made of vectors (columns) of all the same length. As we learned in our last session, a vector needs to include all of the same type of data (e.g., character, numeric).
 
 A `data.frame`, however, can include vectors (columns) of different data types. This makes them extremely versatile way of storing information.
 
-
-
 ## `data.frame`s - How do they Work?
 
 To learn more about this data frame, we'll first explore its dimensions:
-
 
 ```{r}
 # assess size of data frame
@@ -257,8 +210,6 @@ dim(brca_clinical)
 
 This output reflects the number of rows, then the number of columns.
 
-
-
 We can also preview the content by showing the first few rows:
 
 ```{r}
@@ -266,8 +217,6 @@ We can also preview the content by showing the first few rows:
 
 head(brca_clinical) 
 ```
-
-
 
 ## Column Names
 
@@ -279,11 +228,7 @@ We often need to reference the names of *variables* (also known as columns) in o
 colnames(brca_clinical) 
 ```
 
-
-
 It's also possible to view row names using`rownames(brca_clinical)`, but our data only possess numbers for row names so it's not very informative.
-
-
 
 ## Okay, What's really in it?
 
@@ -295,16 +240,13 @@ We can use `glimpse()` to provide a general overview of the object:
 glimpse(brca_clinical) 
 ```
 
-
 The output provided by `glimpse()` includes:
 
-- data structure: `data.frame`
-- dimensions:
-- column-by-column information: each prefaced with a `$`, and includes the column name, data type (num, int, Factor)
+-   data structure: `data.frame`
+-   dimensions:
+-   column-by-column information: each prefaced with a `$`, and includes the column name, data type (num, int, Factor)
 
 Identify the `numeric` variables (they are noted as `<dbl>` or `double`). What are they?
-
-
 
 Another useful command is `View()` - it will open up a spreadsheet like view of our `data_frame`. You can also view this by clicking on the `brca_clinical` object in the `Environment` pane in the top-right.
 
@@ -312,12 +254,9 @@ Another useful command is `View()` - it will open up a spreadsheet like view of 
 View(brca_clinical)
 ```
 
-
-
 ### Summarizing our Data
 
 Finally, we can also examine basic summary statistics for each column:
-
 
 ```{r}
 # provide summary statistics for each column
@@ -325,17 +264,43 @@ summary(brca_clinical)
 
 ```
 
-For numeric data (such as `year_of_death`), this output includes common statistics like median and mean, as well as the number of rows (patients) with missing data (as `NA`). 
+For numeric data (such as `year_of_death`), this output includes common statistics like median and mean, as well as the number of rows (patients) with missing data (as `NA`).
 
 For `factor`s (also known as categorical variables), and `character` variables, such as `disease`, you're given a count of the number of times the top six most frequent factors (categories) occur in the data frame.
 
 We will talk more about `factors` in the next lab.
 
+### `skimr`
 
+A really useful package for understanding your data is the `skimr` package. Let's install it.
+
+```{r}
+install.packages("skimr")
+```
+
+```{r}
+library(skimr)
+skim(brca_clinical)
+
+```
+
+### `visdat`
+
+Another useful package for visualizing your data is `visdat`. It's especially useful for understanding missing values in your data.
+
+```{r}
+install.packages("visdat")
+```
+
+```{r}
+library(visdat)
+
+vis_dat(brca_clinical)
+```
 
 ## Introducing `ggplot2`
 
-Link to video: https://youtu.be/wTU8i_vPnQ4
+Link to video: <https://youtu.be/wTU8i_vPnQ4>
 
 ```{r}
 vembedr::embed_youtube("wTU8i_vPnQ4", width = 600, height=300)
@@ -348,12 +313,9 @@ knitr::include_graphics("image/ggplot2_exploratory.png")
 
 ```
 
-
 Now that we've loaded our data as a `data.frame`, we can begin to start doing things with it.
 
 Let's start with visualizing the data.
-
-
 
 ## Working Towards a Graph
 
@@ -363,51 +325,41 @@ We're going to work towards the following graph today:
 knitr::include_graphics("image/days_to_last_followup.png")
 ```
 
-
-
-
 ## `ggplot2`: A Grammar of Graphics
 
+`ggplot2` is an extremely powerful software library for visualization.
 
-`ggplot2` is an extremely powerful software library for visualization. 
-
-The `gg` is short for Grammar of Graphics, which means that visualizations are expressed in a very specific way. 
-
+The `gg` is short for Grammar of Graphics, which means that visualizations are expressed in a very specific way.
 
 ## Learning to read `ggplot2` code
 
 A `ggplot2` graphic consists of a:
 
-- `mapping` of variables in `data` to
-- `aes()`thetic attributes of
-- `geom_`etric objects.
-
-
+-   `mapping` of variables in `data` to
+-   `aes()`thetic attributes of
+-   `geom_`etric objects.
 
 In code, this is translated as:
 
-```{}
-#start the plot with ggplot()
+    #start the plot with ggplot()
 
-ggplot(data = brca_clinical) +   
+    ggplot(data = brca_clinical) +   
 
 
-# make the mapping
-# map the x-axis to age_at_diagnosis
+    # make the mapping
+    # map the x-axis to age_at_diagnosis
 
-      aes(
-          x = age_at_diagnosis, 
-          y = days_to_birth 
-          ) +
+          aes(
+              x = age_at_diagnosis, 
+              y = days_to_birth 
+              ) +
 
-# add the geometry
-  geom_point()
-```  
+    # add the geometry
+      geom_point()
 
-Things to note: we chain these three things together with `+` (plus sign). I tend to read the plus as `then`. 
-  
+Things to note: we chain these three things together with `+` (plus sign). I tend to read the plus as `then`.
+
 [aes() function - mapping variables to visual properties of the graph]
-  
 
 ## Challenge
 
@@ -426,7 +378,6 @@ ggplot(data = brca_clinical) +
 
 ```
 
-
 ## Simple arithmetic
 
 Huh. `age_at_diagnosis` is in days, not years. We can fix that by dividing it by 365:
@@ -442,12 +393,9 @@ ggplot(data = brca_clinical) +
 
 ```
 
-
-
-
 ## Color
 
-We can also map a `character` variable to our graph to color. 
+We can also map a `character` variable to our graph to color.
 
 Try mapping `gender` to color.
 
@@ -460,8 +408,6 @@ ggplot(data = brca_clinical) +
   
   geom_point() 
 ```
-
-
 
 ## Titles
 
@@ -479,8 +425,6 @@ ggplot(data = brca_clinical) +
   ggtitle("Age versus Days to Last followup") 
 
 ```
-
-
 
 ## Changing the Axis Labels
 
@@ -503,55 +447,42 @@ ggplot(data = brca_clinical) +
 
 ```
 
-
 Now we've re-created the above plot! Let's save it using `ggsave()`. `ggsave()` saves the last created plot to a file. We'll save it as a `jpg` file. `ggsave()` is smart enough to know that we want to save it as a `jpg` from adding the extension `.jpg` to our filename.
-
 
 ```{r}
 ggsave("follow-up-plot.jpg")
 ```
 
-
 ## What you learned today:
 
-- Loading excel data and tips for formatting your data in excel
-- Understanding basic properties of `data.frame`s
-- The basics of the "grammar of graphics" with `ggplot2`
-
+-   Loading excel data and tips for formatting your data in excel
+-   Understanding basic properties of `data.frame`s
+-   The basics of the "grammar of graphics" with `ggplot2`
 
 ## Survey
 
 Please take the survey, as it is required for your attendance:
 
-https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn
-
-
+<https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
 
 ## Practice
 
-You can practice your `ggplot2` skills by taking the first chapter of the R-Bootcamp: 
+You can practice your `ggplot2` skills by taking the first chapter of the R-Bootcamp:
 
-https://r-bootcamp.netlify.com/chapter1
-
-
-
+<https://r-bootcamp.netlify.com/chapter1>
 
 ## Assignment (10 points)
 
 Instructions: Turn your `.nb.html` file in with the following assignment finished. Make sure it is named `part2_LASTNAME.nb.html`, where `LASTNAME` is your last name, of course.
 
-
-
-1. Load the `smoke_complete.xlsx` file into R using `read_excel`. You'll need to take a look at it to make sure that your arguments are correct.
+1.  Load the `smoke_complete.xlsx` file into R using `read_excel`. You'll need to take a look at it to make sure that your arguments are correct.
 
 ```{r}
 smoke_complete <- read_excel()
 
 ```
 
-
-
-2. Use `glimpse()` on `smoke_complete`. How many rows does the file have? How many variables does it have? What are the numeric variables in this dataset?
+2.  Use `glimpse()` on `smoke_complete`. How many rows does the file have? How many variables does it have? What are the numeric variables in this dataset?
 
 ```{r}
 glimpse(smoke_complete)
@@ -560,16 +491,9 @@ glimpse(smoke_complete)
 
 [Put your answer here]
 
+3.  Produce a scatter plot of `smoke_complete` using `geom_point()`, mapping these variables to the following aesthetics:
 
-
-3. Produce a scatter plot of `smoke_complete` using `geom_point()`, mapping these variables to the following aesthetics:
-
-
-`year_of_birth` to the `x` aesthetic, 
-`cigarettes_per_day` to the `y` aesthetic, and
-`gender` to the `color` aesthetic.
-
-
+`year_of_birth` to the `x` aesthetic, `cigarettes_per_day` to the `y` aesthetic, and `gender` to the `color` aesthetic.
 
 ```{r}
 ggplot(smoke_complete, aes(x = ____,
@@ -578,12 +502,9 @@ ggplot(smoke_complete, aes(x = ____,
 
 ```
 
-
-4. Pick two `numeric` variables, and a character variable in the dataset and produce a scatterplot by mapping them to `x`, `y`, and `color`.  Add a title and change the x and y labels to make sense.
+4.  Pick two `numeric` variables, and a character variable in the dataset and produce a scatterplot by mapping them to `x`, `y`, and `color`. Add a title and change the x and y labels to make sense.
 
 ```{r}
 
 
 ```
-
-

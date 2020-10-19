@@ -36,15 +36,24 @@ By the end of this session, you should be able to:
 1. **Work** within the RStudio interface to **run** R code in an RMarkdown notebook
 2. **Understand** basic R syntax to **use** functions and **assign** values to objects
 3. **Create** and **manipulate** vectors and **understand** how R deals with missing data 
+4. **Learn** about `data.frame`s as a table structure in R. 
+
+
+## Final Project
+
+The final project is meant to be collaborative, and data-focused. You goals should be to learn something new and apply skills you've learned in the class.
+
+We will select a number of datasets to work with. You are encouraged to work together, but 
+
 
 
 ## Function of the Week
 
-Signup and learn about a function and share it with others.
+Signup and learn about a function and share it with others. The function should be in the tidyverse.
 
-1. What is it for?
-2. How do you use it?
-3. Is it helpful or not?
+1. What is the function for?
+2. How do you use the function?
+3. Is the function helpful in your work? How?
 
 
 ## Introduction to R: Class 1
