@@ -75,3 +75,8 @@ https://github.com/laderast/ready_for_r_labs
 9. Part 9. Intro to Bioconductor
 10. Part 10. Wrap/up (shiny/interactive graphics) 
 
+
+## Suggested functions for assignments
+
+dplyr::relocate()
+
