@@ -446,7 +446,159 @@ rand_forest() %>%
   fit(dxa ~ st + br + gender, data = body_comp)
 ```
 
+# Binary Outcomes
 
+When we have a binary or categorical variable, we need different statistical models. We will use the smoking data and create a binary variable `cigarettes_per_day_gr3` that is `1` if the number of cigarettes smoked per day is greater than 3, and 0 otherwise.
+
+```{r}
+smoke_complete <- read_excel("data/smoke_complete.xlsx", 
+                             sheet=1, 
+                             na="NA") %>%
+  mutate(cigarettes_per_day_gr3 = 1*(cigarettes_per_day>3))
+```
+
+
+## Chi-square test
+
+We want to test the hypotheses:
+
+*Null Hypothesis:* Higher cigarette smoking is independent of gender.
+
+*Alternative Hypothesis:* Higher cigarette smoking is associated with (not independent of) gender.
+
+We will test this with a Chi-square test. The `chisq.test()` function requires a two-by-two table as input (notice this is yet another variation on types of inputs that models and tests take in R!).
+
+```{r}
+two_by_two <- smoke_complete %>% tabyl(cigarettes_per_day_gr3, gender)
+
+two_by_two
+```
+
+```{r}
+chisq_outcome <- chisq.test(two_by_two) %>% tidy()
+chisq_outcome
+```
+
+At a significance level of 0.05, we see that gender does appear to be associated with high smoking rate greater than 3 cigarettes per day.
+
+### Your turn:
+
+Perform a chi-square test of whether high cigarette smoking (greater than 3 per day) is associated with `vital_status`. We can pipe all of the above commands together, if we want:
+
+
+```{r, eval = FALSE}
+smoke_complete %>% 
+  tabyl(-----, -----) %>%
+  chisq.test() %>% 
+  tidy()
+```
+
+## Logistic regression
+
+We can use the `glm()` function to fit generalized linear models, including logistic regression. When we want to perform logistic regression, we specify the argument `family = "binomial"`. We need a binary outcome, and can have multiple predictors. Like `lm()`, this function takes a formula as argument to specify the model.
+
+Let's see if the outcome vital status is associated with some of our predictors. Note, we are ignoring time to event at the moment, and assuming everyone is followed up for the same amount of time (which is not true, but for the sake of example we will pretend). We need to convert our outcome into 0, 1 variable first.
+
+```{r}
+smoke_complete_glm <- smoke_complete %>%
+  mutate(vital_status = 1*(vital_status == "dead"))
+
+glm_fit <- glm( vital_status ~ cigarettes_per_day + gender + age_at_diagnosis,
+     family = "binomial",
+     data = smoke_complete_glm)
+
+glm_fit %>%
+  tidy() %>%
+  mutate(p.value = format.pval(p.value))
+```
+
+The coefficients are odds ratios on the log scale. We can use the `tidy()` function in `broom` to show us the corresponding odds ratios and confidence intervals:
+
+```{r}
+glm_fit %>%
+  tidy(exponentiate = TRUE, conf.int = TRUE)
+```
+
+
+## Survival Analysis
+
+When we have time to event data, as in the smoking and tumor data where the event is death specified in `vital_status` after a certain number of days, we must use survival analysis methods to fit our models and test hypotheses. We use the package    `survival` to either fit Cox Proportional Hazard regression models, or use a log-rank test.
+
+Our survival data must be in a certain format. We need an indicator of event that is 1 if the event occurred and 0 if it did not or if the subject was censored. We also need the time to event or time to last follow up to be in the same variable. In this data, we want the event status to be 1 if `vital_status` is "dead" and 0 if `vital_status` is "alive". If we have information on the number of days until death, we will use this number, otherwise we will use days to last follow up.
+
+```{r}
+library(survival)
+
+smoke_complete_surv <- smoke_complete %>%
+  mutate(event_status = 1*(vital_status=="dead"),
+         event_time = case_when(
+           is.na(days_to_death) ~ days_to_last_follow_up,
+           !is.na(days_to_death) ~ days_to_death
+         ))
+
+glimpse(smoke_complete_surv)
+```
+
+
+We start by creating a survival object with the function `Surv` 
+
+## Log-rank test
+
+Survival functions take a special kind of formula argument, where the left hand side is a survival object created with the function `Surv` with the first argument time to event, and the second argument event status. Then, we have the tilde (`~`) and have our categorical grouping or predictor on the right hand side. We will test whether survival time varies by disease type.
+
+Note: We are assuming right censoring where we lose people to follow up and they could have an event after that time, but we could also adapt this code for interval censoring.
+
+```{r}
+
+survdiff(Surv(event_time, event_status) ~ disease,
+        data = smoke_complete_surv)
+
+```
+
+We can visualize this with a Kaplan-Meier plot. A useful package is the `survminer` package which creates nice survival plots with `ggplot2`.
+
+```{r}
+library(survminer)
+
+smoke_surv <- survfit(Surv(event_time, event_status) ~ disease,
+        data = smoke_complete_surv)
+ggsurvplot(smoke_surv, risk.table = TRUE, conf.int = TRUE)
+
+```
+
+## Cox PH
+
+We can also fit Cox Proportional Hazards models with this data, using a similar formula but with the `coxph()` function.
+
+```{r}
+cph_fit <- coxph(Surv(event_time, event_status) ~ disease,
+        data = smoke_complete_surv)
+
+cph_fit %>% tidy()
+```
+
+Here we can see the log-hazard ratios and p-values. We can again use `tidy()` to extract the hazard ratios and confidence intervals.
+
+```{r}
+cph_fit %>% tidy(exponentiate = TRUE, conf.int = TRUE)
+```
+
+### Your turn
+
+1. Use a log-rank test to test for the association of survival time with gender.
+
+```{r}
+survdiff(Surv(event_time, event_status) ~ -----,
+        data = smoke_complete_surv)
+```
+
+
+2. Fit a Cox PH model with disease, gender, number of cigarettes per day, and age at diagnosis as predictors.
+
+```{r, eval = FALSE}
+coxph(Surv(event_time, event_status) ~ -----,
+        data = smoke_complete_surv) %>% tidy()
+```
 
 
 ## Acknowledgements
