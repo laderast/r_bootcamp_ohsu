@@ -90,7 +90,7 @@ We will be using the `broom` package from the `tidymodels` set of packages to ma
 
 `tidymodels` attempts to unify all of the various modeling packages in a consistent interface. 
 
-`broom` works mostly with the output of models. One of the problems with R is that the many modeling packages are not consistent to work with. It can be just as difficult to get a p-value out of a model as it is to run it on some data! `broom` simpliflies this a lot.
+`broom` works mostly with the output of models. One of the problems with R is that the many modeling packages are not consistent to work with. It can be just as difficult to get a p-value out of a model as it is to run it on some data! `broom` simplifies this a lot.
 
 There are 3 main functions in *broom*:
 
@@ -171,7 +171,7 @@ ggplot(body_comp_long) +
   geom_jitter(color="grey")
 ```
 
-It appears that our measurements are close to one another, but there are some noticable differences.
+It appears that our measurements are close to one another, but there are some noticeable differences.
 
 
 
@@ -195,16 +195,24 @@ Below, we will use a paired t-test. Paired simply means that each group (`dxa` a
 
 We also need to set a significance threshold. We'll set it at 0.05.
 
+Like many statistical modeling methods in R, the `t.test` function takes the model in a couple different ways. The first takes two separate arguments with the paired measurements: measure 1 (dxa) and measure 2 (st). We use `tidy()` from `broom` to clean up the output into a data frame:
+
+```{r}
+tidy_output <- t.test(body_comp$dxa, body_comp$st, paired=TRUE) %>%
+  tidy()
+
+tidy_output
+```
+
+The second method uses the formula method, where the outcome and grouping variable (dxa vs. st) are specified using special syntax that uses the tilde (`~`) symbol, with the outcome on the left and the grouping on the right of the `~`. The tilde (`~`) can be translated to "is a function of".
+
+Note we need to use the long data filtered to only include the two methods of interest (our grouping variable), and then specify the data frame so `t.test` knows where the variables are coming from:
 
 ```{r}
 body_comp_dxa_st <- body_comp_long %>%
   filter(method %in% c("dxa", "st"))
 
-
-tidy_output2 <- t.test(body_comp$dxa, body_comp$st, paired=TRUE) %>%
-  tidy()
-
-tidy_output <- 
+tidy_output2 <- 
   t.test(body_fat_percentage ~ method, 
         paired=TRUE, 
         data=body_comp_dxa_st) %>%
@@ -213,7 +221,7 @@ tidy_output <-
 tidy_output2
 ```
 
-We see that `p.value` is equal to `~0.634`; this means **we cannot reject the null hypothesis** (i.e., the difference in body fat measurements between `dxa` and `st` are not statistically different from one another).
+We see that `p.value` is approximately equal to `r round(tidy_output2$p.value,3)`; this means **we cannot reject the null hypothesis** (i.e., the difference in body fat measurements between `dxa` and `st` are not statistically different from one another).
 
 
 
@@ -229,7 +237,6 @@ body_comp_long <- body_comp %>%
   pivot_longer(cols = c('dxa', 'st', 'br'),
                names_to = 'method',
                values_to = 'body_fat_percentage') 
-
 
 
 body_comp_dxa_sf <- body_comp_long %>%
@@ -264,7 +271,7 @@ GGally::ggpairs(body_comp,  aes(color=gender))
 ```
 
 
-We can generate a scatterplot with a trend line using a geom called `geom_smooth()`. 
+We can generate a scatterplot with a trend line using a geom called `geom_smooth()`. We use `method = "lm"` to specify that we want a best fit straight line from the linear model method, not the default loess curve.
 
 We need to add the arguments `method` and `se` (short for standard error).
 
@@ -287,7 +294,7 @@ body_comp %>%
   ggplot() +
   aes(x=dxa, y=st) +
   geom_point() +
-  geom_smooth( se = TRUE)
+  geom_smooth(method = "lm", se = TRUE)
 ```
 
 
@@ -298,15 +305,17 @@ We've established that there is a correlation between `dxa` and `st`. Can we use
 
 y = ax + b
 
+The function `lm()` uses the formula method, with the outcome (dependent variable) on the left and the predictors (independent variables) on the right, separated by the plus sign (`+`) if there are multiple predictors. We again specify the data frame with `data = body_comp` so the function knows where the variables in the formula are coming from.
+
 
 ```{r}
-lm(dxa ~ st, data=body_comp) %>%
+lm(dxa ~ st, data = body_comp) %>%
   tidy()
 ```
 
 The predicted line through the data is:
 
-dxa  = 0.295    +    0.903 * `st`
+dxa  = 0.275    +    0.903 * `st`
 
 
 
@@ -316,10 +325,7 @@ dxa  = 0.295    +    0.903 * `st`
 What if we included `gender` in our model? Our model can accept `factors` as inputs.
 
 ```{r}
-copy_number <- c("1", "0", "2")
-
-
-lm(dxa ~ st + gender, data=body_comp) %>%
+lm(dxa ~ st + gender, data = body_comp) %>%
   tidy()
 ```
 
@@ -335,6 +341,23 @@ The factor `gender` here is recoded as a "dummy" variable, and reading it is a l
 
 Dummy variables are very confusing. http://www.sthda.com/english/articles/40-regression-analysis/163-regression-with-categorical-variables-dummy-coding-essentials-in-r/
 
+We can make this dummy variable a bit more clear by taking care with the ordering of our factor levels. The reference variable is the first factor level. Right now, `gender` is a factor with levels:
+
+```{r}
+levels(body_comp$gender)
+```
+
+But we can change the reference group to 0 so that the coefficient is calculated for gender = 1:
+
+```{r}
+body_comp <- body_comp %>%
+  mutate(gender = fct_relevel(gender, "0"))
+
+lm(dxa ~ st + gender, data=body_comp) %>%
+  tidy()
+```
+
+Why did the coefficient of gender change signs?
 
 ## Your Turn
 
@@ -349,10 +372,9 @@ lm(dxa ~ st + br, data=body_comp) %>%
 
 
 
-
 # Analysis of Variance (ANOVA) (Optional)
 
-We've determined that there isn't a statistical difference between `dxa` and `st`, but we also meausured bodyfat using bioelectric resistance, `br`. 
+We've determined that there isn't a statistical difference between `dxa` and `st` using a paired t-test, but we also measured bodyfat using bioelectric resistance, `br`. 
 
 Maybe we should see if it measures differently from the other two methods. Because a t-test can only be used to measure the differences in means between two groups, we'd have to use multiple t-tests.
 
@@ -360,7 +382,7 @@ But wait, should we do that right away? No, because we'll run into the [Multiple
 
 So rather than performing multiple t-tests, we first want to examine whether any of the groups is different from the rest of the groups using an ANOVA (`aov()`).
 
-`aov()` uses the formula interface. The tilde (`~`) can be translated to "is a function of". Below, we are testing whether body fat percentage is a function of the type of body fat measurement method. We pipe the output of `aov()` to `summary()` to get a clearer idea of the output of the ANOVA.
+`aov()` uses the formula interface where the group variable is on the right of the `~`, and therefore we need the long version of our data with `method` denoting the three groups. Below, we are testing whether body fat percentage is a function of the type of body fat measurement method. We pipe the output of `aov()` to `tidy()` to get a clearer idea of the output of the ANOVA.
 
 
 
@@ -374,7 +396,7 @@ The value `p.value` is what we're interested in. Because it is greater than 0.05
 
 ## Post-hoc Tests
 
-Now *if* our F statistic probability had come back below 0.05, then we could perform multiple post-hoc t-tests. However, we would need to account for false positives by using a correction method (e.g., Bonferroni).
+Since our F statistic probability was not significant at below 0.05, we would not expect post-hoc pairwise t-tests comparing each pair of methods to be significant. But we can still perform multiple post-hoc t-tests using the function `pairwise.t.test()`. However, we need to account for inflation of false positives by using a multiple testing correction method (e.g., Bonferroni).
 
 ```{r}
 pairwise.t.test(body_comp_long$body_fat_percentage, 
@@ -389,8 +411,46 @@ pairwise.t.test(body_comp_long$body_fat_percentage,
 Consider what a p-value of 0.05 actually means: if a test is performed at the 0.05 level and the corresponding null hypothesis is true, there is only a 5% chance of incorrectly rejecting the null hypothesis. This is an okay risk to take given that we are only performing the t-test once. But if we were to perform the t-test 1,000 times on data where all null hypotheses were true, the expected number of incorrect rejections (also known as false positives or Type I errors) would be 50!
 
 
+# Tidy Models with `parsnip`
+
+We used the `broom` package in the `tidymodels` suite of packages, but there are additional tools to fit models including those in the `parsnip` package. This package attempts to standardize the input of the model functions so that we do not have to remember which functions take formulas such as `y ~ x` and which take separate arguments for `x` and `y`.
+
+We first specify a "specification" of the model before we fit, and we need to specify the mode ("regression" vs "classification" etc) and the computational engine ("lm" vs other functions for fitting models using R, or using other engines such Stan, Spark, or keras, which become useful with big data):
+
+```{r}
+library(parsnip)
+
+lm_spec <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+lm_spec
+```
+
+Now we fit the model using `fit()` and `tidy()` it up:
+
+```{r}
+lm_spec %>%
+  fit(dxa ~ st + br + gender, data = body_comp) %>%
+  tidy()
+```
+
+We see the same result we would obtain from using `lm()` above. The usefulness of `parsnip` and `tidymodels` really shines when fitting multiple different types of machine learning models (i.e Random Forest, elastic net, neural net), or adding in other regression and machine learning methods such as bootstrap resampling, prediction accuracy estimation, cross-validation, and so on. We recommend studying the vignettes and articles in https://www.tidymodels.org/learn/.
+
+Here's an example of fitting a random forest model:
+
+```{r}
+rand_forest() %>%
+  set_engine("randomForest") %>%
+  set_mode("regression") %>%
+  fit(dxa ~ st + br + gender, data = body_comp)
+```
+
+
+
+
 ## Acknowledgements
 
-Written by Aaron Coyner and Ted Laderas
+Written by Aaron Coyner and Ted Laderas and Jessica Minnier
 
 
