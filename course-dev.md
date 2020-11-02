@@ -80,3 +80,8 @@ https://github.com/laderast/ready_for_r_labs
 
 dplyr::relocate()
 
+
+
+## 
+
+This course is meant to be a gentle introduction to data wrangling and visualization using the `tidyverse` in R. This course focuses on practical data science skills in R (loading data, data wrangling, visualization, automation, and running statistical models) that you'll use almost everyday in your work. It is meant for both beginners and students wanting to brush up in on their R skills.
