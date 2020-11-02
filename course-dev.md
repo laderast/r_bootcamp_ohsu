@@ -60,4 +60,18 @@ https://github.com/laderast/ready_for_r_labs
 - Intro section (TL)
 - Part 4 - JM expand
 - Think of a name
-- 
+
+
+## Outline of course
+
+1. Part 1 (Intro to R/RStudio, Functions, Vectors, Data Types)
+2. Part 2 (Loading Data (xls/haven)), data.frames, and ggplot2
+3. Part 3 ggplot2, factors, boxplots, dplyr part 1
+4. Part 4. dplyr: mutate, group_by/summarize
+5. Part 5. More about manipulating factors and dates/doing things with multiple tables
+6. Part 6. For loops/batch processing
+7. Part 7. Stats/formulas/broom
+8. Part 8. Tidymodels/machine learning basics
+9. Part 9. Intro to Bioconductor
+10. Part 10. Wrap/up (shiny/interactive graphics) 
+

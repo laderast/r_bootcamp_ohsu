@@ -1,7 +1,7 @@
 ---
 title: "R Programming Part 1: Functions and objects"
 author: "Your Name"
-output: html_notebook
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -9,19 +9,29 @@ knitr::opts_chunk$set(echo = TRUE)
 library(vembedr)
 ```
 
-
 # Before you get started
 
 Please save a copy of this as `part1_FIRSTNAME_LASTNAME.Rmd` and work from that (where FIRSTNAME is your first name, and LASTNAME is your last name). This way, you'll have the original as a reference just in case.
 
-
 # Welcome to R Programming!
 
-This course introduces you to R in two parts: 
+This course introduces you to R in two parts:
 
-Part 1 focuses on working through common tasks in data science: importing, wrangling, visualizing, and modeling data. Throughout, we'll work on concepts of reproducibility by utilizing project-based workflows and RMarkdown as a way of reproducibly sharing our work.
+Part 1 focuses on working through common tasks in data science:
 
-Part 2 focuses on more advanced topics: automating analyses using metadata, machine learning using `tidymodels`, using Git/GitHub, and an introduction to Bioconductor for bioinformatics analysis.
+- importing,
+- wrangling,
+- visualizing, and
+- modeling data.
+
+Throughout, we'll work on concepts of reproducibility by utilizing project and notebook based- workflows and RMarkdown as a way of reproducibly sharing our work.
+
+Part 2 focuses on more advanced topics:
+
+-   automating analyses using metadata (purrr/for loops),
+-   machine learning using `tidymodels`,
+-   using Git/GitHub,
+-   and an introduction to Bioconductor for bioinformatics analysis.
 
 # What is R?
 
@@ -33,46 +43,41 @@ Before proceeding with these training materials, please ensure you have an RStud
 
 By the end of this session, you should be able to:
 
-1. **Work** within the RStudio interface to **run** R code in an RMarkdown notebook
-2. **Understand** basic R syntax to **use** functions and **assign** values to objects
-3. **Create** and **manipulate** vectors and **understand** how R deals with missing data 
-4. **Learn** about `data.frame`s as a table structure in R. 
-
+1.  **Work** within the RStudio interface to **run** R code in an RMarkdown notebook
+2.  **Understand** basic R syntax to **use** functions and **assign** values to objects
+3.  **Create** and **manipulate** vectors and **understand** how R deals with missing data
+4.  **Learn** about `data.frame`s as a table structure in R.
 
 ## Final Project
 
 The final project is meant to be collaborative, and data-focused. You goals should be to learn something new and apply skills you've learned in the class.
 
-We will select a number of datasets to work with. You are encouraged to work together, but 
-
-
+We will select a number of datasets to work with. You are encouraged to work together, but should each submit your own version of the notebook.
 
 ## Function of the Week
 
 Signup and learn about a function and share it with others. The function should be in the tidyverse.
 
-1. What is the function for?
-2. How do you use the function?
-3. Is the function helpful in your work? How?
-
+1.  What is the function for?
+2.  How do you use the function?
+3.  Is the function helpful in your work? How?
 
 ## Introduction to R: Class 1
 
 [Tour of R and R Notebooks]
 
-Link to video: https://youtu.be/oFmjHxl28H0
+Link to video: <https://youtu.be/oFmjHxl28H0>
 
 ```{r}
 vembedr::embed_youtube("oFmjHxl28H0", width = 600, height=300)
 
 ```
 
-
 `Help -> Cheetsheets -> RStudio IDE cheat sheet`
 
 ## Code Blocks
 
-Link to video: https://youtu.be/0iETdE7WkqU
+Link to video: <https://youtu.be/0iETdE7WkqU>
 
 ```{r}
 vembedr::embed_youtube("0iETdE7WkqU", width = 600, height=300)
@@ -102,12 +107,11 @@ Try this one out. It's the same code as above, but with no spaces. Does it still
 
 ## Using Functions
 
-Link to video: https://youtu.be/aQPOhhLinZM
+Link to video: <https://youtu.be/aQPOhhLinZM>
 
 ```{r}
 vembedr::embed_youtube("aQPOhhLinZM", width = 600, height=300)
 ```
-
 
 R includes functions for other types of math:
 
@@ -136,8 +140,7 @@ round(3.14, digits = 1)
 round(digits = 1, x = 3.14)
 ```
 
-> You may notice that boxes pop up as you type. 
-> These represent RStudio's attempts to guess what you're typing and share additional options.
+> You may notice that boxes pop up as you type. These represent RStudio's attempts to guess what you're typing and share additional options.
 
 **Challenge 1:** what does the function `hist` do? What are its main arguments? How did you determine this?
 
@@ -147,12 +150,11 @@ round(digits = 1, x = 3.14)
 
 ## Assigning objects
 
-Link to video: https://youtu.be/pW9wkwob1Es
+Link to video: <https://youtu.be/pW9wkwob1Es>
 
 ```{r}
 vembedr::embed_youtube("pW9wkwob1Es", width = 600, height=300)
 ```
-
 
 ```{r}
 # assigning value to an object
@@ -161,8 +163,7 @@ weight_kg <- 55
 
 [assignment operator, object naming conventions]
 
-Now that the object has been assigned,
-we can reference that object by executing its name:
+Now that the object has been assigned, we can reference that object by executing its name:
 
 ```{r}
 # recall object
@@ -194,10 +195,7 @@ weight_kg <- 100
 
 [objects that use other objects don't change]
 
-> You can think of the names of objects like sticky notes.
-> You have the option to place the sticky note (name) on any value you choose.
-> You can pick up the sticky note and place it on another value,
-> but you need to explicitly tell R when you want values assigned to certain objects.
+> You can think of the names of objects like sticky notes. You have the option to place the sticky note (name) on any value you choose. You can pick up the sticky note and place it on another value, but you need to explicitly tell R when you want values assigned to certain objects.
 
 ```{r}
 # remove object
@@ -206,14 +204,9 @@ remove(weight_lb)
 
 [removing objects]
 
-> You can clear the entire environment using the button at the top of the Environment panel
-> with a picture of a broom. 
-> This may seem extreme, 
-> but don't worry! 
-> We can re-create all the work we've already done by executing each line of code again.
+> You can clear the entire environment using the button at the top of the Environment panel with a picture of a broom. This may seem extreme, but don't worry! We can re-create all the work we've already done by executing each line of code again.
 
-
-## **Challenge 2:** 
+## **Challenge 2:**
 
 What is the value of each item at each step? (Hint, you can see the value of an object by typing in the name of the object, such as with the `mass` line below.)
 
@@ -226,26 +219,27 @@ width  <- width - 20        #4.  width?
 mass_index <- mass/width  # 5. mass_index?
 ```
 
-
 Make your answers here:
 
-1.
-2.
-3.
-4.
-5.
+1.  
 
+2.  
+
+3.  
+
+4.  
+
+5.  
 
 ## Vectors
 
-Link to video: https://youtu.be/0qLgfpvzBqI
+Link to video: <https://youtu.be/0qLgfpvzBqI>
 
 ```{r}
 vembedr::embed_youtube("0qLgfpvzBqI", width = 600, height=300)
 ```
 
-[creating vectors]
-[c is for combine]
+[creating vectors] [c is for combine]
 
 ```{r}
 # assign vector
@@ -261,12 +255,10 @@ ages
 length(ages)
 ```
 
-
 ```{r}
 # what type of object?
 class(ages)
 ```
-
 
 ```{r}
 # performing functions with vectors
@@ -281,35 +273,32 @@ range(ages)
 organs <- c("lung", "prostate", "breast")
 ```
 
-In this case,
-each word is encased in quotation marks,
-indicating these are character data,
-rather than object names.
+In this case, each word is encased in quotation marks, indicating these are character data, rather than object names.
 
 **Challenge 3:** Please answer the following questions about `organs`:
 
-1. How many values are in `organs`?
+1.  How many values are in `organs`?
 2.  What type of data is `organs`?
 3.  get overview of `organs`
 
-Answers here: 
+Answers here:
 
-1.
-2.
-3.
+1.  
+
+2.  
+
+3.  
 
 ## Data types and Vectors
 
-- **character**: sometimes referred to as string data, tend to be surrounded by quotes
-- **numeric**: real or decimal numbers, sometimes referred to as "double"
-- integer: a subset of numeric in which numbers are stored as integers
-- **logical**: Boolean data (TRUE and FALSE)
-- complex: complex numbers with real and imaginary parts (e.g., 1 + 4i)
-- raw: bytes of data (machine readable, but not human readable)
+-   **character**: sometimes referred to as string data, tend to be surrounded by quotes
+-   **numeric**: real or decimal numbers, sometimes referred to as "double"
+-   integer: a subset of numeric in which numbers are stored as integers
+-   **logical**: Boolean data (TRUE and FALSE)
+-   complex: complex numbers with real and imaginary parts (e.g., 1 + 4i)
+-   raw: bytes of data (machine readable, but not human readable)
 
-
-
-### **Challenge 4:** 
+### **Challenge 4:**
 
 R tends to handle interpreting data types in the background of most operations.
 
@@ -324,15 +313,13 @@ char_logical <- c("a", "b", "c", TRUE)
 tricky <- c(1, 2, 3, "4")
 ```
 
-
 ## Manipulating vectors
 
-Link to video: https://youtu.be/J0y8Dtvm7bQ
+Link to video: <https://youtu.be/J0y8Dtvm7bQ>
 
 ```{r}
 vembedr::embed_youtube("J0y8Dtvm7bQ",  width = 600, height=300)
 ```
-
 
 ```{r}
 # add a value to end of vector
@@ -359,15 +346,11 @@ organs[-2]
 organs[c(1, 3)] 
 ```
 
-
-
-
 ## Missing data
 
 ```{r}
 vembedr::embed_youtube("r8RFoTXDs_U")
 ```
-
 
 ```{r}
 # create a vector with missing data
@@ -395,11 +378,10 @@ max(heights, na.rm = TRUE)
 na.omit(heights) 
 ```
 
-**Challenge:** Complete the following tasks after creating this vector (Note: there are multiple solutions):
-(solutions [here](solutions/class1_solutions.R))
+**Challenge:** Complete the following tasks after creating this vector (Note: there are multiple solutions): (solutions [here](solutions/class1_solutions.R))
 
-1. Remove NAs on `more_heights` (assign it to the object `more_heights_complete`)
-2. Calculate the `median()` of `more_heights_complete`
+1.  Remove NAs on `more_heights` (assign it to the object `more_heights_complete`)
+2.  Calculate the `median()` of `more_heights_complete`
 
 ```{r}
 # create vector
@@ -412,10 +394,7 @@ more_heights <- c(63, 69, 60, 65, NA, 68, 61, 70, 61, 59, 64, 69, 63, 63, NA, 72
 
 ## Wrapping up
 
-[R/Rstudio]
-[objects]
-[data types]
-
+[R/Rstudio] [objects] [data types]
 
 ## Post Class Survey
 
@@ -423,22 +402,17 @@ Please fill out the following post class survey in order for your attendance to 
 
 External folks, you don't have to do this, but your answers are helpful.
 
-https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn
-
+<https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
 
 ## Acknowledgements
 
-This intro to R was adapted from material from Kate Hertweck's Intro to R course from http://fredhutch.io.
-
-
+This intro to R was adapted from material from Kate Hertweck's Intro to R course from <http://fredhutch.io>.
 
 ## Homework
 
+### 1. Object manipulation
 
-### 1.  Object manipulation
-
-Create an object called `agge` that contains your age in years. Then
-reassign the object to a new object called `age` (e.g., correct the typo). Then remove the previous object from your environment and then calculate your age in days
+Create an object called `agge` that contains your age in years. Then reassign the object to a new object called `age` (e.g., correct the typo). Then remove the previous object from your environment and then calculate your age in days
 
 ```{r}
 #create agge object
@@ -451,10 +425,9 @@ reassign the object to a new object called `age` (e.g., correct the typo). Then 
 
 ```
 
+### 2. Vector manipulation (character data):
 
-### 2.  Vector manipulation (character data):
-
-Create a object called `buildings` representing a vector that contains four names of buildings on OHSU's campus, including the building where you work (here's a reference: https://www.ohsu.edu/visit/maps). 
+Create a object called `buildings` representing a vector that contains four names of buildings on OHSU's campus, including the building where you work (here's a reference: <https://www.ohsu.edu/visit/maps>).
 
 Add `Portland, Oregon` to the beginning of the vector, and `Phys Plant` to the end of the vector
 
@@ -473,7 +446,6 @@ buildings[]
 
 ```
 
-
 ## 3. Vector manipulation (numerical data):
 
 The following vector represents the number of vacation days possessed by various employees.
@@ -489,5 +461,3 @@ vacation_days <- c(5, 7, 20, 1, 0, 0, 12, 4, 2, 2, 2, 4, 5, 6, 7, 10, 4)
 
 #how many vacation days total?
 ```
-
-
