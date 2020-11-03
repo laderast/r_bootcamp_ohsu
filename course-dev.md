@@ -66,14 +66,18 @@ https://github.com/laderast/ready_for_r_labs
 
 1. Part 1 (Intro to R/RStudio, Functions, Vectors, Data Types)
 2. Part 2 (Loading Data (xls/haven)), data.frames, and ggplot2
-3. Part 3 ggplot2, factors, boxplots, dplyr part 1
+3. Part 3 ggplot2, factors, boxplots, dplyr part 1, more flipbook stuff!
 4. Part 4. dplyr: mutate, group_by/summarize
-5. Part 5. More about manipulating factors and dates/doing things with multiple tables
-6. Part 6. For loops/batch processing
+5. Part 5. More about manipulating factors and dates/doing things with multiple tables/conditionals
+6. Part 6. Functions/For loops/batch processing/purrr
 7. Part 7. Stats/formulas/broom
-8. Part 8. Tidymodels/machine learning basics
+8. Part 8. Tidymodels/machine learning basics/simulation (infer?/permutation)
 9. Part 9. Intro to Bioconductor
-10. Part 10. Wrap/up (shiny/interactive graphics) 
+10. Part 10. Wrap/up (shiny/interactive graphics) shiny, leaflet, plotly, tidytext 
+
+?RMarkdown/websites - https://rmd4sci.njtierney.com/
+
+Learning aids - 
 
 
 ## Suggested functions for assignments

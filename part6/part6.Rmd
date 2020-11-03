@@ -7,26 +7,28 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
 # Learning Objectives
 
-- **Learn** and **utilize** lists in R
-- **Process** elements of a list one at a time using for loops
-- **Use** metadata files to automate a process
-- **Write** functions that can be applied to elements of a list
+-   **Learn** and **utilize** lists in R
+-   **Process** elements of a list one at a time using `for` loops
+-   **Use** metadata files to automate a process
+-   **Write** functions that can be applied (or `map`ped) to elements of a list
+-   **Consolidate** elements of a list using `reduce`.
 
-## Don't Repeat Yourself (DRY)
+## Don't Repeat Yourself (DRY) - use functions!
 
-If you do something in R once and have to do it again, it's probably best to think of how to do it well once.
+If you do something in R once and have to do it again, it's probably best to think of how to do it well once, rather than cutting and pasting again.
 
-For example, say that you have multiple files that have the same format and you want to load them all into R, and glue them into a dataset. 
+For example, say that you have multiple files that have the same format and you want to load them all into R, and glue them into a single dataset.
 
 Part of doing this is by using and writing *functions*.
 
 ## What are lists?
 
-Lists are a general purpose data structure in R. They are very flexible, in that they have *slots*. 
+Lists are a general purpose data structure in R. They are very flexible, in that they have *slots*.
 
 We'll start with a making a list and understand different properties about it.
 
@@ -37,6 +39,7 @@ my_list <- list(cat_names = c("Morris", "Julia"),
 
 my_list
 ```
+
 `my_list` has some properties and ways to access things in it that are really useful. The first is that `my_list` has a `length()`
 
 ```{r list2, exercise=TRUE}
@@ -46,6 +49,7 @@ my_list <- list(cat_names = c("Morris", "Julia"),
 
 length(my_list)
 ```
+
 Additionally, because the elements are named, it also will give you the names:
 
 ```{r list3, exercise=TRUE}
@@ -65,6 +69,7 @@ my_list <- list(cat_names = c("Morris", "Julia"),
 
 my_list$cat_names
 ```
+
 You can also access an element using the `[[]]` (double brackets) accessor:
 
 ```{r list5, exercise=TRUE}
@@ -84,6 +89,7 @@ my_list <- list(cat_names = c("Morris", "Julia"),
 
 my_list[["hedgehog_names"]]
 ```
+
 Beware of the difference between `[[]]` and `[]`. The `[]` accessor returns a list of length 1 that is named `hedgehog_names`, not the element in it:
 
 ```{r list7, exercise=TRUE}
@@ -93,6 +99,7 @@ my_list <- list(cat_names = c("Morris", "Julia"),
 
 my_list["hedgehog_names"]
 ```
+
 In most cases, you want to use `[[]]`.
 
 ### Your Turn
@@ -105,7 +112,7 @@ my_list <- list(cat_names = c("Morris", "Julia"),
                 dog_names = c("Rover", "Spot"))
 
 length(-------)
-````
+```
 
 ```{r list8-solution}
 my_list <- list(cat_names = c("Morris", "Julia"), 
@@ -121,8 +128,7 @@ length(my_list[[1]])
 #this also works
 
 length(my_list[['cat_names']])
-````
-
+```
 
 ### `data.frame`s are list-like
 
@@ -150,11 +156,9 @@ data(mtcars)
 mtcars[mtcars$cyl == 4,]
 ```
 
-
 ## Lists and Vectors
 
-
-Vectors are a special instance of lists, in that each element 
+Vectors are a special instance of lists, in that each element
 
 ```{r}
 files_to_load <- list.files(path="data/",full.names = TRUE)
@@ -171,18 +175,58 @@ load_files(files_to_load[1])
 
 ## purrr::map()
 
-`purrr:::map()` lets us *apply* a function to each element of a list. 
+`purrr:::map()` lets us *apply* a function to each element of a list.
+
+The way to read a `map()` statement is:
+
+    map(.x = files_to_load, .f = load_files) 
+
+> We're going to apply (map) our function,
+>
+> `load_files(),`
+>
+> to the `list` called `files_to_load`.
 
 ```{r}
 file_list <- purrr::map(files_to_load, load_files)
 file_list2 <- purrr::map(file_list, janitor::clean_names)
+
+file_list2
 ```
+
+### Your Turn
+
+Use `map()` to return the `length` of each of the elements in `my_list`:
+
+```{r}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
+
+lengths <- map(my_list, length)
+lengths
+```
+
+If we know what data type we want to return, we can use one of the `map_*` functions. We know that the lengths should return `integer`, so let's use `map_int().`
+
+Check the class of `lengths2` - is it a `list` or a `vector`?
+
+```{r}
+
+lengths2 <- map_int(my_list, length)
+
+lengths2
+```
+
+## Passing in multiple parameters
+
+If you were using a function such as `mean`,
 
 ## purrr::reduce()
 
 Once we've done something to a list, how do we combine them?
 
-We can use another command called `purrr::reduce` that will take our list and combine them together, one element at a time.
+We can use another command called `purrr::reduce()` that will take our list and combine them together, one element at a time.
 
 ```{r}
 bound_file <- purrr::reduce(file_list2, dplyr::bind_rows)
@@ -194,7 +238,7 @@ dim(bound_file)
 
 Use `purrr::reduce` to find the total number of rows in all three files using `nrow()`.
 
-> Hint: You can use `sum()`
+> Hint: You can use `sum().`
 
 ```{r}
 
@@ -203,15 +247,20 @@ purrr::reduce(file_rows, sum)
 
 ```
 
-## `map_*` 
+## `map_*`
 
-There are a lot of `map_` functions, as you can see if you type in `map_`
+There are a lot of `map_` functions, as you can see if you type in `map_:`
 
-The main difference between these is that 
+`- map_int()` - function should return an integer
 
+-   `map_int()` - function should return an integer
+
+-   `map_df`() - function should return a `data.frame`
+
+The main difference between these is that
 
 ## Failing Gracefully
 
-We might have a list of objects where one of the elements is *faulty*. Maybe there's no data in it.
+We might have a list of objects where one of the elements is *faulty*. Maybe there's no data in it, only a big `NA`. That is what `safely()` is for.
 
-So, if we run 
+So, if we run
