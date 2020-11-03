@@ -148,26 +148,24 @@ mtcars[[1]]
 mtcars[["mpg"]]
 ```
 
-The base-R way to subset a `data.frame` is to pass logical vectors as indices to the `data.frame`. Knowing this helps you subset Bioconductor objects easier.
-
-```{r echo=TRUE}
-data(mtcars)
-
-mtcars[mtcars$cyl == 4,]
-```
-
 ## Lists and Vectors
 
-Vectors are a special instance of lists, in that each element
+Vectors are a special instance of lists, in that each element can have a name. However, they are known as an *atomic* data type in R. They each have format restrictions.
+
+Let's do something with the three data files in the `data` folder. First, we need to use a command called `list.files()` to list the files in the data folder.
 
 ```{r}
-files_to_load <- list.files(path="data/",full.names = TRUE)
+files_to_load <- list.files(path="data/", full.names = TRUE)
 files_to_load
 ```
 
+Now we can define a function called `load_files()` that takes these file locations (or paths) as an argument for this function.
+
 ```{r}
 load_files <- function(path){
-  readxl::read_excel(path)
+  out_frame <- readxl::read_excel(path)
+  out_frame <- janitor::clean_names(out_frame)
+  return(out_frame)
 }
 
 load_files(files_to_load[1])
@@ -189,9 +187,8 @@ The way to read a `map()` statement is:
 
 ```{r}
 file_list <- purrr::map(files_to_load, load_files)
-file_list2 <- purrr::map(file_list, janitor::clean_names)
 
-file_list2
+file_list
 ```
 
 ### Your Turn
@@ -212,7 +209,6 @@ If we know what data type we want to return, we can use one of the `map_*` funct
 Check the class of `lengths2` - is it a `list` or a `vector`?
 
 ```{r}
-
 lengths2 <- map_int(my_list, length)
 
 lengths2
@@ -227,6 +223,10 @@ If you were using a function such as `mean`,
 Once we've done something to a list, how do we combine them?
 
 We can use another command called `purrr::reduce()` that will take our list and combine them together, one element at a time.
+
+The big difference between `map()` and `reduce()` has to do with what it returns:
+
+`map()` usually returns a list or data structure with the same number as its input; The goal of `reduce` is to take a list and return a single object.
 
 ```{r}
 bound_file <- purrr::reduce(file_list2, dplyr::bind_rows)
@@ -254,6 +254,10 @@ There are a lot of `map_` functions, as you can see if you type in `map_:`
 `- map_int()` - function should return an integer
 
 -   `map_int()` - function should return an integer
+
+-   map\_lgl() - function should return a logical value
+
+-   map\_dbl() - function should return a double (decimal) value
 
 -   `map_df`() - function should return a `data.frame`
 
