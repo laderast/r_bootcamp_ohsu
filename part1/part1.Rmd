@@ -19,10 +19,10 @@ This course introduces you to R in two parts:
 
 Part 1 focuses on working through common tasks in data science:
 
-- importing,
-- wrangling,
-- visualizing, and
-- modeling data.
+-   importing,
+-   wrangling,
+-   visualizing, and
+-   modeling data.
 
 Throughout, we'll work on concepts of reproducibility by utilizing project and notebook based- workflows and RMarkdown as a way of reproducibly sharing our work.
 
@@ -378,7 +378,7 @@ max(heights, na.rm = TRUE)
 na.omit(heights) 
 ```
 
-**Challenge:** Complete the following tasks after creating this vector (Note: there are multiple solutions): (solutions [here](solutions/class1_solutions.R))
+**Challenge:** Complete the following tasks after creating this vector (Note: there are multiple solutions):
 
 1.  Remove NAs on `more_heights` (assign it to the object `more_heights_complete`)
 2.  Calculate the `median()` of `more_heights_complete`
@@ -391,6 +391,22 @@ more_heights <- c(63, 69, 60, 65, NA, 68, 61, 70, 61, 59, 64, 69, 63, 63, NA, 72
 # calculate the median
 
 ```
+
+## Doing something with each element in a `vector`: `for` loops
+
+The last thing I want to cover is how to do something with each element in a `vector` . If we do something once with a function, we can do it multiple times on different elements in a vector with that function. When we run the same function on different elements of a dataset, it is known as *iteration*.
+
+Let's go through the code below.
+
+The tricky thing to understand is that `height` is a *placeholder*. It changes each time we go through the loop, and it's a way to refer to the element of the list that time around.
+
+```{r}
+for(height in more_heights){
+  print(height)
+}
+```
+
+We won't be using `for` loops for a while, but I wanted you to see them so when you encounter them again, they're not a foreign concept.
 
 ## Wrapping up
 

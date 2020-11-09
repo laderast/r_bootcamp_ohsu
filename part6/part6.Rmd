@@ -14,7 +14,6 @@ library(tidyverse)
 
 -   **Learn** and **utilize** lists in R
 -   **Process** elements of a list one at a time using `for` loops
--   **Use** metadata files to automate a process
 -   **Write** and **use** functions that can be applied (or `map`ped) to elements of a list
 -   **Consolidate** elements of a list using `reduce()`.
 -   Write a pipeline that fails gracefully using `possibly()` and `safely().`
@@ -38,13 +37,11 @@ smoke1 <- load_files("data/smoke_1.xlsx")
 smoke1
 ```
 
-### Your Turn
-
-Make a function called
-
 ## What are lists?
 
-Lists are a general purpose data structure in R. They are very flexible, in that they have *slots*.
+Lists are a general purpose data structure in R. They are very flexible, in that they have *slots*. A *slot* can contain anything: it could contain a `vector`, a `data.frame`, or even another list!
+
+Unlike vectors, a `list` can also be heterogeneous: each slot can contain a different data type.
 
 We'll start with a making a list and understand different properties about it.
 
@@ -225,7 +222,7 @@ file_list2
 knitr::include_graphics("image/purrr_cat.png")
 ```
 
-Initializing an empty list is a bit clunky. We can do better. Enter the `purrr` package and `map()`.
+Initializing an empty list and using a `for` loop is a bit clunky. We can do better. Enter the `purrr` package and `map()`.
 
 `purrr::map()` lets us *apply* a function to each element of a list.
 
@@ -233,7 +230,7 @@ The way to read a `map()` statement is:
 
     `map(.x = files_to_load, .f = load_files)` 
 
-> We're going to apply (map) our function,
+> We're going to apply (map) our function .f,
 >
 > `load_files(),`
 >
@@ -262,7 +259,7 @@ my_list <- list(cat_names = c("Morris", "Julia"),
                 hedgehog_names = "Spiny", 
                 dog_names = c("Rover", "Spot"))
 
-lengths <- map(my_list, length)
+lengths <- map(my_list, ------)
 lengths
 ```
 
@@ -375,6 +372,12 @@ file_list <- map(files_to_load3, load_files_possibly)
 
 file_list
 ```
+The nice thing about returning `NULL` instead of an error here is that we can continue to work. That is, the `NULL` value won't affect our `reduce()`:
+
+```{r}
+reduce(file_list, bind_rows)
+```
+
 ## Working with Two Lists at a Time: map2()
 
 ```{r}

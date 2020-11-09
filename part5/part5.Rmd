@@ -1,5 +1,5 @@
 ---
-title: 'Part 5: Doing useful things with multiple tables'
+title: 'Part 5: Doing useful things with multiple tables/dates/functions/for-loops'
 author: "you"
 date: "5/5/2020"
 output: html_document
@@ -21,6 +21,9 @@ Save your own version before you do anything!
 - **Apply** `inner_join()` and `left_join()` to join tables on columns
 - **Standardize** variable names using `clean_names()`
 - **Utilize** `pivot_longer()` to make a *wide* dataset *long*
+- **Learn** and **apply** date manipulation functions in `lubridate`
+- **Learn** about functions and how to write them
+- **Learn** about for-loops and how to repeat operations using them
 
 
 ## Getting set up
@@ -42,7 +45,6 @@ Imagine that your lab is part of a large consortium studying the effects of smok
 Many labs within the consortium have accumulated data, and not all were following the guidelines you set for the tables.
 
 Here, I'm just saving the first few rows of each of these tables, so it's easier to see what's going on.
-
 
 
 ```{r}
@@ -260,7 +262,7 @@ Modify the code below to do a `left_join()` on `patient_table` and `wbc_table`.
 
 ```{r}
 patient_table %>%
-  left_join(y = wbc_table,
+  inner_join(y = wbc_table,
             by = c("patient_id" = "patient_id"))
 
 ```
@@ -362,6 +364,93 @@ ggplot(expression_long) +
 And part of your assignment will be to figure out how to use it.
 
 
+## Working with dates: `lubridate`
+
+
+## 
+
+
+## Don't Repeat Yourself (DRY) - use functions!
+
+If you do something in R once and have to do it again, it's probably best to think of how to do it well once, rather than cutting and pasting again.
+
+For example, say that you have multiple files that have the same format and you want to load them all into R, and glue them into a single dataset.
+
+Part of doing this is by using and writing *functions*. We can take code that we might have to write 10 times in a row, and package it in a way that we can use it multiple times.
+
+Let's learn about how we define a function.
+
+In this line, we define our function by giving it a name, `square_number`, and defining its *arguments* using `function()`. Our function only has one argument, `number`.
+
+```
+square_number <- function(number) {
+```
+
+What about the `{`? It defines the beginning of a *code block* - a code block defines the code that will run when we use the function.
+
+Now, we calculate the square of our number and assign it to `output_number`.
+
+The next line uses `return()` to return a value from our function. Then we close the code block with a `}`.
+
+```{r}
+square_number <- function(number) {
+  output_number <- number * number 
+  return(output_number)
+}
+
+square_number(4)
+```
+
+### Your Turn
+
+Make a function called `cube_number` that returns the cube of a number. Test it out and make sure it works.
+
+```{r}
+cube_number <- function(-----){
+  output_number <- -----------
+  return(output_number)
+}
+```
+
+## Functions: Checking for Errors with `if()`
+
+What about when someone tries `square_number("two")`? Since "two" is a character, you can't multiply with it.
+
+```{r}
+square_number("two")
+```
+What does this look like? Remember `case_when()`? 
+
+```{r}
+square_number_improved <- function(number) {
+  if(!is.numeric(number)){
+    stop("Your input was not a number")
+  }
+
+  output_number <- number * number 
+  return(output_number)
+  
+}
+
+square_number_improved(2)
+
+square_number_improved("two")
+```
+
+## Do You Need to Check for All Errors?
+
+It depends on who uses your functions. If they are just for you and your lab, as long as everyone understands what goes into the functions, you probably don't need to anticipate all kinds of errors, just a few major ones.
+
+It's when you are releasing your software as a freely available package that you should think about doing extensive testing for errors, especially the functions you anticipate will be used by most people who use your software.
+
+## When should you write a function?
+
+Programmers have an acronym: DRY, which is short for "Don't Repeat Yourself". 
+
+If you plan to do something multiple times, then you should probably think of writing a function.
+
+
+
 ## Assignment
 
 1. Use `bind_rows()` to bind all three `smoke` datasets (`smoke_1`, `smoke_2`, and `smoke_3`) together. Hint: you'll have to do two `bind_row()` operations.
@@ -441,6 +530,27 @@ expression_longer %>%
 
 
 ```
+
+4. What does this function do? 
+
+Write up a short explanation here:
+
+
+
+```{r}
+load_files <- function(path){
+  out_frame <- readxl::read_excel(path)
+  out_frame <- janitor::clean_names(out_frame)
+  return(out_frame)
+}
+```
+
+Write up an example here (You can use one of the excel files in the `data` folder).
+
+```{r}
+
+```
+
 
 
 ## Acknowledgements

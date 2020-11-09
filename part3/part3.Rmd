@@ -78,9 +78,6 @@ smoke_complete <- smoke_complete %>%
          vital_status, disease)
 ```
 
-
-
-
 ## Customizing a Scatterplot
 
 Now that we have the data generally displayed the way we'd like, we can start to customize a plot.

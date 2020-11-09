@@ -42,7 +42,7 @@ It is set up as a *library* - functions someone else wrote that are not built in
 
 The Tidyverse is essentially a library of libraries -- each contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists.
 
-We have already installed the `tidyverse` for you. For reading excel files, we need also load up an additional library called `readxl`.
+We have already installed the `tidyverse` for you. For reading excel files, we also need to load up an additional library called `readxl`.
 
 ```{r warning=F, message=FALSE}
 #load the required libraries
@@ -118,7 +118,7 @@ Now that we have the data imported and assigned to an object, we can take some t
 
 -   These data are clinical cancer data from the [National Cancer Institute's Genomic Data Commons](https://gdc.cancer.gov), specifically from The Cancer Genome Atlas, or [TCGA](https://www.cancer.gov/about-nci/organization/ccg/research/structural-genomics/tcga).
 -   Each row represents a patient, and each column represents information about demographics (race, age at diagnosis, etc) and disease (e.g., cancer type).
--   The data were downloaded and aggregated using an R script, which you can view in the [GitHub repository for this course](https://github.com/fredhutchio/R_intro/blob/master/0dataset.R).
+-   The data were downloaded and aggregated using an R script, which you can view in the [GitHub repository for the fredhutch.io course](https://github.com/fredhutchio/R_intro/blob/master/0dataset.R).
 
 ## Challenge 2 (5 minutes):
 
@@ -190,7 +190,7 @@ Link to video: <https://youtu.be/Ur-Lzkan8zI>
 vembedr::embed_youtube("Ur-Lzkan8zI", width = 600, height=300)
 ```
 
-Now that we have data imported and available, we can start to inspect the data more closely. These data have been interpreted by R to be a data frame, which is a data structure (way of organizing data) that is analogous to tabular or spreadsheet style data.
+Now that we have data imported and available, we can start to inspect the data more closely. These data have been interpreted by R to be a `data.frame`, which is a data structure (that is, a way of organizing data) that is analogous to tabular or spreadsheet style data.
 
 By definition, a `data.frame` is:
 
