@@ -15,8 +15,9 @@ library(tidyverse)
 -   **Learn** and **utilize** lists in R
 -   **Process** elements of a list one at a time using `for` loops
 -   **Use** metadata files to automate a process
--   **Write** functions that can be applied (or `map`ped) to elements of a list
--   **Consolidate** elements of a list using `reduce`.
+-   **Write** and **use** functions that can be applied (or `map`ped) to elements of a list
+-   **Consolidate** elements of a list using `reduce()`.
+-   Write a pipeline that fails gracefully using `possibly()` and `safely().`
 
 ## Don't Repeat Yourself (DRY) - use functions!
 
@@ -24,7 +25,22 @@ If you do something in R once and have to do it again, it's probably best to thi
 
 For example, say that you have multiple files that have the same format and you want to load them all into R, and glue them into a single dataset.
 
-Part of doing this is by using and writing *functions*.
+Part of doing this is by using and writing *functions*. We can take code that we might have to write 10 times in a row, and package it in a way that we can use it multiple times.
+
+```{r}
+load_files <- function(path){
+  out_frame <- readxl::read_excel(path)
+  out_frame <- janitor::clean_names(out_frame)
+  return(out_frame)
+}
+
+smoke1 <- load_files("data/smoke_1.xlsx")
+smoke1
+```
+
+### Your Turn
+
+Make a function called
 
 ## What are lists?
 
@@ -134,7 +150,7 @@ length(my_list[['cat_names']])
 
 One last note. You might know that you can access columns in a `data.frame` using `$`. This is because a `data.frame` is a special *instance* of a list.
 
-Hence, you can use all of the above accessors to manipulate a `data.frame`.
+Hence, you can use all of the above accessors to manipulate variables in a `data.frame`.
 
 ```{r echo=TRUE}
 data(mtcars)
@@ -159,25 +175,63 @@ files_to_load <- list.files(path="data/", full.names = TRUE)
 files_to_load
 ```
 
-Now we can define a function called `load_files()` that takes these file locations (or paths) as an argument for this function.
+Now we can utilize our `load_files()` function that takes these file locations (or paths) as an argument for this function.
 
 ```{r}
-load_files <- function(path){
-  out_frame <- readxl::read_excel(path)
-  out_frame <- janitor::clean_names(out_frame)
-  return(out_frame)
+load_files(files_to_load[1])
+```
+
+## For Loops
+
+Why do we need functions?
+
+If we do something once with a function, we can do it multiple times on different elements in a list with that function. This is especially true in the case of loading files. When we run the same function on different elements of a dataset, it is known as *iteration*.
+
+Let's go through the bottom code below.
+
+The tricky thing to understand is that `single_file` is a *placeholder*. It changes each time we go through the loop, and it's a way to refer to the element of the list that time around.
+
+We use our function `load_files()` on `single_file`. Because `load_files()` returns a `data.frame`, we need to store the output somewhere. So, we're storing the `data.frame` into a slot of a list called `file_list`.
+
+```{r}
+file_list <- list()
+
+for(single_file in files_to_load){
+  file_list$single_file <- load_files(single_file)
 }
 
-load_files(files_to_load[1])
+file_list
+```
+
+### Your turn
+
+Try subsetting `files_to_load` to contain just the second and third elements. How many elements does `file_list2` contain?
+
+```{r}
+file_list2 <- list()
+
+files_to_load2 <- files_to_load[....]
+
+for(single_file in files_to_load2){
+  file_list2$single_file <- load_files(single_file)
+}
+
+file_list2
 ```
 
 ## purrr::map()
 
-`purrr:::map()` lets us *apply* a function to each element of a list.
+```{r}
+knitr::include_graphics("image/purrr_cat.png")
+```
+
+Initializing an empty list is a bit clunky. We can do better. Enter the `purrr` package and `map()`.
+
+`purrr::map()` lets us *apply* a function to each element of a list.
 
 The way to read a `map()` statement is:
 
-    map(.x = files_to_load, .f = load_files) 
+    `map(.x = files_to_load, .f = load_files)` 
 
 > We're going to apply (map) our function,
 >
@@ -190,6 +244,14 @@ file_list <- purrr::map(files_to_load, load_files)
 
 file_list
 ```
+
+```{r}
+knitr::include_graphics("image/map_frosting.png")
+```
+
+In other words, we're taking a list of something (cupcakes), applying a function (frost) to each of them. Thus, we should get back three frosted cupcakes.
+
+Where does the list come from? By default, `map()` returns a list.
 
 ### Your Turn
 
@@ -216,55 +278,145 @@ lengths2
 
 ## Passing in multiple parameters
 
-If you were using a function such as `mean`,
+If you were using a function such as `mean`, you might want to specify an argument to it, such as `na.omit=TRUE`.
+
+How do we do this? We can add any arguments that we need to by adding them after our function.
+
+```{r}
+my_list2 <- list(vec1 = c(10, 133, 1, NA), 
+                 vec2 = c(11, 12, NA, 4), 
+                 vec3 = c(1, 5, NA, 4)
+                 )
+
+map(my_list2, mean)
+
+map(my_list2, mean, na.rm=TRUE)
+```
 
 ## purrr::reduce()
 
-Once we've done something to a list, how do we combine them?
+Once we've done something to our `data.frame`s in  `my_list2`, how do we combine them?
 
 We can use another command called `purrr::reduce()` that will take our list and combine them together, one element at a time.
 
 The big difference between `map()` and `reduce()` has to do with what it returns:
 
-`map()` usually returns a list or data structure with the same number as its input; The goal of `reduce` is to take a list and return a single object.
+> `map()` usually returns a list or data structure with the same number as its input;
+>
+> The goal of `reduce` is to take a list of items and return a single object.
 
 ```{r}
-bound_file <- purrr::reduce(file_list2, dplyr::bind_rows)
+bound_file <- purrr::reduce(file_list, dplyr::bind_rows)
 
 dim(bound_file)
 ```
 
 ### Your Turn
 
-Use `purrr::reduce` to find the total number of rows in all three files using `nrow()`.
+Use `purrr::reduce` to find the total number of rows in all three files using `sum()`.
 
 > Hint: You can use `sum().`
 
 ```{r}
-
 file_rows <- purrr::map(file_list2, nrow)
-purrr::reduce(file_rows, sum)
+purrr::reduce(file_rows, -----)
 
 ```
 
-## `map_*`
+## `map_*`: Return a specific data type
 
 There are a lot of `map_` functions, as you can see if you type in `map_:`
 
-`- map_int()` - function should return an integer
-
 -   `map_int()` - function should return an integer
-
--   map\_lgl() - function should return a logical value
-
--   map\_dbl() - function should return a double (decimal) value
-
+-   `map_int()` - function should return an integer
+-   `map_lgl()` - function should return a logical value
+-   `map_dbl()` - function should return a double (decimal) value
 -   `map_df`() - function should return a `data.frame`
 
-The main difference between these is that
+The main difference between these is that they are *strict*: if you function doesn't return the desired data type, it will return an error.
 
-## Failing Gracefully
+```{r}
+file_list <- purrr::map_df(files_to_load, load_files)
 
-We might have a list of objects where one of the elements is *faulty*. Maybe there's no data in it, only a big `NA`. That is what `safely()` is for.
+file_list
+```
 
-So, if we run
+Why do this? It's good coding practice, because you're guaranteeing that you will return something in that format.
+
+## Failing Gracefully: `possibly()` and `safely()`
+
+We might have a list of objects where one of the elements is *faulty*. Maybe there's no data in it, only a big `NA`. That is what `safely()` is for. Let's add an element to `files_to_load` that isn't a file path:
+
+```{r}
+files_to_load3 <- c("blah", files_to_load)
+files_to_load3
+```
+
+If we `map` `load_files()` on this vector, we're going to get an error, because there is no file called `blah`:
+
+```{r}
+test <- map(files_to_load3, load_files)
+```
+
+Arrgh, it stopped at the first element! We need to use `safely` to *wrap* around our function. We first need to define new function called `load_files_possibly()`.
+
+```{r}
+load_files_possibly <- possibly(load_files, NULL)
+
+load_files_possibly(files_to_load3[1])
+```
+
+You can see that it returns a `NULL` value rather than return an error.
+
+Now we can use `load_files_safely()` on our list:
+
+```{r}
+file_list <- map(files_to_load3, load_files_possibly)
+
+file_list
+```
+## Working with Two Lists at a Time: map2()
+
+```{r}
+knitr::include_graphics("image/map2_cupcakes.png")
+```
+
+Say we had two lists, and one list contains elements that we want to combine with the other list somehow.
+
+```{r}
+cupcakes <- c("cupcake", "cupcake", "cupcake")
+frostings <- c("vanilla", "chocolate", "strawberry")
+
+map2(frostings, cupcakes, paste)
+```
+
+## Aside: what about Anonymous Functions?
+
+One thing about when you look at other peoples' `purrr` code is that it can be super confusing. There's all sorts of weird notation, such as `.` and `~`. Depending on what your function does, and what is in your `list`.
+
+`purrr`/`dplyr` has a shorthand way of defining functions, called *anonymous* functions, using the *formula* notation:
+
+```{r}
+library(palmerpenguins)
+data(penguins)
+
+penguins_by_species <- penguins %>%
+  split(.$species) 
+
+average_bills
+
+```
+
+It also has `.`, which is a way to refer to what's in the current element of a list:
+
+## Where Next?
+
+Using and understanding `purrr` functions opens up something really powerful, parallel computing. You can have multiple cores of a machine running iterations of your list using the `furrr` (short for future purrr) package.
+
+In particular, there are functions
+
+## Acknowledgments
+
+Thanks so much to Rebecca Barter, whose treatment of `purrr` is one of the best I've ever seen.
+
+Illustrations are from Hadley Wickham's talk ["The Joy of Functional Programming (for Data Science)."](https://learning.acm.org/techtalks/functionalprogramming)
