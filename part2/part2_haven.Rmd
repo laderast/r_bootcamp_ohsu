@@ -1,0 +1,64 @@
+---
+title: "Introduction to R, Part 2: Data Frames, Reading Data, visualizing data with ggplot2"
+author: "You!"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(haven)
+library(tidyverse)
+
+```
+
+## (Creating this as separate file to avoid conflicts---can be added to part about loading data in part2)
+
+Perhaps add after section "Tips on Formatting your excel file for R"
+
+# Importing data from other software with haven
+
+The package `haven` allows us to import data in other software formats, including SAS, Stata, or SPSS data.
+
+Here is an example reading in a SAS data set:
+
+```{r}
+mtsas <- read_sas("data/mtcars.sas7bdat")
+head(mtsas)
+```
+
+For SPSS, the function we need is `read_sav()` while for Stata, the function we need is `read_dta()`. These all read in the data as tibbles. If the data is in SAS export (.xpt) format, we can use the `read_xpt()` function. We can also export data into these formats using the `write_*` versions of these functions such as `write_sas()`.
+
+Often, the data set from these software have additional attributes, such as labels. You can read more about dealing with these attributes in the `haven` vignettes: <https://haven.tidyverse.org/articles/semantics.html>
+
+Here, we have downloaded data from the CDC's National Ambulatory Medical Care Survey located and described at: <https://www.cdc.gov/nchs/ahcd/datasets_documentation_related.htm#data>
+
+This is a very large SPSS data set from one year (2015) of the survey. We can read it in using haven, and note that many of the variables have labeled attributes ("dbl+lbl" format in `glimpse`)
+
+```{r}
+namcs <- read_sav("data/namcs2015-spss.sav")
+glimpse(namcs[,1:5])
+```
+
+When we print one of the columns, we see the labels printed at the bottom:
+
+```{r}
+namcs$RACEUN[1:10]
+```
+
+We can see more detail with `str()`, including the column label better defining the value "Patient race - unimputed":
+
+```{r}
+str(namcs$RACEUN)
+```
+
+But note that the values of the vector are the numeric values. This can be cumbersome for analysis, and as stated in the [haven conversion vignette](https://haven.tidyverse.org/articles/semantics.html), the goal of `haven` is not to give you a data set and labels to use for analysis, but to give an intermediate data set that can be processed and wrangled into the analysis data set that you want to use. One such way is to convert these labeled columns to factors with the `haven` function `as_factor()`:
+
+```{r}
+namcs <- namcs %>% mutate(
+  race_fac = as_factor(RACEUN)
+)
+head(namcs$race_fac)
+levels(namcs$race_fac)
+```
+
+Now, we have preserved the labels in R, and we could further convert this vector to a character vector with `as.character()` if that works better for our analysis pipeline.
