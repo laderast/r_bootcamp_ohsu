@@ -55,6 +55,8 @@ https://tladeras.shinyapps.io/learning_tidyselect/
 
 https://github.com/laderast/ready_for_r_labs
 
+https://coderefinery.org/lessons/
+
 ## To do
 
 - Intro section (TL)
@@ -74,6 +76,7 @@ https://github.com/laderast/ready_for_r_labs
 8. Part 8. Tidymodels/machine learning basics/simulation (infer?/permutation)
 9. Part 9. Intro to Bioconductor
 10. Part 10. Wrap/up (shiny/interactive graphics) shiny, leaflet, plotly, tidytext 
+11. Final Project? 
 
 ?RMarkdown/websites - https://rmd4sci.njtierney.com/
 

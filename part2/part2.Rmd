@@ -40,7 +40,7 @@ For the remainder of this course, we'll be focusing on using functions from the 
 
 It is set up as a *library* - functions someone else wrote that are not built into R. We'll use a few libraries in this course.
 
-The Tidyverse is essentially a library of libraries -- each contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists.
+The Tidyverse is essentially a library of libraries -- each of these libraries contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists.
 
 We have already installed the `tidyverse` for you. For reading excel files, we also need to load up an additional library called `readxl`.
 
@@ -138,7 +138,7 @@ Confirm that you have loaded them correctly by clicking on the objects in the `E
 
 cesc_clinical <- read_excel("data/tcga_clinical_data.xlsx",
                             sheet = ____, 
-                            skip = ___
+                            skip = ___,
                             na = "NA"
                             )  
 
@@ -272,7 +272,7 @@ We will talk more about `factors` in the next lab.
 
 ### `skimr`
 
-A really useful package for understanding your data is the `skimr` package. Let's install it.
+A really useful package for understanding your data is the `skimr` package. Let's install it with the `install.packages()` command.
 
 ```{r}
 install.packages("skimr")
@@ -294,6 +294,8 @@ install.packages("visdat")
 
 ```{r}
 library(visdat)
+#To learn more about a package, you can usually add "-package" to the package name
+help("visdat-package")
 
 vis_dat(brca_clinical)
 ```

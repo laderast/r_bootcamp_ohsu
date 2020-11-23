@@ -12,11 +12,14 @@ library(tidyverse)
 
 # Learning Objectives
 
--   **Learn** and **utilize** lists in R
 -   **Process** elements of a list one at a time using `for` loops
 -   **Write** and **use** functions that can be applied (or `map`ped) to elements of a list
 -   **Consolidate** elements of a list using `reduce()`.
 -   Write a pipeline that fails gracefully using `possibly()` and `safely().`
+
+## Reminder
+
+Please go through `tidyowl::learn_lists()` before you start this unit. You'll need to understand how lists work and how we put things into them and get things out of them for this unit to make sense.
 
 ## Don't Repeat Yourself (DRY) - use functions!
 
@@ -37,144 +40,14 @@ smoke1 <- load_files("data/smoke_1.xlsx")
 smoke1
 ```
 
-## What are lists?
-
-Lists are a general purpose data structure in R. They are very flexible, in that they have *slots*. A *slot* can contain anything: it could contain a `vector`, a `data.frame`, or even another list!
-
-Unlike vectors, a `list` can also be heterogeneous: each slot can contain a different data type.
-
-We'll start with a making a list and understand different properties about it.
-
-```{r list1, exercise=TRUE}
-my_list <- list(cat_names = c("Morris", "Julia"), 
-                hedgehog_names = "Spiny", 
-                dog_names = c("Rover", "Spot"))
-
-my_list
-```
-
-`my_list` has some properties and ways to access things in it that are really useful. The first is that `my_list` has a `length()`
-
-```{r list2, exercise=TRUE}
-my_list <- list(cat_names = c("Morris", "Julia"), 
-                hedgehog_names = "Spiny", 
-                dog_names = c("Rover", "Spot"))
-
-length(my_list)
-```
-
-Additionally, because the elements are named, it also will give you the names:
-
-```{r list3, exercise=TRUE}
-my_list <- list(cat_names = c("Morris", "Julia"), 
-                hedgehog_names = "Spiny", 
-                dog_names = c("Rover", "Spot"))
-
-names(my_list)
-```
-
-We can access a single element in the list using a name:
-
-```{r list4, exercise=TRUE}
-my_list <- list(cat_names = c("Morris", "Julia"), 
-                hedgehog_names = "Spiny", 
-                dog_names = c("Rover", "Spot"))
-
-my_list$cat_names
-```
-
-You can also access an element using the `[[]]` (double brackets) accessor:
-
-```{r list5, exercise=TRUE}
-my_list <- list(cat_names = c("Morris", "Julia"), 
-                hedgehog_names = "Spiny", 
-                dog_names = c("Rover", "Spot"))
-
-my_list[[1]]
-```
-
-You can also pass a name here as a `character`:
-
-```{r list6, exercise=TRUE}
-my_list <- list(cat_names = c("Morris", "Julia"), 
-                hedgehog_names = "Spiny", 
-                dog_names = c("Rover", "Spot"))
-
-my_list[["hedgehog_names"]]
-```
-
-Beware of the difference between `[[]]` and `[]`. The `[]` accessor returns a list of length 1 that is named `hedgehog_names`, not the element in it:
-
-```{r list7, exercise=TRUE}
-my_list <- list(cat_names = c("Morris", "Julia"), 
-                hedgehog_names = "Spiny", 
-                dog_names = c("Rover", "Spot"))
-
-my_list["hedgehog_names"]
-```
-
-In most cases, you want to use `[[]]`.
-
-### Your Turn
-
-Find the length of the `cat_names` element in `my_list`:
-
-```{r list8, exercise=TRUE}
-my_list <- list(cat_names = c("Morris", "Julia"), 
-                hedgehog_names = "Spiny", 
-                dog_names = c("Rover", "Spot"))
-
-length(-------)
-```
-
-```{r list8-solution}
-my_list <- list(cat_names = c("Morris", "Julia"), 
-                hedgehog_names = "Spiny", 
-                dog_names = c("Rover", "Spot"))
-
-length(my_list$cat_names)
-
-#this also works
-
-length(my_list[[1]])
-
-#this also works
-
-length(my_list[['cat_names']])
-```
-
-### `data.frame`s are list-like
-
-One last note. You might know that you can access columns in a `data.frame` using `$`. This is because a `data.frame` is a special *instance* of a list.
-
-Hence, you can use all of the above accessors to manipulate variables in a `data.frame`.
-
-```{r echo=TRUE}
-data(mtcars)
-
-length(mtcars)
-
-mtcars$mpg
-
-mtcars[[1]]
-
-mtcars[["mpg"]]
-```
-
-## Lists and Vectors
-
-Vectors are a special instance of lists, in that each element can have a name. However, they are known as an *atomic* data type in R. They each have format restrictions.
-
-Let's do something with the three data files in the `data` folder. First, we need to use a command called `list.files()` to list the files in the data folder.
-
-```{r}
+```{r eval=FALSE}
 files_to_load <- list.files(path="data/", full.names = TRUE)
 files_to_load
 ```
 
 Now we can utilize our `load_files()` function that takes these file locations (or paths) as an argument for this function.
 
-```{r}
+```{r eval=FALSE}
 load_files(files_to_load[1])
 ```
 
@@ -290,9 +163,59 @@ map(my_list2, mean)
 map(my_list2, mean, na.rm=TRUE)
 ```
 
-## purrr::reduce()
+There is another way to specify arguments to a function, but to explain it will require some work. We'll use what's called **formula notation** to specify a function, and the `.` to specify the **current element** (much like a placeholder variable in a for loop) in the list we're processing. We'll talk about this in a section below.
 
-Once we've done something to our `data.frame`s in  `my_list2`, how do we combine them?
+```{r}
+map(my_list2, ~mean(x = ., na.rm = TRUE))
+```
+
+## Anonymous Functions to save typing
+
+One thing about when you look at other peoples' `purrr` code is that it can be super confusing. There's all sorts of weird notation, such as `.` and `~`. Depending on what your function does, and what is in your `list`.
+
+`purrr`/`dplyr` has a shorthand way of defining functions, called *anonymous* functions, using the *formula* notation:
+
+    ~mean(.$bill_length_mm, na.rm=TRUE)
+
+is the same as
+
+    function(x) {
+       mean(x$bill_length_mm, na.rm=TRUE)
+       }
+
+The `~` basically takes the place of `function(x)` and the `.` takes the place of `x`.
+
+Let's use the `split()` function to split our data.frame into a list:
+
+```{r}
+library(palmerpenguins)
+data(penguins)
+
+penguins_by_species <- penguins %>%
+  split(.$species) 
+
+penguins_by_species
+```
+
+Notice that in the above we use `.`, which is a way to refer to what's in the current element of a list. In our case, we are using `.` to refer to the `data.frame` in the current slot position:
+
+```{r}
+purrr::map(penguins_by_species, 
+            ~nrow(.))
+```
+
+### Your Turn
+
+What does the following code do?
+
+```{r}
+purrr::map(penguins_by_species, 
+             ~mean(.$bill_depth_mm, na.rm  = TRUE))
+```
+
+## `purrr::reduce()`
+
+Once we've done something to our `data.frame`s in `my_list2`, how do we combine them?
 
 We can use another command called `purrr::reduce()` that will take our list and combine them together, one element at a time.
 
@@ -372,6 +295,7 @@ file_list <- map(files_to_load3, load_files_possibly)
 
 file_list
 ```
+
 The nice thing about returning `NULL` instead of an error here is that we can continue to work. That is, the `NULL` value won't affect our `reduce()`:
 
 ```{r}
@@ -384,7 +308,7 @@ reduce(file_list, bind_rows)
 knitr::include_graphics("image/map2_cupcakes.png")
 ```
 
-Say we had two lists, and one list contains elements that we want to combine with the other list somehow.
+Say we had two lists with two elements, and one list contains elements that we want to combine with the other list somehow. `map2()` lets us use both lists as arguments to a function.
 
 ```{r}
 cupcakes <- c("cupcake", "cupcake", "cupcake")
@@ -393,24 +317,13 @@ frostings <- c("vanilla", "chocolate", "strawberry")
 map2(frostings, cupcakes, paste)
 ```
 
-## Aside: what about Anonymous Functions?
+### Your Turn
 
-One thing about when you look at other peoples' `purrr` code is that it can be super confusing. There's all sorts of weird notation, such as `.` and `~`. Depending on what your function does, and what is in your `list`.
-
-`purrr`/`dplyr` has a shorthand way of defining functions, called *anonymous* functions, using the *formula* notation:
+Use map2 to
 
 ```{r}
-library(palmerpenguins)
-data(penguins)
-
-penguins_by_species <- penguins %>%
-  split(.$species) 
-
-average_bills
 
 ```
-
-It also has `.`, which is a way to refer to what's in the current element of a list:
 
 ## Where Next?
 
