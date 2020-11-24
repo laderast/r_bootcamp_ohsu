@@ -1,5 +1,5 @@
 ---
-title: 'Part 6: For Loops and Batch Processing'
+title: 'Part 6: Purr and Batch Processing'
 author: "Ted Laderas"
 date: "11/2/2020"
 output: html_document
@@ -57,17 +57,24 @@ Why do we need functions?
 
 If we do something once with a function, we can do it multiple times on different elements in a list with that function. This is especially true in the case of loading files. When we run the same function on different elements of a dataset, it is known as *iteration*.
 
-Let's go through the bottom code below.
+Let's go through the bottom code below. You've seen for loops before, but it's worth reviewing.
 
 The tricky thing to understand is that `single_file` is a *placeholder*. It changes each time we go through the loop, and it's a way to refer to the element of the list that time around.
 
 We use our function `load_files()` on `single_file`. Because `load_files()` returns a `data.frame`, we need to store the output somewhere. So, we're storing the `data.frame` into a slot of a list called `file_list`.
 
 ```{r}
+#initialize an empty list
 file_list <- list()
 
+#use single_file as a placeholder
 for(single_file in files_to_load){
-  file_list$single_file <- load_files(single_file)
+  loaded_file <- load_files(single_file)
+
+  #put the contents of loaded file into a slot with
+  #the name of the file.
+  
+  file_list[[single_file]] <- loaded_file
 }
 
 file_list
@@ -75,15 +82,15 @@ file_list
 
 ### Your turn
 
-Try subsetting `files_to_load` to contain just the second and third elements. How many elements does `file_list2` contain?
+Try subsetting `files_to_load` to contain just the second and third elements. How many elements does `file_list2` contain? What are their `names()`?
 
 ```{r}
 file_list2 <- list()
 
-files_to_load2 <- files_to_load[....]
+files_to_load2 <- files_to_load[2:3]
 
 for(single_file in files_to_load2){
-  file_list2$single_file <- load_files(single_file)
+  file_list2[[single_file]] <- load_files(single_file)
 }
 
 file_list2
@@ -97,7 +104,7 @@ knitr::include_graphics("image/purrr_cat.png")
 
 Initializing an empty list and using a `for` loop is a bit clunky. We can do better. Enter the `purrr` package and `map()`.
 
-`purrr::map()` lets us *apply* a function to each element of a list.
+`purrr::map()` lets us *apply* a function to each element of a list. It will always return a list with the number of elements that is the same as the list we input it with. Each slot of the returned list will contain the output of the functions applied to each element of the input list.
 
 The way to read a `map()` statement is:
 
@@ -110,7 +117,7 @@ The way to read a `map()` statement is:
 > to the `list` called `files_to_load`.
 
 ```{r}
-file_list <- purrr::map(files_to_load, load_files)
+file_list <- purrr::map(.x = files_to_load, .f = load_files)
 
 file_list
 ```
@@ -119,7 +126,7 @@ file_list
 knitr::include_graphics("image/map_frosting.png")
 ```
 
-In other words, we're taking a list of something (cupcakes), applying a function (frost) to each of them. Thus, we should get back three frosted cupcakes.
+In other words, we're taking a list of something (`cupcakes`), applying a function (`frost()`) to each of them. Thus, we should get back three frosted cupcakes.
 
 Where does the list come from? By default, `map()` returns a list.
 
@@ -132,7 +139,7 @@ my_list <- list(cat_names = c("Morris", "Julia"),
                 hedgehog_names = "Spiny", 
                 dog_names = c("Rover", "Spot"))
 
-lengths <- map(my_list, ------)
+lengths <- map(.x = my_list, .f = ------)
 lengths
 ```
 
@@ -150,8 +157,6 @@ lengths2
 
 If you were using a function such as `mean`, you might want to specify an argument to it, such as `na.omit=TRUE`.
 
-How do we do this? We can add any arguments that we need to by adding them after our function.
-
 ```{r}
 my_list2 <- list(vec1 = c(10, 133, 1, NA), 
                  vec2 = c(11, 12, NA, 4), 
@@ -159,11 +164,15 @@ my_list2 <- list(vec1 = c(10, 133, 1, NA),
                  )
 
 map(my_list2, mean)
+```
 
+How do we do this? We can add any arguments that we need to by adding them after our function.
+
+```{r}
 map(my_list2, mean, na.rm=TRUE)
 ```
 
-There is another way to specify arguments to a function, but to explain it will require some work. We'll use what's called **formula notation** to specify a function, and the `.` to specify the **current element** (much like a placeholder variable in a for loop) in the list we're processing. We'll talk about this in a section below.
+There is another way to specify arguments to a function, but to explain it will require some work. We'll use what's called **formula notation** to specify a function, and the `.` to specify the **current element** (much like a placeholder variable in a for loop) in the list we're processing. We'll talk about this below.
 
 ```{r}
 map(my_list2, ~mean(x = ., na.rm = TRUE))
@@ -204,9 +213,11 @@ purrr::map(penguins_by_species,
             ~nrow(.))
 ```
 
+The nice thing about anonymous functions is that you can pass in additional parameters within the function, rather than placing them outside of the function.
+
 ### Your Turn
 
-What does the following code do?
+What does the following code do? How did we supply the `na.rm` argument?
 
 ```{r}
 purrr::map(penguins_by_species, 
@@ -263,6 +274,9 @@ file_list
 
 Why do this? It's good coding practice, because you're guaranteeing that you will return something in that format.
 
+
+
+
 ## Failing Gracefully: `possibly()` and `safely()`
 
 We might have a list of objects where one of the elements is *faulty*. Maybe there's no data in it, only a big `NA`. That is what `safely()` is for. Let's add an element to `files_to_load` that isn't a file path:
@@ -302,6 +316,9 @@ The nice thing about returning `NULL` instead of an error here is that we can co
 reduce(file_list, bind_rows)
 ```
 
+
+
+
 ## Working with Two Lists at a Time: map2()
 
 ```{r}
@@ -325,11 +342,16 @@ Use map2 to
 
 ```
 
+
+
+
 ## Where Next?
 
-Using and understanding `purrr` functions opens up something really powerful, parallel computing. You can have multiple cores of a machine running iterations of your list using the `furrr` (short for future purrr) package.
+Using and understanding `purrr` functions opens up something really powerful: parallel computing. You can have multiple cores of a machine running iterations of your list using the `furrr` (short for future purrr) package.
 
-In particular, there are functions
+Learning more about functions and vectorization will help you to reduce the number of mistakes in analysis. 
+
+
 
 ## Acknowledgments
 

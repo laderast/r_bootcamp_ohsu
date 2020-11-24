@@ -66,17 +66,28 @@ https://coderefinery.org/lessons/
 
 ## Outline of course
 
-1. Part 1 (Intro to R/RStudio, Functions, Vectors, Data Types)
-2. Part 2 (Loading Data (xls/haven)), data.frames, and ggplot2
+1. Part 1 (Intro to R/RStudio, Functions, Vectors, Data Types, R Markdown)
+2. Part 2 (Loading Data (xls/haven)), data.frames, and ggplot2, projects
+    a. load data from excel sheet and produce boxplot
+    b. load data using haven and do something with it
 3. Part 3 ggplot2, factors, boxplots, dplyr part 1, more flipbook stuff!
-4. Part 4. dplyr: mutate, group_by/summarize
-5. Part 5. More about manipulating factors and dates/doing things with multiple tables/conditionals
-6. Part 6. Functions/For loops/batch processing/purrr
+    a. load data, make boxplots, filter data
+4. Part 4. dplyr: mutate, group_by/summarize, functions 
+    
+5. Part 5. More about manipulating factors and dates/doing things with multiple tables/for loops
+6. Part 6. Functions/batch processing/purrr
+    a. assignment
 7. Part 7. Stats/formulas/broom
+    a. assignment
 8. Part 8. Tidymodels/machine learning basics/simulation (infer?/permutation)
+    a. choose your adventure (limit choices) and explain
+    b. Plot your results and report them
 9. Part 9. Intro to Bioconductor
-10. Part 10. Wrap/up (shiny/interactive graphics) shiny, leaflet, plotly, tidytext 
+    a. DeSeq2 - 
+10. Part 10. Wrap/up (shiny/interactive graphics) shiny/plotly, leaflet, tidytext 
 11. Final Project? 
+    a. TidyTuesday Dataset
+    b. have to do EDA, must filter(), broom/tidymodels, report results
 
 ?RMarkdown/websites - https://rmd4sci.njtierney.com/
 

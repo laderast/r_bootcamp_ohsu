@@ -493,7 +493,9 @@ ggplot(smoke_complete) +
 ```{r}
 smoke_filtered <- 
     smoke_filtered %>% 
-    mutate(survival_time = )
+    mutate(survival_time = 
+    #           
+               )
 ```
 
 7. Create a column called `survival_event` that is 1 if the person has a non missing `days_to_death` and 0 if not.
@@ -530,6 +532,8 @@ ggplot(smoke_filtered,
     geom_boxplot()
 ```
 
+
+11. For loop assignment
 
 # Acknowledgments
 
