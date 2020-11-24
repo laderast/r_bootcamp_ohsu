@@ -1,0 +1,668 @@
+---
+title: 'Part 6: Purr and Batch Processing'
+author: "Ted Laderas"
+date: "11/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Learning Objectives
+
+-   **Process** elements of a list one at a time using `for` loops
+-   **Write** and **use** functions that can be applied (or `map`ped) to elements of a list
+-   **Consolidate** elements of a list using `reduce()`.
+-   Write a pipeline that fails gracefully using `possibly()` and `safely().`
+
+## Reminder
+
+Please go through `tidyowl::learn_lists()` before you start this unit. You'll need to understand how lists work and how we put things into them and get things out of them for this unit to make sense.
+
+## Don't Repeat Yourself (DRY) - use functions!
+
+If you do something in R once and have to do it again, it's probably best to think of how to do it well once, rather than cutting and pasting again.
+
+For example, say that you have multiple files that have the same format and you want to load them all into R, and glue them into a single dataset.
+
+Part of doing this is by using and writing *functions*. We can take code that we might have to write 10 times in a row, and package it in a way that we can use it multiple times.
+
+```{r}
+load_files <- function(path){
+  out_frame <- readxl::read_excel(path)
+  out_frame <- janitor::clean_names(out_frame)
+  return(out_frame)
+}
+
+smoke1 <- load_files("data/smoke_1.xlsx")
+smoke1
+```
+
+<<<<<<< HEAD:part6/part6.Rmd
+```{r eval=FALSE}
+files_to_load <- list.files(path="data/", full.names = TRUE)
+files_to_load
+```
+=======
+`broom` works mostly with the output of models. One of the problems with R is that the many modeling packages are not consistent to work with. It can be just as difficult to get a p-value out of a model as it is to run it on some data! `broom` simplifies this a lot.
+>>>>>>> statsupdates:part7/part6.Rmd
+
+Now we can utilize our `load_files()` function that takes these file locations (or paths) as an argument for this function.
+
+```{r eval=FALSE}
+load_files(files_to_load[1])
+```
+
+## For Loops
+
+Why do we need functions?
+
+If we do something once with a function, we can do it multiple times on different elements in a list with that function. This is especially true in the case of loading files. When we run the same function on different elements of a dataset, it is known as *iteration*.
+
+Let's go through the bottom code below. You've seen for loops before, but it's worth reviewing.
+
+The tricky thing to understand is that `single_file` is a *placeholder*. It changes each time we go through the loop, and it's a way to refer to the element of the list that time around.
+
+We use our function `load_files()` on `single_file`. Because `load_files()` returns a `data.frame`, we need to store the output somewhere. So, we're storing the `data.frame` into a slot of a list called `file_list`.
+
+```{r}
+#initialize an empty list
+file_list <- list()
+
+#use single_file as a placeholder
+for(single_file in files_to_load){
+  loaded_file <- load_files(single_file)
+
+  #put the contents of loaded file into a slot with
+  #the name of the file.
+  
+  file_list[[single_file]] <- loaded_file
+}
+
+file_list
+```
+
+### Your turn
+
+Try subsetting `files_to_load` to contain just the second and third elements. How many elements does `file_list2` contain? What are their `names()`?
+
+```{r}
+file_list2 <- list()
+
+files_to_load2 <- files_to_load[2:3]
+
+for(single_file in files_to_load2){
+  file_list2[[single_file]] <- load_files(single_file)
+}
+
+file_list2
+```
+
+## purrr::map()
+
+```{r}
+knitr::include_graphics("image/purrr_cat.png")
+```
+
+Initializing an empty list and using a `for` loop is a bit clunky. We can do better. Enter the `purrr` package and `map()`.
+
+`purrr::map()` lets us *apply* a function to each element of a list. It will always return a list with the number of elements that is the same as the list we input it with. Each slot of the returned list will contain the output of the functions applied to each element of the input list.
+
+The way to read a `map()` statement is:
+
+    `map(.x = files_to_load, .f = load_files)` 
+
+> We're going to apply (map) our function .f,
+>
+> `load_files(),`
+>
+> to the `list` called `files_to_load`.
+
+```{r}
+file_list <- purrr::map(.x = files_to_load, .f = load_files)
+
+file_list
+```
+
+```{r}
+knitr::include_graphics("image/map_frosting.png")
+```
+
+<<<<<<< HEAD:part6/part6.Rmd
+In other words, we're taking a list of something (`cupcakes`), applying a function (`frost()`) to each of them. Thus, we should get back three frosted cupcakes.
+=======
+It appears that our measurements are close to one another, but there are some noticeable differences.
+
+>>>>>>> statsupdates:part7/part6.Rmd
+
+Where does the list come from? By default, `map()` returns a list.
+
+### Your Turn
+
+Use `map()` to return the `length` of each of the elements in `my_list`:
+
+```{r}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
+
+lengths <- map(.x = my_list, .f = ------)
+lengths
+```
+
+If we know what data type we want to return, we can use one of the `map_*` functions. We know that the lengths should return `integer`, so let's use `map_int().`
+
+Check the class of `lengths2` - is it a `list` or a `vector`?
+
+```{r}
+lengths2 <- map_int(my_list, length)
+
+lengths2
+```
+
+## Passing in multiple parameters
+
+If you were using a function such as `mean`, you might want to specify an argument to it, such as `na.omit=TRUE`.
+
+```{r}
+my_list2 <- list(vec1 = c(10, 133, 1, NA), 
+                 vec2 = c(11, 12, NA, 4), 
+                 vec3 = c(1, 5, NA, 4)
+                 )
+
+map(my_list2, mean)
+```
+
+<<<<<<< HEAD:part6/part6.Rmd
+How do we do this? We can add any arguments that we need to by adding them after our function.
+
+```{r}
+map(my_list2, mean, na.rm=TRUE)
+```
+
+There is another way to specify arguments to a function, but to explain it will require some work. We'll use what's called **formula notation** to specify a function, and the `.` to specify the **current element** (much like a placeholder variable in a for loop) in the list we're processing. We'll talk about this below.
+=======
+Like many statistical modeling methods in R, the `t.test` function takes the model in a couple different ways. The first takes two separate arguments with the paired measurements: measure 1 (dxa) and measure 2 (st). We use `tidy()` from `broom` to clean up the output into a data frame:
+
+```{r}
+tidy_output <- t.test(body_comp$dxa, body_comp$st, paired=TRUE) %>%
+  tidy()
+
+tidy_output
+```
+
+The second method uses the formula method, where the outcome and grouping variable (dxa vs. st) are specified using special syntax that uses the tilde (`~`) symbol, with the outcome on the left and the grouping on the right of the `~`. The tilde (`~`) can be translated to "is a function of".
+
+Note we need to use the long data filtered to only include the two methods of interest (our grouping variable), and then specify the data frame so `t.test` knows where the variables are coming from:
+
+```{r}
+body_comp_dxa_st <- body_comp_long %>%
+  filter(method %in% c("dxa", "st"))
+
+tidy_output2 <- 
+  t.test(body_fat_percentage ~ method, 
+        paired=TRUE, 
+        data=body_comp_dxa_st) %>%
+    tidy()
+>>>>>>> statsupdates:part7/part6.Rmd
+
+```{r}
+map(my_list2, ~mean(x = ., na.rm = TRUE))
+```
+
+<<<<<<< HEAD:part6/part6.Rmd
+## Anonymous Functions to save typing
+=======
+We see that `p.value` is approximately equal to `r round(tidy_output2$p.value,3)`; this means **we cannot reject the null hypothesis** (i.e., the difference in body fat measurements between `dxa` and `st` are not statistically different from one another).
+>>>>>>> statsupdates:part7/part6.Rmd
+
+One thing about when you look at other peoples' `purrr` code is that it can be super confusing. There's all sorts of weird notation, such as `.` and `~`. Depending on what your function does, and what is in your `list`.
+
+`purrr`/`dplyr` has a shorthand way of defining functions, called *anonymous* functions, using the *formula* notation:
+
+    ~mean(.$bill_length_mm, na.rm=TRUE)
+
+is the same as
+
+    function(x) {
+       mean(x$bill_length_mm, na.rm=TRUE)
+       }
+
+The `~` basically takes the place of `function(x)` and the `.` takes the place of `x`.
+
+<<<<<<< HEAD:part6/part6.Rmd
+Let's use the `split()` function to split our data.frame into a list:
+
+```{r}
+library(palmerpenguins)
+data(penguins)
+=======
+body_comp_dxa_sf <- body_comp_long %>%
+  filter(method %in% c("dxa", "br"))
+>>>>>>> statsupdates:part7/part6.Rmd
+
+penguins_by_species <- penguins %>%
+  split(.$species) 
+
+penguins_by_species
+```
+
+Notice that in the above we use `.`, which is a way to refer to what's in the current element of a list. In our case, we are using `.` to refer to the `data.frame` in the current slot position:
+
+```{r}
+purrr::map(penguins_by_species, 
+            ~nrow(.))
+```
+
+The nice thing about anonymous functions is that you can pass in additional parameters within the function, rather than placing them outside of the function.
+
+### Your Turn
+
+What does the following code do? How did we supply the `na.rm` argument?
+
+```{r}
+purrr::map(penguins_by_species, 
+             ~mean(.$bill_depth_mm, na.rm  = TRUE))
+```
+
+## `purrr::reduce()`
+
+Once we've done something to our `data.frame`s in `my_list2`, how do we combine them?
+
+We can use another command called `purrr::reduce()` that will take our list and combine them together, one element at a time.
+
+<<<<<<< HEAD:part6/part6.Rmd
+The big difference between `map()` and `reduce()` has to do with what it returns:
+=======
+We can generate a scatterplot with a trend line using a geom called `geom_smooth()`. We use `method = "lm"` to specify that we want a best fit straight line from the linear model method, not the default loess curve.
+>>>>>>> statsupdates:part7/part6.Rmd
+
+> `map()` usually returns a list or data structure with the same number as its input;
+>
+> The goal of `reduce` is to take a list of items and return a single object.
+
+```{r}
+bound_file <- purrr::reduce(file_list, dplyr::bind_rows)
+
+dim(bound_file)
+```
+
+### Your Turn
+
+Use `purrr::reduce` to find the total number of rows in all three files using `sum()`.
+
+> Hint: You can use `sum().`
+
+```{r}
+<<<<<<< HEAD:part6/part6.Rmd
+file_rows <- purrr::map(file_list2, nrow)
+purrr::reduce(file_rows, -----)
+=======
+body_comp %>%
+  ggplot() +
+  aes(x=dxa, y=st) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE)
+```
+
+>>>>>>> statsupdates:part7/part6.Rmd
+
+```
+
+## `map_*`: Return a specific data type
+
+There are a lot of `map_` functions, as you can see if you type in `map_:`
+
+-   `map_int()` - function should return an integer
+-   `map_int()` - function should return an integer
+-   `map_lgl()` - function should return a logical value
+-   `map_dbl()` - function should return a double (decimal) value
+-   `map_df`() - function should return a `data.frame`
+
+<<<<<<< HEAD:part6/part6.Rmd
+The main difference between these is that they are *strict*: if you function doesn't return the desired data type, it will return an error.
+
+```{r}
+file_list <- purrr::map_df(files_to_load, load_files)
+=======
+The function `lm()` uses the formula method, with the outcome (dependent variable) on the left and the predictors (independent variables) on the right, separated by the plus sign (`+`) if there are multiple predictors. We again specify the data frame with `data = body_comp` so the function knows where the variables in the formula are coming from.
+
+
+```{r}
+lm(dxa ~ st, data = body_comp) %>%
+  tidy()
+```
+>>>>>>> statsupdates:part7/part6.Rmd
+
+file_list
+```
+
+<<<<<<< HEAD:part6/part6.Rmd
+Why do this? It's good coding practice, because you're guaranteeing that you will return something in that format.
+=======
+dxa  = 0.275    +    0.903 * `st`
+>>>>>>> statsupdates:part7/part6.Rmd
+
+
+
+
+## Failing Gracefully: `possibly()` and `safely()`
+
+We might have a list of objects where one of the elements is *faulty*. Maybe there's no data in it, only a big `NA`. That is what `safely()` is for. Let's add an element to `files_to_load` that isn't a file path:
+
+```{r}
+<<<<<<< HEAD:part6/part6.Rmd
+files_to_load3 <- c("blah", files_to_load)
+files_to_load3
+=======
+lm(dxa ~ st + gender, data = body_comp) %>%
+  tidy()
+>>>>>>> statsupdates:part7/part6.Rmd
+```
+
+If we `map` `load_files()` on this vector, we're going to get an error, because there is no file called `blah`:
+
+```{r}
+test <- map(files_to_load3, load_files)
+```
+
+Arrgh, it stopped at the first element! We need to use `safely` to *wrap* around our function. We first need to define new function called `load_files_possibly()`.
+
+```{r}
+load_files_possibly <- possibly(load_files, NULL)
+
+load_files_possibly(files_to_load3[1])
+```
+
+You can see that it returns a `NULL` value rather than return an error.
+
+<<<<<<< HEAD:part6/part6.Rmd
+Now we can use `load_files_safely()` on our list:
+=======
+We can make this dummy variable a bit more clear by taking care with the ordering of our factor levels. The reference variable is the first factor level. Right now, `gender` is a factor with levels:
+
+```{r}
+levels(body_comp$gender)
+```
+
+But we can change the reference group to 0 so that the coefficient is calculated for gender = 1:
+
+```{r}
+body_comp <- body_comp %>%
+  mutate(gender = fct_relevel(gender, "0"))
+
+lm(dxa ~ st + gender, data=body_comp) %>%
+  tidy()
+```
+
+Why did the coefficient of gender change signs?
+>>>>>>> statsupdates:part7/part6.Rmd
+
+```{r}
+file_list <- map(files_to_load3, load_files_possibly)
+
+file_list
+```
+
+The nice thing about returning `NULL` instead of an error here is that we can continue to work. That is, the `NULL` value won't affect our `reduce()`:
+
+```{r}
+reduce(file_list, bind_rows)
+```
+
+
+
+
+<<<<<<< HEAD:part6/part6.Rmd
+## Working with Two Lists at a Time: map2()
+
+```{r}
+knitr::include_graphics("image/map2_cupcakes.png")
+```
+=======
+# Analysis of Variance (ANOVA) (Optional)
+
+We've determined that there isn't a statistical difference between `dxa` and `st` using a paired t-test, but we also measured bodyfat using bioelectric resistance, `br`. 
+
+Maybe we should see if it measures differently from the other two methods. Because a t-test can only be used to measure the differences in means between two groups, we'd have to use multiple t-tests.
+>>>>>>> statsupdates:part7/part6.Rmd
+
+Say we had two lists with two elements, and one list contains elements that we want to combine with the other list somehow. `map2()` lets us use both lists as arguments to a function.
+
+```{r}
+cupcakes <- c("cupcake", "cupcake", "cupcake")
+frostings <- c("vanilla", "chocolate", "strawberry")
+
+<<<<<<< HEAD:part6/part6.Rmd
+map2(frostings, cupcakes, paste)
+```
+=======
+`aov()` uses the formula interface where the group variable is on the right of the `~`, and therefore we need the long version of our data with `method` denoting the three groups. Below, we are testing whether body fat percentage is a function of the type of body fat measurement method. We pipe the output of `aov()` to `tidy()` to get a clearer idea of the output of the ANOVA.
+>>>>>>> statsupdates:part7/part6.Rmd
+
+### Your Turn
+
+Use map2 to
+
+```{r}
+
+```
+
+
+<<<<<<< HEAD:part6/part6.Rmd
+=======
+Since our F statistic probability was not significant at below 0.05, we would not expect post-hoc pairwise t-tests comparing each pair of methods to be significant. But we can still perform multiple post-hoc t-tests using the function `pairwise.t.test()`. However, we need to account for inflation of false positives by using a multiple testing correction method (e.g., Bonferroni).
+>>>>>>> statsupdates:part7/part6.Rmd
+
+
+## Where Next?
+
+Using and understanding `purrr` functions opens up something really powerful: parallel computing. You can have multiple cores of a machine running iterations of your list using the `furrr` (short for future purrr) package.
+
+Learning more about functions and vectorization will help you to reduce the number of mistakes in analysis. 
+
+
+<<<<<<< HEAD:part6/part6.Rmd
+
+## Acknowledgments
+=======
+# Tidy Models with `parsnip`
+
+We used the `broom` package in the `tidymodels` suite of packages, but there are additional tools to fit models including those in the `parsnip` package. This package attempts to standardize the input of the model functions so that we do not have to remember which functions take formulas such as `y ~ x` and which take separate arguments for `x` and `y`.
+
+We first specify a "specification" of the model before we fit, and we need to specify the mode ("regression" vs "classification" etc) and the computational engine ("lm" vs other functions for fitting models using R, or using other engines such Stan, Spark, or keras, which become useful with big data):
+
+```{r}
+library(parsnip)
+
+lm_spec <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+lm_spec
+```
+
+Now we fit the model using `fit()` and `tidy()` it up:
+
+```{r}
+lm_spec %>%
+  fit(dxa ~ st + br + gender, data = body_comp) %>%
+  tidy()
+```
+
+We see the same result we would obtain from using `lm()` above. The usefulness of `parsnip` and `tidymodels` really shines when fitting multiple different types of machine learning models (i.e Random Forest, elastic net, neural net), or adding in other regression and machine learning methods such as bootstrap resampling, prediction accuracy estimation, cross-validation, and so on. We recommend studying the vignettes and articles in https://www.tidymodels.org/learn/.
+
+Here's an example of fitting a random forest model:
+
+```{r}
+rand_forest() %>%
+  set_engine("randomForest") %>%
+  set_mode("regression") %>%
+  fit(dxa ~ st + br + gender, data = body_comp)
+```
+
+# Binary Outcomes
+
+When we have a binary or categorical variable, we need different statistical models. We will use the smoking data and create a binary variable `cigarettes_per_day_gr3` that is `1` if the number of cigarettes smoked per day is greater than 3, and 0 otherwise.
+
+```{r}
+smoke_complete <- read_excel("data/smoke_complete.xlsx", 
+                             sheet=1, 
+                             na="NA") %>%
+  mutate(cigarettes_per_day_gr3 = 1*(cigarettes_per_day>3))
+```
+
+
+## Chi-square test
+
+We want to test the hypotheses:
+
+*Null Hypothesis:* Higher cigarette smoking is independent of gender.
+
+*Alternative Hypothesis:* Higher cigarette smoking is associated with (not independent of) gender.
+
+We will test this with a Chi-square test. The `chisq.test()` function requires a two-by-two table as input (notice this is yet another variation on types of inputs that models and tests take in R!).
+
+```{r}
+two_by_two <- smoke_complete %>% tabyl(cigarettes_per_day_gr3, gender)
+
+two_by_two
+```
+
+```{r}
+chisq_outcome <- chisq.test(two_by_two) %>% tidy()
+chisq_outcome
+```
+
+At a significance level of 0.05, we see that gender does appear to be associated with high smoking rate greater than 3 cigarettes per day.
+
+### Your turn:
+
+Perform a chi-square test of whether high cigarette smoking (greater than 3 per day) is associated with `vital_status`. We can pipe all of the above commands together, if we want:
+
+
+```{r, eval = FALSE}
+smoke_complete %>% 
+  tabyl(-----, -----) %>%
+  chisq.test() %>% 
+  tidy()
+```
+
+## Logistic regression
+
+We can use the `glm()` function to fit generalized linear models, including logistic regression. When we want to perform logistic regression, we specify the argument `family = "binomial"`. We need a binary outcome, and can have multiple predictors. Like `lm()`, this function takes a formula as argument to specify the model.
+
+Let's see if the outcome vital status is associated with some of our predictors. Note, we are ignoring time to event at the moment, and assuming everyone is followed up for the same amount of time (which is not true, but for the sake of example we will pretend). We need to convert our outcome into 0, 1 variable first.
+
+```{r}
+smoke_complete_glm <- smoke_complete %>%
+  mutate(vital_status = 1*(vital_status == "dead"))
+
+glm_fit <- glm( vital_status ~ cigarettes_per_day + gender + age_at_diagnosis,
+     family = "binomial",
+     data = smoke_complete_glm)
+
+glm_fit %>%
+  tidy() %>%
+  mutate(p.value = format.pval(p.value))
+```
+
+The coefficients are odds ratios on the log scale. We can use the `tidy()` function in `broom` to show us the corresponding odds ratios and confidence intervals:
+
+```{r}
+glm_fit %>%
+  tidy(exponentiate = TRUE, conf.int = TRUE)
+```
+
+
+## Survival Analysis
+
+When we have time to event data, as in the smoking and tumor data where the event is death specified in `vital_status` after a certain number of days, we must use survival analysis methods to fit our models and test hypotheses. We use the package    `survival` to either fit Cox Proportional Hazard regression models, or use a log-rank test.
+
+Our survival data must be in a certain format. We need an indicator of event that is 1 if the event occurred and 0 if it did not or if the subject was censored. We also need the time to event or time to last follow up to be in the same variable. In this data, we want the event status to be 1 if `vital_status` is "dead" and 0 if `vital_status` is "alive". If we have information on the number of days until death, we will use this number, otherwise we will use days to last follow up.
+
+```{r}
+library(survival)
+
+smoke_complete_surv <- smoke_complete %>%
+  mutate(event_status = 1*(vital_status=="dead"),
+         event_time = case_when(
+           is.na(days_to_death) ~ days_to_last_follow_up,
+           !is.na(days_to_death) ~ days_to_death
+         ))
+
+glimpse(smoke_complete_surv)
+```
+
+
+We start by creating a survival object with the function `Surv` 
+
+## Log-rank test
+
+Survival functions take a special kind of formula argument, where the left hand side is a survival object created with the function `Surv` with the first argument time to event, and the second argument event status. Then, we have the tilde (`~`) and have our categorical grouping or predictor on the right hand side. We will test whether survival time varies by disease type.
+
+Note: We are assuming right censoring where we lose people to follow up and they could have an event after that time, but we could also adapt this code for interval censoring.
+
+```{r}
+
+survdiff(Surv(event_time, event_status) ~ disease,
+        data = smoke_complete_surv)
+
+```
+
+We can visualize this with a Kaplan-Meier plot. A useful package is the `survminer` package which creates nice survival plots with `ggplot2`.
+
+```{r}
+library(survminer)
+
+smoke_surv <- survfit(Surv(event_time, event_status) ~ disease,
+        data = smoke_complete_surv)
+ggsurvplot(smoke_surv, risk.table = TRUE, conf.int = TRUE)
+
+```
+
+## Cox PH
+
+We can also fit Cox Proportional Hazards models with this data, using a similar formula but with the `coxph()` function.
+
+```{r}
+cph_fit <- coxph(Surv(event_time, event_status) ~ disease,
+        data = smoke_complete_surv)
+
+cph_fit %>% tidy()
+```
+
+Here we can see the log-hazard ratios and p-values. We can again use `tidy()` to extract the hazard ratios and confidence intervals.
+
+```{r}
+cph_fit %>% tidy(exponentiate = TRUE, conf.int = TRUE)
+```
+
+### Your turn
+
+1. Use a log-rank test to test for the association of survival time with gender.
+
+```{r}
+survdiff(Surv(event_time, event_status) ~ -----,
+        data = smoke_complete_surv)
+```
+
+
+2. Fit a Cox PH model with disease, gender, number of cigarettes per day, and age at diagnosis as predictors.
+
+```{r, eval = FALSE}
+coxph(Surv(event_time, event_status) ~ -----,
+        data = smoke_complete_surv) %>% tidy()
+```
+
+
+## Acknowledgements
+
+Written by Aaron Coyner and Ted Laderas and Jessica Minnier
+>>>>>>> statsupdates:part7/part6.Rmd
+
+Thanks so much to Rebecca Barter, whose treatment of `purrr` is one of the best I've ever seen.
+
+Illustrations are from Hadley Wickham's talk ["The Joy of Functional Programming (for Data Science)."](https://learning.acm.org/techtalks/functionalprogramming)
