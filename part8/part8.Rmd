@@ -43,16 +43,49 @@ There is a neural network/deep learning course at OHSU, and
 
 There are a lot of different packages and machine learning methods available for R. One big issue is that the output of all of these models is not standardized - for example, if you wanted a p-value from a model, you'd look in different places for the results. 
 
-The `tidymodels` workflow is designed 
+The `tidymodels` workflow is designed to map to common tasks you use for machine learning. 
 
 ## The different parts of `tidymodels`
 
 The different sections of `tidymodels` are designed to be useful in a `tidy` workflow and roughly map to the different steps and requirements of a machine learning workflow.
 
 
+```{r}
+library(palmerpenguins)
+library(tidymodels
+        )
+data("penguins")
+penguins_matrix <- penguins %>% 
+  select(species, c(contains("mm"), contains("_g"))) %>%
+  filter(complete.cases(.))
 
 
+pca_rec <- recipe(species ~., data = penguins_matrix) %>%
+  step_normalize(all_predictors()) %>%
+  step_pca(all_predictors())
 
+pca_prep <- prep(pca_rec)
+
+pca_prep
+
+tidied_pca <- tidy(pca_prep, 2)
+
+tidied_pca %>%
+  filter(component %in% paste0("PC", 1:5)) %>%
+  mutate(component = fct_inorder(component)) %>%
+  ggplot(aes(value, terms, fill = terms)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~component, nrow = 1) +
+  labs(y = NULL)
+```
+
+```{r}
+juice(pca_prep) %>%
+  ggplot(aes(PC1, PC2)) +
+  geom_point(aes(color = species), alpha = 0.7, size = 2) +
+#  geom_text(check_overlap = TRUE, hjust = "inward", family = "IBMPlexSans") +
+  labs(color = NULL)
+```
 
 
 ## Let's run through a basic tidymodels workflow
@@ -73,25 +106,43 @@ More advanced packages:
 - {workflows}
 
 
+## Explore the Data First
+
+```{r}
+skimr::skim()
+
+```
+
+
 ## Resample
 
-Build test/train 
+Build test/train set
+
 
 ## Recipes
 
+Prinicipal Components/UMAP
 Normalizing Data
-
+Specifying Features
 
 ## Parsnip
 
-
+Specifying model type
+Training model type
 
 ## Yardstick
 
+Evaluating Accuracy
+Comparing different methods
 
+
+## Assignment
+
+Pick two ML methods to compare for this task
 
 
 ## Acknowledgements
 
 Adapted from http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/
-
+http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/
+https://juliasilge.com/blog/cocktail-recipes-umap/
