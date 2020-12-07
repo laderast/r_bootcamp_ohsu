@@ -108,6 +108,7 @@ The way to read a `map()` statement is:
 > `load_files(),`
 >
 > to the `list` called `files_to_load`.
+
 ```{r}
 file_list <- purrr::map(.x = files_to_load, .f = load_files)
 file_list
@@ -121,9 +122,12 @@ In other words, we're taking a list of something (`cupcakes`), applying a functi
 
 Where does the list come from? By default, `map()` returns a list.
 
+
 ### Your Turn
 
-Use `map()` to return the `length` of each of the elements in `my_list`:
+Use `map()` to return the `length` of each of the elements in `my_list`. 
+
+Remember that you don't want to put the `()` after the function name.
 
 ```{r}
 my_list <- list(cat_names = c("Morris", "Julia"), 
@@ -166,6 +170,9 @@ There is another way to specify arguments to a function, but to explain it will 
 map(my_list2, ~mean(x = ., na.rm = TRUE))
 ```
 
+
+
+
 ## Anonymous Functions to save typing
 
 One thing about when you look at other peoples' `purrr` code is that it can be super confusing. There's all sorts of weird notation, such as `.` and `~`. Depending on what your function does, and what is in your `list`.
@@ -195,8 +202,8 @@ penguins_by_species
 Notice that in the above we use `.`, which is a way to refer to what's in the current element of a list. In our case, we are using `.` to refer to the `data.frame` in the current slot position:
 
 ```{r}
-purrr::map(penguins_by_species, 
-            ~nrow(.))
+purrr::map(.x = penguins_by_species, 
+          .f =  ~nrow(.))
 ```
 
 The nice thing about anonymous functions is that you can pass in additional parameters within the function, rather than placing them outside of the function.
@@ -221,20 +228,24 @@ The big difference between `map()` and `reduce()` has to do with what it returns
 > `map()` usually returns a list or data structure with the same number as its input;
 >
 > The goal of `reduce` is to take a list of items and return a single object.
+
+
 ```{r}
-bound_file <- purrr::reduce(file_list, dplyr::bind_rows)
+bound_file <- purrr::reduce(file_list, dplyr::bind_rows) 
 dim(bound_file)
 ```
 
 ### Your Turn
 
-Use `purrr::reduce` to find the total number of rows in all three files using `sum()`.
+Use `purrr::reduce` to find the total number of rows in all three files using `sum`.
 
-> Hint: You can use `sum().`
 ```{r}
 file_rows <- purrr::map(file_list2, nrow)
 purrr::reduce(file_rows, -----)
 ```
+
+
+
 
 ## `map_*`: Return a specific data type
 
@@ -260,7 +271,7 @@ Why do this? It's good coding practice, because you're guaranteeing that you wil
 
 ## Failing Gracefully: `possibly()` and `safely()`
 
-We might have a list of objects where one of the elements is *faulty*. Maybe there's no data in it, only a big `NA`. That is what `safely()` is for. Let's add an element to `files_to_load` that isn't a file path:
+We might have a list of objects where one of the elements is *faulty*. Maybe there's no data in it, only a big `NA`. That is what `possibly()` is for. Let's add an element to `files_to_load` that isn't a file path:
 
 ```{r}
 files_to_load3 <- c("blah", files_to_load)
@@ -273,14 +284,15 @@ If we `map` `load_files()` on this vector, we're going to get an error, because 
 test <- map(files_to_load3, load_files)
 ```
 
-Arrgh, it stopped at the first element! We need to use `safely` to *wrap* around our function. We first need to define new function called `load_files_possibly()`.
+Arrgh, it stopped at the first element! We need to use `possibly()` to *wrap* around our function. We first need to define new function called `load_files_possibly()`. The second argument (`otherwise`) is what the function will return if there's an error. 
 
 ```{r}
-load_files_possibly <- possibly(load_files, NULL)
+load_files_possibly <- possibly(.f = load_files, otherwise = NULL)
+
 load_files_possibly(files_to_load3[1])
 ```
 
-You can see that it returns a `NULL` value rather than return an error.
+You can see that it returns a `NULL` value rather than returning an error.
 
 Now we can use `load_files_safely()` on our list:
 
@@ -296,6 +308,9 @@ reduce(file_list, bind_rows)
 ```
 
 
+## Chopping up a data frame by group: `split()`
+
+
 
 
 ## Working with Two Lists at a Time: map2()
@@ -306,17 +321,22 @@ knitr::include_graphics("image/map2_cupcakes.png")
 
 Say we had two lists with two elements, and one list contains elements that we want to combine with the other list somehow. `map2()` lets us use both lists as arguments to a function.
 
+Here we're using the `paste()` function to paste our two vectors together, element by element.
+
 ```{r}
-cupcakes <- c("cupcake", "cupcake", "cupcake")
+cupcakes <- c("cupcake", "croissant", "shortcake")
 frostings <- c("vanilla", "chocolate", "strawberry")
 map2(frostings, cupcakes, paste)
 ```
 
 ### Your Turn
 
-Use map2 to
+Use `map2()` to resample the `penguins` data three times.
 
 ```{r}
+indices <- map(1:3, ~sample(x = 1:nrow(penguins), size = 40, replace = FALSE))
+map(indices, ~(penguins[.,]))
+
 ```
 
 
@@ -332,6 +352,6 @@ Learning more about functions and vectorization will help you to reduce the numb
 
 ## Acknowledgments
 
-Thanks so much to Rebecca Barter, whose treatment of `purrr` is one of the best I've ever seen.
+Thanks so much to Rebecca Barter, whose treatment of `purrr` is one of the best I've ever seen. 
 
 Illustrations are from Hadley Wickham's talk ["The Joy of Functional Programming (for Data Science)."](https://learning.acm.org/techtalks/functionalprogramming)

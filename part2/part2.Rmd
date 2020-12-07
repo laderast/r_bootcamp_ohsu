@@ -1,7 +1,7 @@
 ---
 title: "Introduction to R, Part 2: Data Frames, Reading Data, visualizing data with ggplot2"
 author: "You!"
-output: html_notebook
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -182,6 +182,61 @@ We'll be seeing that this format is called **Tidy Data**, and it lets us do all 
 
 5.  **Extra Lines are OK!** Extra lines before the column header are ok, as you've seen. It's sometimes better to have a "notes" sheet where you put extra information or, better yet, a data dictionary.
 
+
+
+## Importing data from other software with `haven` (Optional)
+
+
+The package `haven` allows us to import data in other software formats, including SAS, Stata, or SPSS data.
+
+Here is an example reading in a SAS data set:
+
+```{r}
+mtsas <- read_sas("data/mtcars.sas7bdat")
+head(mtsas)
+```
+
+
+For SPSS, the function we need is `read_sav()` while for Stata, the function we need is `read_dta()`. These all read in the data as tibbles. If the data is in SAS export (.xpt) format, we can use the `read_xpt()` function. We can also export data into these formats using the `write_*` versions of these functions such as `write_sas()`.
+
+Often, the data set from these software have additional attributes, such as labels. You can read more about dealing with these attributes in the `haven` vignettes: <https://haven.tidyverse.org/articles/semantics.html>
+
+Here, we have downloaded data from the CDC's National Ambulatory Medical Care Survey located and described at: <https://www.cdc.gov/nchs/ahcd/datasets_documentation_related.htm#data>
+
+This is a very large SPSS data set from one year (2015) of the survey. We can read it in using haven, and note that many of the variables have labeled attributes ("dbl+lbl" format in `glimpse`):
+
+
+```{r}
+namcs <- read_sav("data/namcs2015-spss.sav")
+glimpse(namcs[,1:5])
+```
+
+When we print one of the columns, we see the labels printed at the bottom:
+
+```{r}
+namcs$RACEUN[1:10]
+```
+
+We can see more detail with `str()`, including the column label better defining the value "Patient race - unimputed":
+
+```{r}
+str(namcs$RACEUN)
+```
+
+But note that the values of the vector are the numeric values. This can be cumbersome for analysis, and as stated in the [haven conversion vignette](https://haven.tidyverse.org/articles/semantics.html), the goal of `haven` is not to give you a data set and labels to use for analysis, but to give an intermediate data set that can be processed and wrangled into the analysis data set that you want to use. One such way is to convert these labeled columns to factors with the `haven` function `as_factor()`:
+
+```{r}
+namcs <- namcs %>% mutate(
+  race_fac = as_factor(RACEUN)
+)
+head(namcs$race_fac)
+levels(namcs$race_fac)
+```
+
+Now, we have preserved the labels in R, and we could further convert this vector to a character vector with `as.character()` if that works better for our analysis pipeline.
+
+
+
 ## `data.frame`s
 
 Link to video: <https://youtu.be/Ur-Lzkan8zI>
@@ -218,6 +273,9 @@ We can also preview the content by showing the first few rows:
 head(brca_clinical) 
 ```
 
+
+
+
 ## Column Names
 
 We often need to reference the names of *variables* (also known as columns) in our `data.frame`, so it's useful to print only those to the screen:
@@ -229,6 +287,9 @@ colnames(brca_clinical)
 ```
 
 It's also possible to view row names using`rownames(brca_clinical)`, but our data only possess numbers for row names so it's not very informative.
+
+
+
 
 ## Okay, What's really in it?
 
@@ -254,6 +315,8 @@ Another useful command is `View()` - it will open up a spreadsheet like view of 
 View(brca_clinical)
 ```
 
+
+
 ### Summarizing our Data
 
 Finally, we can also examine basic summary statistics for each column:
@@ -270,6 +333,9 @@ For `factor`s (also known as categorical variables), and `character` variables, 
 
 We will talk more about `factors` in the next lab.
 
+
+
+
 ### `skimr`
 
 A really useful package for understanding your data is the `skimr` package. Let's install it with the `install.packages()` command.
@@ -283,6 +349,9 @@ library(skimr)
 skim(brca_clinical)
 
 ```
+
+
+
 
 ### `visdat`
 
@@ -299,6 +368,8 @@ help("visdat-package")
 
 vis_dat(brca_clinical)
 ```
+
+
 
 ## Introducing `ggplot2`
 
@@ -319,6 +390,9 @@ Now that we've loaded our data as a `data.frame`, we can begin to start doing th
 
 Let's start with visualizing the data.
 
+
+
+
 ## Working Towards a Graph
 
 We're going to work towards the following graph today:
@@ -326,6 +400,9 @@ We're going to work towards the following graph today:
 ```{r}
 knitr::include_graphics("image/days_to_last_followup.png")
 ```
+
+
+
 
 ## `ggplot2`: A Grammar of Graphics
 
@@ -363,6 +440,10 @@ Things to note: we chain these three things together with `+` (plus sign). I ten
 
 [aes() function - mapping variables to visual properties of the graph]
 
+
+
+
+
 ## Challenge
 
 Based on the graph above, map the appropriate variables in `brca_clinical` to the x, and y aesthetics. Run your plot. Is it what you expected?
@@ -380,6 +461,9 @@ ggplot(data = brca_clinical) +
 
 ```
 
+
+
+
 ## Simple arithmetic
 
 Huh. `age_at_diagnosis` is in days, not years. We can fix that by dividing it by 365:
@@ -394,6 +478,9 @@ ggplot(data = brca_clinical) +
 
 
 ```
+
+
+
 
 ## Color
 
@@ -411,6 +498,8 @@ ggplot(data = brca_clinical) +
   geom_point() 
 ```
 
+
+
 ## Titles
 
 We can add more details to our graph. We can add a title using the `ggtitle()` function:
@@ -427,6 +516,8 @@ ggplot(data = brca_clinical) +
   ggtitle("Age versus Days to Last followup") 
 
 ```
+
+
 
 ## Changing the Axis Labels
 
@@ -455,11 +546,16 @@ Now we've re-created the above plot! Let's save it using `ggsave()`. `ggsave()` 
 ggsave("follow-up-plot.jpg")
 ```
 
+
+
 ## What you learned today:
 
 -   Loading excel data and tips for formatting your data in excel
 -   Understanding basic properties of `data.frame`s
 -   The basics of the "grammar of graphics" with `ggplot2`
+
+
+
 
 ## Survey
 
@@ -467,15 +563,22 @@ Please take the survey, as it is required for your attendance:
 
 <https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
 
+
+
 ## Practice
 
 You can practice your `ggplot2` skills by taking the first chapter of the R-Bootcamp:
 
 <https://r-bootcamp.netlify.com/chapter1>
 
+
+
+
 ## Assignment (10 points)
 
 Instructions: Turn your `.nb.html` file in with the following assignment finished. Make sure it is named `part2_LASTNAME.nb.html`, where `LASTNAME` is your last name, of course.
+
+
 
 1.  Load the `smoke_complete.xlsx` file into R using `read_excel`. You'll need to take a look at it to make sure that your arguments are correct.
 
@@ -483,6 +586,8 @@ Instructions: Turn your `.nb.html` file in with the following assignment finishe
 smoke_complete <- read_excel()
 
 ```
+
+
 
 2.  Use `glimpse()` on `smoke_complete`. How many rows does the file have? How many variables does it have? What are the numeric variables in this dataset?
 
@@ -492,6 +597,8 @@ glimpse(smoke_complete)
 ```
 
 [Put your answer here]
+
+
 
 3.  Produce a scatter plot of `smoke_complete` using `geom_point()`, mapping these variables to the following aesthetics:
 
@@ -503,6 +610,8 @@ ggplot(smoke_complete, aes(x = ____,
                            color = ___)) +
 
 ```
+
+
 
 4.  Pick two `numeric` variables, and a character variable in the dataset and produce a scatterplot by mapping them to `x`, `y`, and `color`. Add a title and change the x and y labels to make sense.
 

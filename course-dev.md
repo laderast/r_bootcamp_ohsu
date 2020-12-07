@@ -94,10 +94,75 @@ https://coderefinery.org/lessons/
 Learning aids - 
 
 
-## Suggested functions for assignments
+## Functions of the Week Assignment
 
-dplyr::relocate()
+Each of you will be responsible for a short write up about a `tidyverse` function. We'll feature these on the website's blog.
 
+Why are we doing this? I believe that learning how to program is a lifelong journey and that you need to gain the skills how to teach yourself. 
+
+Also, I believe that all of you have an important point of view and can help each other learn. Never forget that you can help each other.
+
+## Report
+
+Each write up should have the following:
+
+1. A short explanation of what the function is for
+2. An example using a dataset that shows what it's for. 
+3. Bonus points: show as part of a `dplyr` pipeline or `ggplot2` statement.
+
+Some good example datasets to use: `penguins`, `mtcars`, `gapminder`.
+
+Sign up for a week to present your function. [Here]() is a template that you can use to present. 
+
+You can pick any function you want, but this is a list of suggested functions that other people have found to be useful.
+
+- `dplyr::relocate()`
+- `dplyr::count() / add_count() / n()`
+- `dplyr::distinct()`
+- `dplyr::glimpse()`
+- `dplyr::slice()`
+- `ggplot2::geom_count()`
+- `ggplot2::geom_hline()`
+- `ggplot2::geom_violin()`
+- `ggplot2::geom_jitter()`
+- `ggplot2::cut_width()`
+- `dplyr::lead() / lag()`
+- `tidyr::fill()`
+- `purrr::walk()`
+- `tidyr::uncount()`
+- `tidyr::separate()`/ `tidyr::separate_rows()`
+- `forcats::fct_inorder()`
+- `forcats::fct_infreq()`
+- `forcats::fct_other()`
+- `forcats::fct_lump()`
+- `tidyr::na_if()`
+- `tidyr::replace_na()`
+- `lubridate::floor_date()`
+- `dplyr::coalesce()`
+- `tidyr::crossing()`
+- `dplyr::pull()`
+- `tibble::deframe()`
+- `broom::add_predictions()`
+- `pryr::partial()`
+
+### Sources
+
+https://github.com/robinsones/rstudio-conf-2018-talk/blob/master/Rstudio_conference_2018_presentation.pdf
+https://dplyr.tidyverse.org/articles/window-functions.html
+https://rstudio.com/resources/rstudioconf-2020/the-little-package-that-could-taking-visualizations-to-the-next-level-with-the-scales-package/
+https://cmdlinetips.com/2019/12/10-tidyverse-tricks/
+
+
+## Final Project
+
+The final project should be focused on a dataset you're interested in. 
+
+You should also set some goals for yourself before you start your project. It could be to learn a new geom, or a couple new functions, or to answer a particular question about the data.
+
+Part of the grade will be a self evaluation based on the following criteria:
+
+1. Did you meet or exceed your goals?
+2. Did you learn something new?
 
 
 ## 
