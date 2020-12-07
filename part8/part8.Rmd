@@ -59,7 +59,6 @@ penguins_matrix <- penguins %>%
   select(species, c(contains("mm"), contains("_g"))) %>%
   filter(complete.cases(.))
 
-
 pca_rec <- recipe(species ~., data = penguins_matrix) %>%
   step_normalize(all_predictors()) %>%
   step_pca(all_predictors())
@@ -78,15 +77,26 @@ tidied_pca %>%
   facet_wrap(~component, nrow = 1) +
   labs(y = NULL)
 ```
+```{r}
+juice(pca_prep)
+```
 
 ```{r}
 juice(pca_prep) %>%
   ggplot(aes(PC1, PC2)) +
   geom_point(aes(color = species), alpha = 0.7, size = 2) +
-#  geom_text(check_overlap = TRUE, hjust = "inward", family = "IBMPlexSans") +
   labs(color = NULL)
 ```
 
+
+Plot `PC1` versuse `PC3`
+
+```{r}
+juice(pca_prep) %>%
+  ggplot(aes(PC1, PC3)) +
+  geom_point(aes(color = species), alpha = 0.7, size = 2) +
+  labs(color = NULL)
+```
 
 ## Let's run through a basic tidymodels workflow
 
