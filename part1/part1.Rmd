@@ -392,6 +392,9 @@ more_heights <- c(63, 69, 60, 65, NA, 68, 61, 70, 61, 59, 64, 69, 63, 63, NA, 72
 
 ```
 
+
+
+
 ## Doing something with each element in a `vector`: `for` loops
 
 The last thing I want to cover is how to do something with each element in a `vector` . If we do something once with a function, we can do it multiple times on different elements in a vector with that function. When we run the same function on different elements of a dataset, it is known as *iteration*.
@@ -408,15 +411,18 @@ for(height in more_heights){
 
 We won't be using `for` loops for a while, but I wanted you to see them so when you encounter them again, they're not a foreign concept.
 
+
+
+
 ## Wrapping up
 
 [R/Rstudio] [objects] [data types]
 
+
+
 ## Post Class Survey
 
 Please fill out the following post class survey in order for your attendance to be counted. I will summarize muddiest and clearest points before each class. Your responses are anonymous, and will not be used in your grade.
-
-External folks, you don't have to do this, but your answers are helpful.
 
 <https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
 
@@ -424,56 +430,3 @@ External folks, you don't have to do this, but your answers are helpful.
 
 This intro to R was adapted from material from Kate Hertweck's Intro to R course from <http://fredhutch.io>.
 
-## Homework
-
-### 1. Object manipulation
-
-Create an object called `agge` that contains your age in years. Then reassign the object to a new object called `age` (e.g., correct the typo). Then remove the previous object from your environment and then calculate your age in days
-
-```{r}
-#create agge object
-
-#reassign agge value to age
-
-#remove agge object
-
-#Use math to calculate your age in days
-
-```
-
-### 2. Vector manipulation (character data):
-
-Create a object called `buildings` representing a vector that contains four names of buildings on OHSU's campus, including the building where you work (here's a reference: <https://www.ohsu.edu/visit/maps>).
-
-Add `Portland, Oregon` to the beginning of the vector, and `Phys Plant` to the end of the vector
-
-subset the vector to show only the building in which you work.
-
-```{r}
-#create buildings object
-buildings <- c()
-
-#Add "Portland, Oregon" to the beginning of buildings
-
-#Add "Phys Plant" to the end of buildings
-
-#subset buildings to show only your building
-buildings[]
-
-```
-
-## 3. Vector manipulation (numerical data):
-
-The following vector represents the number of vacation days possessed by various employees.
-
-How many employees are represented in the vector?
-
-How many vacation days total?
-
-```{r}
-vacation_days <- c(5, 7, 20, 1, 0, 0, 12, 4, 2, 2, 2, 4, 5, 6, 7, 10, 4)
-
-#how many employees are represented in the vector?
-
-#how many vacation days total?
-```

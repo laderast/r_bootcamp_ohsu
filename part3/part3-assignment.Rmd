@@ -1,0 +1,71 @@
+---
+title: "Assignment 3"
+author: "You"
+date: "12/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions for Submitting
+
+Submit your knitted html file - if you are having issues, you can submit the `.Rmd` file, put please do your best to knit it. 
+
+Make sure to name your assignment "assignment3-LASTNAME.html" and to fill out the space with you as an author above. 
+
+
+# Assignment 3
+
+1. Load the `smoke_complete` dataset from the `data` folder. Use `filter()` to subset those patients who have 
+
+disease == "LUSC"
+
+then save the results to an object called `lusc_smokers`:
+
+```{r}
+smoke_complete <- read_excel("data/smoke_complete.xlsx", sheet =1, na= "NA")
+
+
+```
+
+2. Sort `lusc_smokers` by decreasing `tumor_stage`:
+
+```{r}
+
+
+```
+
+
+3. For `lusc_smokers`, make a boxplot where y = cigarettes_per_day and x = tumor_stage.
+
+
+```{r}
+
+
+```
+
+3. Modify your plot to facet by `gender`:
+
+
+```{r}
+
+
+```
+
+
+4. Subset `smoke_complete` to a different set of patients, such as gender == "female".
+
+Make a new faceted plot, this time a scatterplot. You're free to choose two numeric variables of interest to plot from `smoke_complete`. 
+
+Color your plot by `disease` and facet by `vital_status`.
+
+
+```{r}
+
+
+
+
+```
+

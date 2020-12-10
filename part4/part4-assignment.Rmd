@@ -1,0 +1,144 @@
+---
+title: "Assignment 4"
+author: "You"
+date: "12/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions for Submitting
+
+Submit your knitted html file to sakai - if you are having issues, you can submit the `.Rmd` file, put please do your best to knit it. If you are having issues, please give me the URL for your project.
+
+Make sure to name your assignment "part4-asssignment-LASTNAME.html" and to fill out the space with you as an author above. 
+
+
+# Assignment 4
+
+1. Load the `smoke_complete` dataset from the `data` folder.
+
+```{r}
+
+    
+```
+
+
+2. Determine which tissue/organ of origin occurs most frequently in `smoke_complete`. (Hint: use both `group_by()/summarize()` and `arrange()`.)
+
+```{r}
+smoke_complete %>%
+    
+```
+
+
+3.  Create a new dataset called `smoke_filtered` that only contains subjects with `tissue_or_organ_of_origin` of `C34.3`. Use `glimpse()` on `smoke_filtered`.
+
+```{r}
+smoke_filtered  <- smoke_complete %>%
+    
+
+glimpse(smoke_filtered)
+```
+
+4. For subjects in `smoke_filtered`, make a new variable called `age_years` by converting `age_at_diagnosis` from days to years.
+
+```{r}
+smoke_filtered <- smoke_filtered %>% 
+    mutate(age_years = _______ * _____)
+
+```
+
+
+4. Make a new variable called `age_category` using `case_when()` from `age_years` in `smoke_filtered`. 
+
+Make `age_category` a `factor` with the following levels:
+
+* `0-40` years old
+* `40-55` years old
+* `55-70` years old
+* `70+` years old
+
+
+```{r}
+smoke_filtered <- 
+    smoke_filtered %>% 
+    mutate(age_category = 
+               case_when(age_years <= 40 ~ "0-40",
+                         
+                         
+                         
+                         )
+           ) %>%
+    mutate(age_category = factor(age_category,
+                                 levels = c("0-40",
+                                            
+                                            
+                                            
+                                            )
+                                 )
+           )
+
+
+```
+
+
+5. Create a scatterplot using `geom_point()` demonstrating the correlation (if any) between the categorical variable `age_at_diagnosis` versus `cigarettes_per_day`.
+
+
+```{r}
+ggplot(smoke_complete) +
+    aes(x = , y= ) +
+    geom_point()
+
+```
+
+
+6. Create a column called `survival_time` that is equal to `days_to_death` if non=missing, and is equal to `days_to_last_follow_up` if missing.
+
+```{r}
+smoke_filtered <- 
+    smoke_filtered %>% 
+    mutate(survival_time = 
+    #           
+               )
+```
+
+7. Create a column called `survival_event` that is 1 if the person has a non missing `days_to_death` and 0 if not.
+
+```{r}
+smoke_filtered <- 
+    smoke_filtered %>% 
+    mutate(survival_event = )
+```
+
+8. Calculate median `survival_time` in patients who died versus those who were lost to follow up. Be careful with missing values in `survival_time`.
+
+```{r}
+smoke_filtered %>% 
+    group_by(   ) %>%
+    summarize(median_surv_time = )
+```
+
+9. Calculate median `survival_time` in patients who died versus those who were lost to follow up, stratified by disease type. Hint: `group_by()` can take multiple arguments to group by multiple variables.
+
+```{r}
+smoke_filtered %>% 
+    group_by(  , ) %>%
+    summarize(median_surv_time = )
+```
+
+10. Create a boxplot of `survival_time` by `factor(survival_event)` with color mapped to `disease`.
+
+```{r}
+ggplot(smoke_filtered, 
+       aes(x = factor( ), 
+           y =  , 
+           color =  )) + 
+    geom_boxplot()
+```
+
+
+11. For loop assignment

@@ -52,14 +52,25 @@ The different sections of `tidymodels` are designed to be useful in a `tidy` wor
 
 ```{r}
 library(palmerpenguins)
-library(tidymodels
-        )
+library(tidymodels)
+library(rsample)
+library(tidyverse)
+
 data("penguins")
+
 penguins_matrix <- penguins %>% 
   select(species, c(contains("mm"), contains("_g"))) %>%
-  filter(complete.cases(.))
+  filter(species %in% c("Chinstrap", "Adelie")) %>%
+  filter(complete.cases(.)) %>%
+  mutate(species = forcats::fct_drop(species))
 
-pca_rec <- recipe(species ~., data = penguins_matrix) %>%
+penguins_split <- initial_split(penguins_matrix, prop = 0.85, strata = species)
+
+penguins_train <- training(penguins_split)
+
+dim(penguins_train)
+
+pca_rec <- recipe(species ~., data = penguins_train) %>%
   step_normalize(all_predictors()) %>%
   step_pca(all_predictors())
 
@@ -69,8 +80,9 @@ pca_prep
 
 tidied_pca <- tidy(pca_prep, 2)
 
+
 tidied_pca %>%
-  filter(component %in% paste0("PC", 1:5)) %>%
+  filter(component %in% paste0("PC", 1:4)) %>%
   mutate(component = fct_inorder(component)) %>%
   ggplot(aes(value, terms, fill = terms)) +
   geom_col(show.legend = FALSE) +
@@ -97,6 +109,120 @@ juice(pca_prep) %>%
   geom_point(aes(color = species), alpha = 0.7, size = 2) +
   labs(color = NULL)
 ```
+```{r}
+library(embed)
+
+umap_rec <- recipe(species ~., data = penguins_train) %>%
+  step_normalize(all_predictors()) %>%
+  step_umap(all_predictors())
+
+umap_prep <- prep(umap_rec)
+
+umap_prep
+
+umap_pca <- tidy(umap_prep, 2)
+
+juice(umap_prep)
+
+juice(umap_prep) %>%
+  ggplot(aes(umap_1, umap_2)) +
+  geom_point(aes(color = species), alpha = 0.7, size = 2) +
+  labs(color = NULL)
+
+```
+
+## Setup a recipe for our ML model
+
+
+```{r}
+
+classification_rec <- recipe(species ~., data = penguins_train) %>%
+  step_normalize(all_predictors())
+
+classification_rec
+
+class_prep <- prep(classification_rec)
+
+juice(class_prep)
+
+skimr::skim(juice(class_prep))
+```
+
+```{r}
+library(tune)
+
+rf_model <- 
+  # specify that the model is a random forest
+  rand_forest() %>%
+  # specify that the `mtry` parameter needs to be tuned
+  set_args(mtry = tune()) %>%
+  # select the engine/package that underlies the model
+  set_engine("ranger", importance = "impurity") %>%
+  # choose either the continuous regression or binary classification mode
+  set_mode("classification") 
+
+library(workflows)
+
+rf_workflow <- workflow() %>%
+  # add the recipe
+  add_recipe(classification_rec) %>%
+  # add the model
+  add_model(rf_model)
+```
+
+
+```{r}
+penguins_cv <- rsample::vfold_cv(penguins_train)
+
+rf_grid <- expand.grid(mtry = c(3, 4, 5))
+# extract results
+rf_tune_results <- rf_workflow %>%
+  tune_grid(resamples = penguins_cv, #CV object
+            grid = rf_grid, # grid of values to try
+            metrics = metric_set(accuracy, roc_auc) # metrics we care about
+            )
+
+```
+
+```{r}
+rf_tune_results %>%
+  collect_metrics()
+```
+
+```{r}
+param_final <- rf_tune_results %>%
+  select_best(metric = "accuracy")
+param_final
+
+```
+
+```{r}
+rf_workflow <- rf_workflow %>%
+  finalize_workflow(param_final)
+```
+
+
+```{r}
+rf_fit <- rf_workflow %>%
+  # fit on the training set and evaluate on test set
+  last_fit(penguins_split)
+
+test_performance <- rf_fit %>% collect_metrics()
+test_performance
+```
+
+```{r}
+test_predictions <- rf_fit %>% collect_predictions()
+test_predictions
+
+test_predictions %>% 
+  conf_mat(truth = species, estimate = .pred_class)
+
+test_predictions %>%
+  ggplot() +
+  geom_density(aes(x = .pred_Adelie, fill = species), 
+               alpha = 0.5)
+```
 
 ## Let's run through a basic tidymodels workflow
 
@@ -119,14 +245,27 @@ More advanced packages:
 ## Explore the Data First
 
 ```{r}
-skimr::skim()
+skimr::skim(penguins)
 
 ```
 
 
 ## Resample
 
+Subset to Adelie/Gentoo
+
+```{r}
+two_species <- penguins %>%
+  filter(species %in% c("Gentoo", "Adelie"))
+```
+
+
 Build test/train set
+
+```{r}
+
+
+```
 
 
 ## Recipes

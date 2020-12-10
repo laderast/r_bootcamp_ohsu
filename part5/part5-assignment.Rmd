@@ -1,0 +1,157 @@
+---
+title: 'Part 5: Doing useful things with multiple tables/dates/functions/for-loops'
+author: "you"
+date: "5/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions for Submitting
+
+Submit your knitted html file - if you are having issues, you can submit the `.Rmd` file, put please do your best to knit it. 
+
+Make sure to name your assignment "assignment3-LASTNAME.html" and to fill out the space with you as an author above. 
+
+
+## Assignment
+
+1. Use `bind_rows()` to bind all three `smoke` datasets (`smoke_1`, `smoke_2`, and `smoke_3`) together. Hint: you'll have to do two `bind_row()` operations.
+
+```{r}
+smoke_1 <- read_excel(here('data/smoke_1.xlsx'), 
+                      sheet=1, 
+                      na="NA")
+smoke_2 <- read_excel(here('data/smoke_2.xlsx'), 
+                      sheet=1, 
+                      na="NA")
+
+smoke_3 <- read_excel(here('data/smoke_3.xlsx'), 
+                      sheet=1, 
+                      na="NA")
+```
+
+
+
+2. Take a look at the `patient` and `patient_encounter` tables loaded below.
+
+```{r}
+patient <- read_csv("data/patient_example.csv")
+patient_encounter <- read_csv("data/patient_enc_example.csv")
+
+```
+
+
+How many rows does each table have?
+
+```{r}
+nrow()
+nrow()
+```
+
+
+Write a `inner_join()` and assign it to `inner_patient` with 
+
+- `patient` as the *left* table
+- `patient_encounter` as the *right* table
+- joining on the approriate columns (look at the column names carefully!)
+
+
+```{r}
+inner_patient <- patient %>%
+  inner_join(y = ____, by = c())
+
+inner_patient
+```
+
+How many rows does `inner_patient` have?
+
+
+Do a `left_join` of the two tables with the same criteria as above. Assign it to `left_patient`. 
+
+Count the number of rows in `left_patient`. Is it what you expected?
+
+```{r}
+left_patient <- patient %>%
+  left_join()
+
+nrow(left_patient)
+```
+
+
+Look up the documentation for `anti_join()`. Do an `anti_join` of the two tables with the same criteria. What does this joined table contain?
+
+```{r}
+anti_patient <- patient %>%
+  anti_join()
+
+nrow(anti_patient)
+```
+
+
+3. Look up the documentation for `tidyr::pivot_wider`. Transform `expression_long` back to a *wide* format, but this time with **columns** as *genes* and **rows** as *samples*.
+
+Hint: Always look at the examples in the documentation! They'll help you.
+
+```{r}
+expression_example <- read_excel("data/expression_example.xlsx", sheet=1)
+
+expression_long <- 
+  expression_example %>%
+    pivot_longer(cols= starts_with("tcga"), 
+                 names_to = "sample", 
+                 values_to = "expression")
+
+
+
+expression_long %>%
+  pivot_wider(id_cols = ------,
+              names_from = ------,
+              values_from = ------) 
+
+
+```
+
+4. What does the function `load_files()` do? 
+
+Write up a short explanation here:
+
+
+
+```{r}
+load_files <- function(path){
+  out_frame <- readxl::read_excel(path, sheet = 1)
+  out_frame <- janitor::clean_names(out_frame)
+  return(out_frame)
+}
+```
+
+Write up an example here (You can use one of the excel files in the `data` folder).
+
+```{r}
+
+```
+
+5. Write a function called `count_columns()` that takes a `data.frame` as input and returns the number of columns in the `data.frame`
+
+```{r}
+count_columns <- function(df){
+  
+  
+}
+```
+
+Show an example of your function in use:
+
+```{r}
+
+
+```
+
+
+
+## Acknowledgements
+
+Written by Aaron Coyner and Ted Laderas. Data is derived from Intro to R from fredhutch.io. 

@@ -21,6 +21,15 @@ library(tidyverse)
 
 Please go through `tidyowl::learn_lists()` before you start this unit. You'll need to understand how lists work and how we put things into them and get things out of them for this unit to make sense.
 
+
+```{r}
+library(tidyowl)
+learn_lists()
+```
+
+
+
+
 ## Don't Repeat Yourself (DRY) - use functions!
 
 If you do something in R once and have to do it again, it's probably best to think of how to do it well once, rather than cutting and pasting again.
@@ -50,6 +59,9 @@ Now we can utilize our `load_files()` function that takes these file locations (
 load_files(files_to_load[1])
 ```
 
+
+
+
 ## For Loops
 
 Why do we need functions?
@@ -65,14 +77,21 @@ We use our function `load_files()` on `single_file`. Because `load_files()` retu
 ```{r}
 #initialize an empty list
 file_list <- list()
+
+
 #use single_file as a placeholder
 for(single_file in files_to_load){
+  #show what single file is
+  print(single_file)
+  
   loaded_file <- load_files(single_file)
   #put the contents of loaded file into a slot with
   #the name of the file.
   
   file_list[[single_file]] <- loaded_file
 }
+
+
 file_list
 ```
 
@@ -82,7 +101,10 @@ Try subsetting `files_to_load` to contain just the second and third elements. Ho
 
 ```{r}
 file_list2 <- list()
+
 files_to_load2 <- files_to_load[2:3]
+
+
 for(single_file in files_to_load2){
   file_list2[[single_file]] <- load_files(single_file)
 }
@@ -120,7 +142,9 @@ knitr::include_graphics("image/map_frosting.png")
 
 In other words, we're taking a list of something (`cupcakes`), applying a function (`frost()`) to each of them. Thus, we should get back three frosted cupcakes.
 
-Where does the list come from? By default, `map()` returns a list.
+Where does the list come from? By default, `map()` returns the results of your functions to a list.
+
+
 
 
 ### Your Turn
@@ -141,10 +165,15 @@ If we know what data type we want to return, we can use one of the `map_*` funct
 
 Check the class of `lengths2` - is it a `list` or a `vector`?
 
+
+
 ```{r}
 lengths2 <- map_int(my_list, length)
 lengths2
 ```
+
+
+
 
 ## Passing in multiple parameters
 
@@ -208,6 +237,8 @@ purrr::map(.x = penguins_by_species,
 
 The nice thing about anonymous functions is that you can pass in additional parameters within the function, rather than placing them outside of the function.
 
+
+
 ### Your Turn
 
 What does the following code do? How did we supply the `na.rm` argument?
@@ -216,6 +247,9 @@ What does the following code do? How did we supply the `na.rm` argument?
 purrr::map(penguins_by_species, 
              ~mean(.$bill_depth_mm, na.rm  = TRUE))
 ```
+
+
+
 
 ## `purrr::reduce()`
 
@@ -310,6 +344,11 @@ reduce(file_list, bind_rows)
 
 ## Chopping up a data frame by group: `split()`
 
+We've seen `group_by`, which can group the rows of a data.frame by a factor. 
+
+Sometimes it is easier to split the dataframe into a list and work from there.
+
+
 
 
 
@@ -352,6 +391,6 @@ Learning more about functions and vectorization will help you to reduce the numb
 
 ## Acknowledgments
 
-Thanks so much to Rebecca Barter, whose treatment of `purrr` is one of the best I've ever seen. 
+Thanks so much to Rebecca Barter, whose treatment of `purrr` is one of the best I've ever seen. Very clear. http://www.rebeccabarter.com/blog/2019-08-19_purrr/ 
 
 Illustrations are from Hadley Wickham's talk ["The Joy of Functional Programming (for Data Science)."](https://learning.acm.org/techtalks/functionalprogramming)
