@@ -16,18 +16,18 @@ Please review the machine learning introduction before you start working with th
 # Glossary
 
 -   *Machine Learning* - utilizing algorithms to discover and utilize patterns in a dataset
--   *Unsupervised Learning* - A machine learning task for examining groupings/variability in a dataset. Examples include clustering, principle components analysis, TSNE.
--   *Supervised Learning* - A machine learning task for predicting the identity of a sample (usually a row) based on other data.
--   *Engine* - tidymodels speak for a machine learning algorithm, such as `lm()` or decision trees - usually a specific package such as `ranger`
+-   *Engine* - `tidymodels` speak for a machine learning package that has an algorithm - usually a specific package such as `ranger`
 -   *Features* - machine learning speak for *variables* used in your model (usually a column)
 -   *Training Set* - a set of data used for training your models
 -   *Test Set* - a set of data used for testing your model - *must* be a distinct subset from the training set.
+-   *Unsupervised Learning* - A machine learning task for examining groupings/variability in a dataset. Examples include clustering, principle components analysis, TSNE.
+-   *Supervised Learning* - A machine learning task for predicting the identity of a sample (usually a row) based on other data.
 
 # Caveat
 
 This is meant to only be an introduction to the machine learning workflow rather than a comprehensive overview. I highly recommend that you think about taking an online machine learning course to follow this up.
 
-There is a neural network/deep learning course at OHSU, and
+There is a neural network/deep learning course at OHSU, and Xubo Song's Machine Learning course in DMICE, as well as Melanie Mitchell's machine learning course at PSU.
 
 # Learning Objectives
 
@@ -46,7 +46,7 @@ The `tidymodels` workflow is designed to map to common tasks you use for machine
 
 The different sections of `tidymodels` are designed to be useful in a `tidy` workflow and roughly map to the different steps and requirements of a machine learning workflow.
 
-## Let's run through a basic tidymodels workflow
+## Let's run through a basic `tidymodels` workflow
 
 These are the major packages where `tidymodels` is used.
 
@@ -63,15 +63,7 @@ More advanced packages:
 
 ## Explore the Data First
 
-```{r}
-skimr::skim(penguins)
-
-```
-
-```{r}
-
-
-```
+We need to do a little bit of tidying on the `penguins` data before we can use it. The first thing we need to do is select the numeric measurements, and then subset the species to be only two species instead of three.
 
 ```{r}
 library(palmerpenguins)
@@ -88,9 +80,11 @@ penguins_matrix <- penguins %>%
   mutate(species = forcats::fct_drop(species))
 ```
 
-## Resample
+```{r}
+skimr::skim(penguins_matrix)
+```
 
-Subset to Adelie/Gentoo
+## {rsample} - split the data up
 
 Build test/train set
 
@@ -103,9 +97,17 @@ penguins_test <- rsample::testing(penguins_split)
 dim(penguins_train)
 ```
 
-## Recipes
+## {recipes}
 
-Specifying Features, outcomes, and id columns with model formula Convert factors to dummy variables Normalizing Numeric Data Exploring Data with Principal Components/UMAP
+- Specifying Features, outcomes, and id columns with model formula 
+- Convert factors to dummy variables 
+- Normalizing Numeric Data 
+- Exploring Data with Principal Components/UMAP
+
+### Principal Components Analysis
+
+
+
 
 ```{r}
 pca_rec <- recipe(species ~., data = penguins_train) %>%
@@ -116,7 +118,11 @@ pca_prep <- prep(pca_rec)
 pca_prep
 
 tidied_pca <- tidy(pca_prep, 2)
+```
 
+Now we have our `tidied_pca` version of the data, let's take a look at it.
+
+```{r}
 tidied_pca %>%
   filter(component %in% paste0("PC", 1:4)) %>%
   mutate(component = fct_inorder(component)) %>%
@@ -161,6 +167,9 @@ umap_prep <- prep(umap_rec)
 
 umap_prep
 
+```
+
+```{r}
 umap_pca <- tidy(umap_prep, 2)
 
 juice(umap_prep)
@@ -169,10 +178,12 @@ juice(umap_prep) %>%
   ggplot(aes(umap_1, umap_2)) +
   geom_point(aes(color = species), alpha = 0.7, size = 2) +
   labs(color = NULL)
-
 ```
 
-## Setup a recipe for our ML model
+
+
+
+## Predicting penguin species - Setup a `recipe` for our ML model
 
 Ok, the PCA and TSNE gave us an idea of how hard it is to separate the two different penguin species.
 
@@ -196,6 +207,9 @@ juice(class_prep)
 
 skimr::skim(juice(class_prep))
 ```
+
+
+
 
 ## Parsnip
 
