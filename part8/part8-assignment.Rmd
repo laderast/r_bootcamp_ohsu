@@ -55,4 +55,4 @@ You'll also
 4. (bonus) Check out Rebecca Barter's analysis of Diabetes in the Pima Indian Tribe here: http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/
 
 
-
+Choose two models to use to predict diabetes status: 

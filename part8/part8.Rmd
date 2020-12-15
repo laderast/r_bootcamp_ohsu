@@ -83,6 +83,7 @@ library(palmerpenguins)
 library(tidymodels)
 library(rsample)
 library(tidyverse)
+set.seed(101050)
 
 data("penguins")
 
@@ -105,7 +106,7 @@ skimr::skim(penguins_matrix)
 Build test/train set
 
 ```{r}
-penguins_split <- initial_split(penguins_matrix, prop = 0.85, strata = species)
+penguins_split <- initial_split(penguins_matrix, prop = 0.7, strata = species)
 
 penguins_train <- training(penguins_split)
 penguins_test <- rsample::testing(penguins_split)
@@ -329,12 +330,10 @@ Nearly all of the popular machine learning methods work within the `tidymodels` 
 A really robust model we can use to predict our `species` is `K-Nearest Neighbor`. 
 
 ```{r}
-knn_model <- nearest_neighbor() %>% 
+knn_model <- nearest_neighbor(neighbors = 3) %>% 
   set_engine("kknn") %>% 
   set_mode("classification")
 ```
-
-
 
 
 ## Step 5 {workflows}: fitting a recipe and a model together
@@ -362,11 +361,21 @@ knn_fit
 ```{r}
 knn_fit <- knn_workflow %>%
   # fit on the training set and evaluate on test set
-  last_fit(split = penguins_split)
+  fit(data = penguins_train)
 
-test_performance <- knn_fit %>% collect_metrics()
-test_performance
+knn_predictions <- knn_fit %>%
+  predict(new_data = penguins_test) %>%
+  bind_cols(penguins_test) %>%
+  select(truth = species, estimate=.pred_class)
+
+knn_predictions %>%
+  janitor::tabyl(truth, estimate)
+
+knn_predictions %>%
+  yardstick::accuracy(truth, estimate)
 ```
+
+### Putting in fake penguins to understand what's going on with predict
 
 
 
@@ -389,6 +398,59 @@ tree_fit <- tree_workflow %>%
 
 
 
+```
+
+
+```{r}
+tree_model <- decision_tree() %>%
+  set_engine("rpart") %>%
+  set_mode("classification")
+
+tree_workflow <- workflow() %>%
+  add_recipe(classification_rec)  %>%
+  add_model(tree_model)
+
+tree_fit <- fit(tree_workflow, data=penguins_train)
+
+penguin_predictions <- tree_fit %>%
+  predict(new_data=penguins_test) %>%
+  bind_cols(penguins_test) %>%
+  select(truth=species, estimate=.pred_class)
+  
+
+test_performance <- penguin_predictions %>% 
+  yardstick::accuracy(truth, estimate)
+test_performance
+```
+
+
+
+```{r}
+tree_fit <- tree_workflow %>% fit(data=penguins_train) %>% 
+  pull_workflow_fit() 
+
+rpart.plot::rpart.plot(tree_fit$fit)
+```
+
+
+```{r}
+nn_model <- mlp(epochs = 100, hidden_units = 5, dropout = 0.1) %>%
+  set_mode("classification") %>%
+  set_engine("keras")
+
+nn_workflow <- workflow() %>%
+  add_recipe(classification_rec)  %>%
+  add_model(nn_model)
+
+nn_fit <- nn_workflow %>%
+  fit(data= penguins_test)
+  
+nn_results <- nn_fit %>%
+  predict(new_data = penguins_test) %>%
+  bind_cols(penguins_test)
+
+nn_results %>%
+  yardstick::accuracy(truth=species, estimate =.pred_class)
 ```
 
 
@@ -531,23 +593,11 @@ juice(umap_prep) %>%
 
 
 
-## Assignment
-
-1. Pick two recipe steps from this list and describe what they do and why you would use them in your own words:
-
-- `step_corr()`
-- `step_center()`
-- `step_count()`
-- `step_BoxCox()`
-
-2. Modify `classification_rec`
-
-
-2. Pick two ML methods to compare on `penguins`.
-
-3. 
-
-
 ## Acknowledgements
 
-Adapted from <http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/> <http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/> <https://juliasilge.com/blog/cocktail-recipes-umap/> <https://bcullen.rbind.io/post/2020-06-02-tidymodels-decision-tree-learning-in-r/>
+Adapted from 
+
+- <http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/> 
+- <http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/> 
+- <https://juliasilge.com/blog/cocktail-recipes-umap/> 
+- <https://bcullen.rbind.io/post/2020-06-02-tidymodels-decision-tree-learning-in-r/>
