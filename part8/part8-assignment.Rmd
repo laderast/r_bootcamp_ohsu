@@ -1,0 +1,58 @@
+---
+title: "Assignment Part 8"
+author: "You"
+date: "12/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment
+
+1. Pick two recipe steps from this list and describe in your own words:
+
+a) what the step does and 
+b) why you would use them 
+
+- `step_corr()`
+- `step_center()`
+- `step_count()`
+- `step_BoxCox()`
+- `step_cut()`   
+
+
+
+
+2. Modify `classification_rec` to include penguin `sex` as a feature in your model. 
+
+You'll have to change your selection step when you subset the data. 
+
+You'll also 
+
+
+```{r}
+
+
+
+
+
+```
+
+
+3. Pick two ML methods to compare on `penguins` and compare their accuracy. Make sure to use the same recipe to preprocess the data.
+
+
+```{r}
+
+
+```
+
+
+
+
+4. (bonus) Check out Rebecca Barter's analysis of Diabetes in the Pima Indian Tribe here: http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/
+
+
+
