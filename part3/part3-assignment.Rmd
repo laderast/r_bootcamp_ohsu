@@ -55,9 +55,11 @@ smoke_complete <- read_excel("data/smoke_complete.xlsx", sheet =1, na= "NA")
 ```
 
 
-4. Subset `smoke_complete` to a different set of patients, such as gender == "female".
+4. This is a multi-part problem.
 
-Make a new faceted plot, this time a scatterplot. You're free to choose two numeric variables of interest to plot from `smoke_complete`. 
+Subset `smoke_complete` to a different set of patients, such as gender == "female".
+
+Make a new faceted plot with `facet_wrap()`, this time a scatterplot. You're free to choose two numeric variables of interest to plot from `smoke_complete`. 
 
 Color your plot by `disease` and facet by `vital_status`.
 

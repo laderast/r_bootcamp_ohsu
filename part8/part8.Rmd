@@ -15,40 +15,63 @@ Please review the machine learning introduction before you start working with th
 
 # Glossary
 
-- Machine Learning - utilizing algorithms to discover and utilize patterns in a dataset
-- Unsupervised Learning - A machine learning task for examining groupings/variability in a dataset
-- Supervised Learning - A machine learning task for predicting the identity of a sample (usually a row)
-- Engine - tidymodels speak for a machine learning algorithm, such as `lm()` or decision trees - usually a specific package such as [...]
-- Features - machine learning speak for *variables* used in your model (usually a column)
-- Training Set
-- Test Set
-
-
+-   *Machine Learning* - utilizing algorithms to discover and utilize patterns in a dataset
+-   *Unsupervised Learning* - A machine learning task for examining groupings/variability in a dataset. Examples include clustering, principle components analysis, TSNE.
+-   *Supervised Learning* - A machine learning task for predicting the identity of a sample (usually a row) based on other data.
+-   *Engine* - tidymodels speak for a machine learning algorithm, such as `lm()` or decision trees - usually a specific package such as `ranger`
+-   *Features* - machine learning speak for *variables* used in your model (usually a column)
+-   *Training Set* - a set of data used for training your models
+-   *Test Set* - a set of data used for testing your model - *must* be a distinct subset from the training set.
 
 # Caveat
 
-This is meant to only be an introduction to the machine learning workflow rather than a comprehensive overview. I highly recommend that you think about taking an online machine learning course to follow this up. 
+This is meant to only be an introduction to the machine learning workflow rather than a comprehensive overview. I highly recommend that you think about taking an online machine learning course to follow this up.
 
-There is a neural network/deep learning course at OHSU, and 
+There is a neural network/deep learning course at OHSU, and
 
 # Learning Objectives
 
-- *Utilize* the `resample` package to produce test/train datasets
-- *Understand* how the `recipes` package makes preprocessing reproducible
-- *Utilize* data reduction methods for analysis.
-- *Run* and *interpret* three different machine learning methods and compare them
-
+-   *Utilize* the `resample` package to produce test/train datasets
+-   *Understand* how the `recipes` package makes preprocessing reproducible
+-   *Utilize* data reduction methods for analysis.
+-   *Run* and *interpret* three different machine learning methods and compare them
 
 ## What is `tidymodels`?
 
-There are a lot of different packages and machine learning methods available for R. One big issue is that the output of all of these models is not standardized - for example, if you wanted a p-value from a model, you'd look in different places for the results. 
+There are a lot of different packages and machine learning methods available for R. One big issue is that the output of all of these models is not standardized - for example, if you wanted a p-value from a model, you'd look in different places for the results.
 
-The `tidymodels` workflow is designed to map to common tasks you use for machine learning. 
+The `tidymodels` workflow is designed to map to common tasks you use for machine learning.
 
 ## The different parts of `tidymodels`
 
 The different sections of `tidymodels` are designed to be useful in a `tidy` workflow and roughly map to the different steps and requirements of a machine learning workflow.
 
+## Let's run through a basic tidymodels workflow
+
+These are the major packages where `tidymodels` is used.
+
+-   {resample} - use these functions to specify a test/training set, or to build a cross-validation set
+-   {recipes} - use these functions to normalize variables
+-   {parsnip} - use these functions to specify and train your model
+-   {yardstick} - use these functions to evaluate your model
+
+More advanced packages:
+
+-   {tune} - help you decide the optimal parameters by running models at different levels
+-   {stacks} - lets you run model ensembles of ML algorithms
+-   {workflows} - lets you glue workflows together
+
+## Explore the Data First
+
+```{r}
+skimr::skim(penguins)
+
+```
+
+```{r}
+
+
+```
 
 ```{r}
 library(palmerpenguins)
@@ -63,23 +86,36 @@ penguins_matrix <- penguins %>%
   filter(species %in% c("Chinstrap", "Adelie")) %>%
   filter(complete.cases(.)) %>%
   mutate(species = forcats::fct_drop(species))
+```
 
+## Resample
+
+Subset to Adelie/Gentoo
+
+Build test/train set
+
+```{r}
 penguins_split <- initial_split(penguins_matrix, prop = 0.85, strata = species)
 
 penguins_train <- training(penguins_split)
+penguins_test <- rsample::testing(penguins_split)
 
 dim(penguins_train)
+```
 
+## Recipes
+
+Specifying Features, outcomes, and id columns with model formula Convert factors to dummy variables Normalizing Numeric Data Exploring Data with Principal Components/UMAP
+
+```{r}
 pca_rec <- recipe(species ~., data = penguins_train) %>%
   step_normalize(all_predictors()) %>%
   step_pca(all_predictors())
 
 pca_prep <- prep(pca_rec)
-
 pca_prep
 
 tidied_pca <- tidy(pca_prep, 2)
-
 
 tidied_pca %>%
   filter(component %in% paste0("PC", 1:4)) %>%
@@ -89,6 +125,9 @@ tidied_pca %>%
   facet_wrap(~component, nrow = 1) +
   labs(y = NULL)
 ```
+
+If you want to see the data that has been processed by `recipes` you need to run the `juice` command to produce the transformed data.
+
 ```{r}
 juice(pca_prep)
 ```
@@ -100,7 +139,6 @@ juice(pca_prep) %>%
   labs(color = NULL)
 ```
 
-
 Plot `PC1` versuse `PC3`
 
 ```{r}
@@ -109,6 +147,9 @@ juice(pca_prep) %>%
   geom_point(aes(color = species), alpha = 0.7, size = 2) +
   labs(color = NULL)
 ```
+
+### UMAP
+
 ```{r}
 library(embed)
 
@@ -133,19 +174,78 @@ juice(umap_prep) %>%
 
 ## Setup a recipe for our ML model
 
+Ok, the PCA and TSNE gave us an idea of how hard it is to separate the two different penguin species.
+
+We set up a recipe for preprocessing the numeric data in our model. We use `step_normalize()` to standardize the ranges of each variable.
+
+Again, we need to provide a formula at this step because it helps `tidymodels` identify what the outcome is, what the features are, and what shouldn't be included.
 
 ```{r}
-
 classification_rec <- recipe(species ~., data = penguins_train) %>%
   step_normalize(all_predictors())
 
 classification_rec
+```
 
+Let's take a look at the transformed data.
+
+```{r}
 class_prep <- prep(classification_rec)
 
 juice(class_prep)
 
 skimr::skim(juice(class_prep))
+```
+
+## Parsnip
+
+Specifying model type/engine Training model type Fitting the model
+
+### What models exist?
+
+Nearly all of the popular machine learning methods work within the `tidymodels` framework.
+
+<https://www.tidymodels.org/find/parsnip/>
+
+### K Nearest Neighbor
+
+```{r}
+knn_model <- nearest_neighbor() %>% 
+  set_engine("kknn") %>% 
+  set_mode("classification")
+
+knn_workflow <- workflow() %>%
+  add_recipe(classification_rec) %>%
+  add_model(knn_model)
+
+knn_fit <- fit(knn_workflow, data = penguins_train)
+
+knn_fit
+
+knn_fit <- knn_workflow %>%
+  # fit on the training set and evaluate on test set
+  last_fit(split = penguins_split)
+
+test_performance <- knn_fit %>% collect_metrics()
+test_performance
+```
+
+### Random Forests
+
+Here we're using the random forest model
+
+```{r}
+tree_model <- decision_tree() %>% 
+  set_engine("rpart") %>% 
+  set_mode("classification") 
+
+tree_workflow <- workflow() %>%
+  add_recipe(classification_rec) %>%
+  add_model(tree_model)
+
+tree_fit <- fit(tree_workflow, data = penguins_train)
+
+
 ```
 
 ```{r}
@@ -170,6 +270,9 @@ rf_workflow <- workflow() %>%
   add_model(rf_model)
 ```
 
+### Tuning Results
+
+We have a parameter, `mtry`, that we don't know the best value for. We can use `tune_grid()`
 
 ```{r}
 penguins_cv <- rsample::vfold_cv(penguins_train)
@@ -201,12 +304,17 @@ rf_workflow <- rf_workflow %>%
   finalize_workflow(param_final)
 ```
 
-
 ```{r}
 rf_fit <- rf_workflow %>%
   # fit on the training set and evaluate on test set
   last_fit(penguins_split)
+```
 
+## Yardstick
+
+Evaluating Accuracy Comparing different methods
+
+```{r}
 test_performance <- rf_fit %>% collect_metrics()
 test_performance
 ```
@@ -224,74 +332,10 @@ test_predictions %>%
                alpha = 0.5)
 ```
 
-## Let's run through a basic tidymodels workflow
-
-These are the packages 
-
-
-- {resample} - use these functions to specify a test/training set
-- {recipes} - use these functions to normalize variables
-- {parsnip} - use these functions to specify and train your model
-- {yardstick} - use these functions to evaluate your model
-
-
-More advanced packages:
-
-- {tune} - 
-- {stacks}
-- {workflows}
-
-
-## Explore the Data First
-
-```{r}
-skimr::skim(penguins)
-
-```
-
-
-## Resample
-
-Subset to Adelie/Gentoo
-
-```{r}
-two_species <- penguins %>%
-  filter(species %in% c("Gentoo", "Adelie"))
-```
-
-
-Build test/train set
-
-```{r}
-
-
-```
-
-
-## Recipes
-
-Prinicipal Components/UMAP
-Normalizing Data
-Specifying Features
-
-## Parsnip
-
-Specifying model type
-Training model type
-
-## Yardstick
-
-Evaluating Accuracy
-Comparing different methods
-
-
 ## Assignment
 
 Pick two ML methods to compare for this task
 
-
 ## Acknowledgements
 
-Adapted from http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/
-http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/
-https://juliasilge.com/blog/cocktail-recipes-umap/
+Adapted from <http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/> <http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/> <https://juliasilge.com/blog/cocktail-recipes-umap/> <https://bcullen.rbind.io/post/2020-06-02-tidymodels-decision-tree-learning-in-r/>

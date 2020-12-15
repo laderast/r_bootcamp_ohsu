@@ -24,20 +24,26 @@ Part 1 focuses on working through common tasks in data science:
 -   visualizing, and
 -   modeling data.
 
-Throughout, we'll work on concepts of reproducibility by utilizing project and notebook based- workflows and RMarkdown as a way of reproducibly sharing our work.
 
 Part 2 focuses on more advanced topics:
 
--   automating analyses using metadata (purrr/for loops),
+-   automating analyses using metadata (`purrr`/for loops),
+-   running basic statistical procedures,
 -   machine learning using `tidymodels`,
--   using Git/GitHub,
 -   and an introduction to Bioconductor for bioinformatics analysis.
+
+Throughout, we'll work on concepts of reproducibility by utilizing project and notebook based-workflows and RMarkdown as a way of reproducibly sharing our work.
+
+
 
 # What is R?
 
 R is a statistical and programming computer language widely used for a variety of applications.
 
 Before proceeding with these training materials, please ensure you have an RStudio.cloud account and can see the workspace.
+
+
+
 
 ## Learning Objectives
 
@@ -48,11 +54,8 @@ By the end of this session, you should be able to:
 3.  **Create** and **manipulate** vectors and **understand** how R deals with missing data
 4.  **Learn** about `data.frame`s as a table structure in R.
 
-## Final Project
 
-The final project is meant to be collaborative, and data-focused. You goals should be to learn something new and apply skills you've learned in the class.
 
-We will select a number of datasets to work with. You are encouraged to work together, but should each submit your own version of the notebook.
 
 ## Function of the Week
 
@@ -61,6 +64,10 @@ Signup and learn about a function and share it with others. The function should 
 1.  What is the function for?
 2.  How do you use the function?
 3.  Is the function helpful in your work? How?
+
+The possible functions are listed here: 
+
+
 
 ## Introduction to R: Class 1
 
