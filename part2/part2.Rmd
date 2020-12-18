@@ -72,9 +72,6 @@ Since this notebook, `part2.Rmd` is in the same folder as the `project.rproj` fi
 
 When you're starting out, it's best to keep your RMarkdown notebooks and files in the **root** folder. It will help prevent you from dealing with a lot of headaches.
 
-
-
-
 ## A good place to put your data
 
 Take a look at the `data/` folder, and where the `tcga_clinical_data.xlsx` file is.
@@ -82,9 +79,6 @@ Take a look at the `data/` folder, and where the `tcga_clinical_data.xlsx` file 
 In our notebook, how do we refer to that file name? Since we're in the root, we can refer to it as
 
 `data/tcga_clinical_data.xlsx`
-
-
-
 
 ## Loading our excel file
 
@@ -104,8 +98,6 @@ You should see `brca_clinical` appear in the Environment window on the upper rig
 
 > Clicking on the name of an object in the Environment window is a shortcut for running `View(brca_clinical)`; you'll see this code appear in the Console after clicking.
 
-
-
 ## Challenge 1 (5 minutes)
 
 Take a look at the documentation for `read_excel()`. This is a package in the package `readxl`, which is installed as part of the `tidyverse`.
@@ -122,15 +114,11 @@ Take a look at the documentation for `read_excel()`. This is a package in the pa
 
 Now that we have the data imported and assigned to an object, we can take some time to explore the data we'll be using for the rest of this course.
 
-
-
 ## Notes on the Data
 
 -   These data are clinical cancer data from the [National Cancer Institute's Genomic Data Commons](https://gdc.cancer.gov), specifically from The Cancer Genome Atlas, or [TCGA](https://www.cancer.gov/about-nci/organization/ccg/research/structural-genomics/tcga).
 -   Each row represents a patient, and each column represents information about demographics (race, age at diagnosis, etc) and disease (e.g., cancer type).
 -   The data were downloaded and aggregated using an R script, which you can view in the [GitHub repository for the fredhutch.io course](https://github.com/fredhutchio/R_intro/blob/master/0dataset.R).
-
-
 
 ## Challenge 2 (5 minutes):
 
@@ -166,9 +154,6 @@ Importing data can be tricky and frustrating. However, if you can't get your dat
 
 We will be covering loading in another format that you can export from many different software programs, the *comma separated value* format, or `csv` format in another section.
 
-
-
-
 ### Tips on Formating your Excel file for R
 
 Here are some tips on formatting your data to get it into R easier.
@@ -176,8 +161,10 @@ Here are some tips on formatting your data to get it into R easier.
 Click on the code block below to load up a graphic.
 
 ```{r}
-knitr::include_graphics("image/tidy-1.png")
+knitr::include_graphics("image/tidydata_1.jpg")
 ```
+
+Image from Allison Horst
 
 1.  **Tidy is Best**. Try to format your spreadsheet where the columns correspond to variables you're measuring, and a row corresponds to an observation.
 
@@ -200,8 +187,25 @@ We'll be seeing that this format is called **Tidy Data**, and it lets us do all 
 
 
 
-## Importing data from other software with `haven` (Optional)
+## Further Reading: Organizing Data in Spreadsheets
 
+One paper I think you should all read Kara Woo and Karl Broman's paper [Organizing Data in Spreadsheets](https://www.tandfonline.com/doi/full/10.1080/00031305.2017.1375989). This is one of the best papers about how to organize data that I know of.
+
+The opening is one of my favorite sentences written about spreadsheets:
+
+> Spreadsheets, for all of their mundane rectangularness, have been the subject of angst and controversy for decades.
+
+And be sure to pass it on to your friends!
+
+## One last bit of Tidy-related wisdom
+
+```{r}
+knitr::include_graphics("image/tidydata_2.jpg")
+```
+Illustration by Allison Horst
+
+
+## Importing data from other software with `haven` (Optional)
 
 The package `haven` allows us to import data in other software formats, including SAS, Stata, or SPSS data.
 
@@ -212,7 +216,6 @@ mtsas <- read_sas("data/mtcars.sas7bdat")
 head(mtsas)
 ```
 
-
 For SPSS, the function we need is `read_sav()` while for Stata, the function we need is `read_dta()`. These all read in the data as tibbles. If the data is in SAS export (.xpt) format, we can use the `read_xpt()` function. We can also export data into these formats using the `write_*` versions of these functions such as `write_sas()`.
 
 Often, the data set from these software have additional attributes, such as labels. You can read more about dealing with these attributes in the `haven` vignettes: <https://haven.tidyverse.org/articles/semantics.html>
@@ -220,7 +223,6 @@ Often, the data set from these software have additional attributes, such as labe
 Here, we have downloaded data from the CDC's National Ambulatory Medical Care Survey located and described at: <https://www.cdc.gov/nchs/ahcd/datasets_documentation_related.htm#data>
 
 This is a very large SPSS data set from one year (2015) of the survey. We can read it in using haven, and note that many of the variables have labeled attributes ("dbl+lbl" format in `glimpse`):
-
 
 ```{r}
 namcs <- read_sav("data/namcs2015-spss.sav")
@@ -251,8 +253,6 @@ levels(namcs$race_fac)
 
 Now, we have preserved the labels in R, and we could further convert this vector to a character vector with `as.character()` if that works better for our analysis pipeline.
 
-
-
 ## `data.frame`s
 
 Link to video: <https://youtu.be/Ur-Lzkan8zI>
@@ -265,9 +265,13 @@ Now that we have data imported and available, we can start to inspect the data m
 
 By definition, a `data.frame` is:
 
-a table made of vectors (columns) of all the same length. As we learned in our last session, a vector needs to include all of the same type of data (e.g., character, numeric).
+a table made of vectors (columns) of all the same length. 
 
-A `data.frame`, however, can include vectors (columns) of different data types. This makes them extremely versatile way of storing information.
+As we learned in our last session, a vector needs to include all of the same type of data (e.g., `character`, `numeric`).
+
+A `data.frame`, however, can include vectors (columns) of different data types. This makes them an extremely versatile way of storing information.
+
+
 
 ## `data.frame`s - How do they Work?
 
@@ -275,7 +279,6 @@ To learn more about this data frame, we'll first explore its dimensions:
 
 ```{r}
 # assess size of data frame
-
 dim(brca_clinical)
 ```
 
@@ -291,7 +294,6 @@ head(brca_clinical)
 
 
 
-
 ## Column Names
 
 We often need to reference the names of *variables* (also known as columns) in our `data.frame`, so it's useful to print only those to the screen:
@@ -303,7 +305,6 @@ colnames(brca_clinical)
 ```
 
 It's also possible to view row names using`rownames(brca_clinical)`, but our data only possess numbers for row names so it's not very informative.
-
 
 
 
@@ -331,7 +332,7 @@ Another useful command is `View()` - it will open up a spreadsheet like view of 
 View(brca_clinical)
 ```
 
-
+We'll see that `View()` can help you out when you're starting out with building data processing with `dplyr`, but that's for next time.
 
 ### Summarizing our Data
 
@@ -349,10 +350,7 @@ For `factor`s (also known as categorical variables), and `character` variables, 
 
 We will talk more about `factors` in the next lab.
 
-
-
-
-### `skimr`
+### `{skimr}`
 
 A really useful package for understanding your data is the `skimr` package. Let's install it with the `install.packages()` command.
 
@@ -360,14 +358,13 @@ A really useful package for understanding your data is the `skimr` package. Let'
 install.packages("skimr")
 ```
 
+Now we can use it. There is one main function called `skim()` in `skimr`.
+
 ```{r}
 library(skimr)
 skim(brca_clinical)
 
 ```
-
-
-
 
 ### `visdat`
 
@@ -384,8 +381,6 @@ help("visdat-package")
 
 vis_dat(brca_clinical)
 ```
-
-
 
 ## Introducing `ggplot2`
 
@@ -406,9 +401,6 @@ Now that we've loaded our data as a `data.frame`, we can begin to start doing th
 
 Let's start with visualizing the data.
 
-
-
-
 ## Working Towards a Graph
 
 We're going to work towards the following graph today:
@@ -417,7 +409,12 @@ We're going to work towards the following graph today:
 knitr::include_graphics("image/days_to_last_followup.png")
 ```
 
+Here's a visual summary of the different parts we're talking about today.
 
+```{r}
+knitr::include_graphics("image/khealy_ggplot1_part1.jpg")
+```
+Image from Kieran Healy
 
 
 ## `ggplot2`: A Grammar of Graphics
@@ -427,6 +424,8 @@ knitr::include_graphics("image/days_to_last_followup.png")
 The `gg` is short for Grammar of Graphics, which means that visualizations are expressed in a very specific way.
 
 ## Learning to read `ggplot2` code
+
+
 
 A `ggplot2` graphic consists of a:
 
@@ -462,7 +461,7 @@ Things to note: we chain these three things together with `+` (plus sign). I ten
 
 ## Challenge
 
-Based on the graph above, map the appropriate variables in `brca_clinical` to the x, and y aesthetics. Run your plot. Is it what you expected?
+Based on the Age versus Days to Last Followup graph above, map the appropriate variables in `brca_clinical` to the x, and y aesthetics. Run your plot. Is it what you expected?
 
 What's missing compared to the graph above?
 
@@ -476,9 +475,6 @@ ggplot(data = brca_clinical) +
 
 
 ```
-
-
-
 
 ## Simple arithmetic
 
@@ -494,9 +490,6 @@ ggplot(data = brca_clinical) +
 
 
 ```
-
-
-
 
 ## Color
 
@@ -514,11 +507,9 @@ ggplot(data = brca_clinical) +
   geom_point() 
 ```
 
-
-
 ## Titles
 
-We can add more details to our graph. We can add a title using the `ggtitle()` function:
+We can add more details to our graph. We can add a title using the `labs()` function:
 
 ```{r}
 ggplot(data = brca_clinical) +
@@ -529,11 +520,9 @@ ggplot(data = brca_clinical) +
   
   geom_point() +
   
-  ggtitle("Age versus Days to Last followup") 
+  labs(title="Age versus Days to Last followup") 
 
 ```
-
-
 
 ## Changing the Axis Labels
 
@@ -562,31 +551,20 @@ Now we've re-created the above plot! Let's save it using `ggsave()`. `ggsave()` 
 ggsave("follow-up-plot.jpg")
 ```
 
-
-
 ## What you learned today:
 
 -   Loading excel data and tips for formatting your data in excel
 -   Understanding basic properties of `data.frame`s
 -   The basics of the "grammar of graphics" with `ggplot2`
 
-
-
-
 ## Survey
 
 Please take the survey, as it is required for your attendance:
 
-<https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
-
-
+<https://ohsu.ca1.qualtrics.com/jfe/form/SV_0rjxy6FgXapnMk5>
 
 ## Practice
 
 You can practice your `ggplot2` skills by taking the first chapter of the R-Bootcamp:
 
-<https://r-bootcamp.netlify.com/chapter1>
-
-
-
-
+<https://r-bootcamp.netlify.app/chapter1>
