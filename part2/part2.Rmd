@@ -38,7 +38,7 @@ By the end of this session, you should be able to:
 
 For the remainder of this course, we'll be focusing on using functions from the [tidyverse](https://www.tidyverse.org/).
 
-It is set up as a *library* - functions someone else wrote that are not built into R. We'll use a few libraries in this course.
+It is set up as a *library* - functions someone else wrote that are not built into R. We'll use quite a few libraries in this course.
 
 The Tidyverse is essentially a library of libraries -- each of these libraries contains functions that are either essential for or *greatly* simplify the process of data manipulation and visualization for data scientists.
 
@@ -72,6 +72,9 @@ Since this notebook, `part2.Rmd` is in the same folder as the `project.rproj` fi
 
 When you're starting out, it's best to keep your RMarkdown notebooks and files in the **root** folder. It will help prevent you from dealing with a lot of headaches.
 
+
+
+
 ## A good place to put your data
 
 Take a look at the `data/` folder, and where the `tcga_clinical_data.xlsx` file is.
@@ -79,6 +82,9 @@ Take a look at the `data/` folder, and where the `tcga_clinical_data.xlsx` file 
 In our notebook, how do we refer to that file name? Since we're in the root, we can refer to it as
 
 `data/tcga_clinical_data.xlsx`
+
+
+
 
 ## Loading our excel file
 
@@ -98,6 +104,8 @@ You should see `brca_clinical` appear in the Environment window on the upper rig
 
 > Clicking on the name of an object in the Environment window is a shortcut for running `View(brca_clinical)`; you'll see this code appear in the Console after clicking.
 
+
+
 ## Challenge 1 (5 minutes)
 
 Take a look at the documentation for `read_excel()`. This is a package in the package `readxl`, which is installed as part of the `tidyverse`.
@@ -114,11 +122,15 @@ Take a look at the documentation for `read_excel()`. This is a package in the pa
 
 Now that we have the data imported and assigned to an object, we can take some time to explore the data we'll be using for the rest of this course.
 
+
+
 ## Notes on the Data
 
 -   These data are clinical cancer data from the [National Cancer Institute's Genomic Data Commons](https://gdc.cancer.gov), specifically from The Cancer Genome Atlas, or [TCGA](https://www.cancer.gov/about-nci/organization/ccg/research/structural-genomics/tcga).
 -   Each row represents a patient, and each column represents information about demographics (race, age at diagnosis, etc) and disease (e.g., cancer type).
 -   The data were downloaded and aggregated using an R script, which you can view in the [GitHub repository for the fredhutch.io course](https://github.com/fredhutchio/R_intro/blob/master/0dataset.R).
+
+
 
 ## Challenge 2 (5 minutes):
 
@@ -154,6 +166,9 @@ Importing data can be tricky and frustrating. However, if you can't get your dat
 
 We will be covering loading in another format that you can export from many different software programs, the *comma separated value* format, or `csv` format in another section.
 
+
+
+
 ### Tips on Formating your Excel file for R
 
 Here are some tips on formatting your data to get it into R easier.
@@ -181,6 +196,7 @@ We'll be seeing that this format is called **Tidy Data**, and it lets us do all 
 4.  **Color information is hard to get into R**. Avoid using color coding of cells if that is extra information attached to a cell. Instead, make the information the color is representing its own column.
 
 5.  **Extra Lines are OK!** Extra lines before the column header are ok, as you've seen. It's sometimes better to have a "notes" sheet where you put extra information or, better yet, a data dictionary.
+
 
 
 

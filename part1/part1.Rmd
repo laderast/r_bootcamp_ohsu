@@ -15,9 +15,6 @@ Please save a copy of this as `part1_FIRSTNAME_LASTNAME.Rmd` and work from that 
 
 Also, the first time you try something, try to *type* out the answer rather than cutting and pasting. It will help you understand what's going on, because it forces you to read the code.
 
-
-
-
 # Welcome to R Programming!
 
 This course introduces you to R in two parts:
@@ -29,7 +26,6 @@ Part 1 focuses on working through common tasks in data science:
 -   visualizing, and
 -   modeling data.
 
-
 Part 2 focuses on more advanced topics:
 
 -   automating analyses using metadata (`purrr`/for loops),
@@ -39,15 +35,11 @@ Part 2 focuses on more advanced topics:
 
 Throughout, we'll work on concepts of reproducibility by utilizing project and notebook based-workflows and RMarkdown as a way of reproducibly sharing our work.
 
-
-
 # What is R?
 
 R is a statistical and programming computer language widely used for a variety of applications.
 
 Before proceeding with these training materials, please ensure you have an RStudio.cloud account and can see the workspace.
-
-
 
 ## Learning Objectives
 
@@ -58,9 +50,6 @@ By the end of this session, you should be able to:
 3.  **Create** and **manipulate** vectors and **understand** how R deals with missing data
 4.  **Learn** about `data.frame`s as a table structure in R.
 
-
-
-
 ## Function of the Week
 
 Signup and learn about a function and share it with others. The function should be in the tidyverse.
@@ -69,9 +58,7 @@ Signup and learn about a function and share it with others. The function should 
 2.  How do you use the function?
 3.  Is the function helpful in your work? How?
 
-The possible functions are listed here: 
-
-
+The possible functions are listed here:
 
 ## Introduction to R: Class 1
 
@@ -84,9 +71,6 @@ vembedr::embed_youtube("oFmjHxl28H0", width = 600, height=300)
 ```
 
 A good reference is here. `Help -> Cheatsheets -> RStudio IDE cheat sheet`
-
-
-
 
 ## Code Blocks
 
@@ -117,9 +101,6 @@ Try this one out. It's the same code as above, but with no spaces. Does it still
 # same code as above, without spaces
 4+5
 ```
-
-
-
 
 ## Using Functions
 
@@ -158,7 +139,6 @@ round(digits = 1, x = 3.14)
 
 > You may notice that boxes pop up as you type. These represent RStudio's attempts to guess what you're typing and share additional options.
 
-
 ### Challenge 1
 
 what does the function `hist` do? What are its main arguments? How did you determine this?
@@ -166,8 +146,6 @@ what does the function `hist` do? What are its main arguments? How did you deter
 ```{r}
 
 ```
-
-
 
 ## Assigning objects
 
@@ -227,9 +205,6 @@ remove(weight_lb)
 
 > You can clear the entire environment using the button at the top of the Environment panel with a picture of a broom. This may seem extreme, but don't worry! We can re-create all the work we've already done by executing each line of code again.
 
-
-
-
 ### Challenge 2
 
 What is the value of each item at each step? (Hint, you can see the value of an object by typing in the name of the object, such as with the `mass` line below.)
@@ -254,9 +229,6 @@ Make your answers here:
 4.  
 
 5.  
-
-
-
 
 ## Vectors
 
@@ -302,7 +274,7 @@ organs <- c("lung", "prostate", "breast")
 
 In this case, each word is encased in quotation marks, indicating these are character data, rather than object names.
 
-### Challenge 3 
+### Challenge 3
 
 Please answer the following questions about `organs`:
 
@@ -421,9 +393,6 @@ more_heights <- c(63, 69, 60, 65, NA, 68, 61, 70, 61, 59, 64, 69, 63, 63, NA, 72
 
 ```
 
-
-
-
 ## Doing something with each element in a `vector`: `for` loops
 
 The last thing I want to cover today is how to do something with each element in a `vector`. If we do something once with a function, we can do it multiple times on different elements in a vector with that function. When we run the same function on different elements of a dataset, it is known as *iteration*.
@@ -440,14 +409,9 @@ for(height in more_heights){
 
 We won't be using `for` loops for a while, but I wanted you to see them so when you encounter them again, they're not a foreign concept.
 
-
-
-
 ## Wrapping up
 
 [R/Rstudio] [objects] [data types]
-
-
 
 ## Post Class Survey
 
@@ -458,4 +422,3 @@ Please fill out the following post class survey in order for your attendance to 
 ## Acknowledgements
 
 This intro to R was adapted from material from Kate Hertweck's Intro to R course from <http://fredhutch.io>.
-
