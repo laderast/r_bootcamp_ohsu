@@ -22,7 +22,7 @@ Make sure to name your assignment "assignment3-LASTNAME.html" and to fill out th
 
 disease == "LUSC"
 
-then save the results to an object called `lusc_smokers`:
+then save the results to an object called `lusc_smokers` (2 points):
 
 ```{r}
 smoke_complete <- read_excel("data/smoke_complete.xlsx", sheet =1, na= "NA")
@@ -30,7 +30,7 @@ smoke_complete <- read_excel("data/smoke_complete.xlsx", sheet =1, na= "NA")
 
 ```
 
-2. Sort `lusc_smokers` by decreasing `tumor_stage`:
+2. Sort `lusc_smokers` by decreasing `tumor_stage` (2 points):
 
 ```{r}
 
@@ -38,7 +38,7 @@ smoke_complete <- read_excel("data/smoke_complete.xlsx", sheet =1, na= "NA")
 ```
 
 
-3. For `lusc_smokers`, make a boxplot where y = cigarettes_per_day and x = tumor_stage.
+3. For `lusc_smokers`, make a boxplot where y = `cigarettes_per_day` and x = `tumor_stage`. (2 points)
 
 
 ```{r}
@@ -55,7 +55,7 @@ smoke_complete <- read_excel("data/smoke_complete.xlsx", sheet =1, na= "NA")
 ```
 
 
-4. This is a multi-part problem.
+4. This is a multi-part problem. (4 points)
 
 Subset `smoke_complete` to a different set of patients, such as gender == "female".
 
@@ -71,3 +71,4 @@ Color your plot by `disease` and facet by `vital_status`.
 
 ```
 
+5. Extra (2 bonus points): For one of the `geom` types in the BERD Workshop slides, produce a plot with `smoke_complete`.

@@ -18,7 +18,7 @@ Make sure to name your assignment "assignment2-LASTNAME.html" and to fill out th
 
 ## Assignment (10 points)
 
-1.  Load the `data/smoke_complete.xlsx` file into R using `read_excel`. You'll need to take a look at it to make sure that your arguments are correct.
+1.  Load the `data/smoke_complete.xlsx` file into R using `read_excel`. You'll need to take a look at it to make sure that your arguments are correct (2 points).
 
 ```{r}
 smoke_complete <- read_excel()
@@ -27,7 +27,7 @@ smoke_complete <- read_excel()
 
 
 
-2.  Use `glimpse()` on `smoke_complete`. How many rows does the file have? How many variables does it have? What are the numeric variables in this dataset?
+2.  Use `glimpse()` on `smoke_complete`. How many rows does the file have? How many variables does it have? What are the numeric variables in this dataset? (2 points)
 
 ```{r}
 glimpse(smoke_complete)
@@ -37,10 +37,19 @@ glimpse(smoke_complete)
 [Put your answer here]
 
 
+3. Use `skim()` on `smoke_complete()`.  Is the `year_of_death` variable skewed or not? Describe how it is skewed.
+
+```{r}
+library(skim)
+
+
+```
 
 3.  Produce a scatter plot of `smoke_complete` using `geom_point()`, mapping these variables to the following aesthetics:
 
 `year_of_birth` to the `x` aesthetic, `cigarettes_per_day` to the `y` aesthetic, and `gender` to the `color` aesthetic.
+
+(2 points)
 
 ```{r}
 ggplot(smoke_complete, aes(x = ____,
@@ -50,10 +59,11 @@ ggplot(smoke_complete, aes(x = ____,
 ```
 
 
-4.  Pick two `numeric` variables, and a character variable in the `smoke_complete` dataset and produce a scatterplot by mapping them to `x`, `y`, and `color`. Add a title and change the x and y labels to make sense.
+4.  Pick two `numeric` variables, and a character variable in the `smoke_complete` dataset and produce a scatterplot by mapping them to `x`, `y`, and `color`. Add a title and change the x and y labels to make sense. (2 points)
 
 ```{r}
 
 
 ```
+
 

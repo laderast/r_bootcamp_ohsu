@@ -45,7 +45,7 @@ Before proceeding with these training materials, please ensure you have an RStud
 
 By the end of this session, you should be able to:
 
-1.  **Work** within the RStudio interface to **run** R code in an RMarkdown notebook
+1.  **Work** within the RStudio interface to **run** R code in an RMarkdown document
 2.  **Understand** basic R syntax to **use** functions and **assign** values to objects
 3.  **Create** and **manipulate** vectors and **understand** how R deals with missing data
 4.  **Learn** about `data.frame`s as a table structure in R.

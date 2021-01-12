@@ -138,6 +138,8 @@ table(character_vector)
 You can make a character vector into a factor vector by using the `factor()` function, and supplying an argument called `levels`.
 
 
+
+
 ## Levels of a Factor
 
 The `levels` of a factor are the permissible values in a `factor`. The order of the values in a factor also control the order in which the values appear in tables and on the axes in a plot. 

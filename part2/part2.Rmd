@@ -184,12 +184,9 @@ We'll be seeing that this format is called **Tidy Data**, and it lets us do all 
 
 5.  **Extra Lines are OK!** Extra lines before the column header are ok, as you've seen. It's sometimes better to have a "notes" sheet where you put extra information or, better yet, a data dictionary.
 
-
-
-
 ## Further Reading: Organizing Data in Spreadsheets
 
-One paper I think you should all read Kara Woo and Karl Broman's paper [Organizing Data in Spreadsheets](https://www.tandfonline.com/doi/full/10.1080/00031305.2017.1375989). This is one of the best papers about how to organize data that I know of.
+One paper I think you should all read is Kara Woo and Karl Broman's paper [Organizing Data in Spreadsheets](https://www.tandfonline.com/doi/full/10.1080/00031305.2017.1375989). This is one of the best papers about how to organize data that I know of.
 
 The opening is one of my favorite sentences written about spreadsheets:
 
@@ -202,56 +199,8 @@ And be sure to pass it on to your friends!
 ```{r}
 knitr::include_graphics("image/tidydata_2.jpg")
 ```
+
 Illustration by Allison Horst
-
-
-## Importing data from other software with `haven` (Optional)
-
-The package `haven` allows us to import data in other software formats, including SAS, Stata, or SPSS data.
-
-Here is an example reading in a SAS data set:
-
-```{r}
-mtsas <- read_sas("data/mtcars.sas7bdat")
-head(mtsas)
-```
-
-For SPSS, the function we need is `read_sav()` while for Stata, the function we need is `read_dta()`. These all read in the data as tibbles. If the data is in SAS export (.xpt) format, we can use the `read_xpt()` function. We can also export data into these formats using the `write_*` versions of these functions such as `write_sas()`.
-
-Often, the data set from these software have additional attributes, such as labels. You can read more about dealing with these attributes in the `haven` vignettes: <https://haven.tidyverse.org/articles/semantics.html>
-
-Here, we have downloaded data from the CDC's National Ambulatory Medical Care Survey located and described at: <https://www.cdc.gov/nchs/ahcd/datasets_documentation_related.htm#data>
-
-This is a very large SPSS data set from one year (2015) of the survey. We can read it in using haven, and note that many of the variables have labeled attributes ("dbl+lbl" format in `glimpse`):
-
-```{r}
-namcs <- read_sav("data/namcs2015-spss.sav")
-glimpse(namcs[,1:5])
-```
-
-When we print one of the columns, we see the labels printed at the bottom:
-
-```{r}
-namcs$RACEUN[1:10]
-```
-
-We can see more detail with `str()`, including the column label better defining the value "Patient race - unimputed":
-
-```{r}
-str(namcs$RACEUN)
-```
-
-But note that the values of the vector are the numeric values. This can be cumbersome for analysis, and as stated in the [haven conversion vignette](https://haven.tidyverse.org/articles/semantics.html), the goal of `haven` is not to give you a data set and labels to use for analysis, but to give an intermediate data set that can be processed and wrangled into the analysis data set that you want to use. One such way is to convert these labeled columns to factors with the `haven` function `as_factor()`:
-
-```{r}
-namcs <- namcs %>% mutate(
-  race_fac = as_factor(RACEUN)
-)
-head(namcs$race_fac)
-levels(namcs$race_fac)
-```
-
-Now, we have preserved the labels in R, and we could further convert this vector to a character vector with `as.character()` if that works better for our analysis pipeline.
 
 ## `data.frame`s
 
@@ -265,13 +214,11 @@ Now that we have data imported and available, we can start to inspect the data m
 
 By definition, a `data.frame` is:
 
-a table made of vectors (columns) of all the same length. 
+a table made of vectors (columns) of all the same length.
 
 As we learned in our last session, a vector needs to include all of the same type of data (e.g., `character`, `numeric`).
 
 A `data.frame`, however, can include vectors (columns) of different data types. This makes them an extremely versatile way of storing information.
-
-
 
 ## `data.frame`s - How do they Work?
 
@@ -292,8 +239,6 @@ We can also preview the content by showing the first few rows:
 head(brca_clinical) 
 ```
 
-
-
 ## Column Names
 
 We often need to reference the names of *variables* (also known as columns) in our `data.frame`, so it's useful to print only those to the screen:
@@ -305,8 +250,6 @@ colnames(brca_clinical)
 ```
 
 It's also possible to view row names using`rownames(brca_clinical)`, but our data only possess numbers for row names so it's not very informative.
-
-
 
 ## Okay, What's really in it?
 
@@ -359,6 +302,10 @@ install.packages("skimr")
 ```
 
 Now we can use it. There is one main function called `skim()` in `skimr`.
+
+One thing to keep in mind: you only need to install a package with `install.packages()` once. Once it's installed, you can use the `library()` command to load it up.
+
+Here we're loading the `skimr` library and then we're using a function in it called `skim()`:
 
 ```{r}
 library(skimr)
@@ -414,8 +361,8 @@ Here's a visual summary of the different parts we're talking about today.
 ```{r}
 knitr::include_graphics("image/khealy_ggplot1_part1.jpg")
 ```
-Image from Kieran Healy
 
+Image from Kieran Healy
 
 ## `ggplot2`: A Grammar of Graphics
 
@@ -424,8 +371,6 @@ Image from Kieran Healy
 The `gg` is short for Grammar of Graphics, which means that visualizations are expressed in a very specific way.
 
 ## Learning to read `ggplot2` code
-
-
 
 A `ggplot2` graphic consists of a:
 
@@ -454,10 +399,6 @@ In code, this is translated as:
 Things to note: we chain these three things together with `+` (plus sign). I tend to read the plus as `then`.
 
 [aes() function - mapping variables to visual properties of the graph]
-
-
-
-
 
 ## Challenge
 
@@ -550,6 +491,65 @@ Now we've re-created the above plot! Let's save it using `ggsave()`. `ggsave()` 
 ```{r}
 ggsave("follow-up-plot.jpg")
 ```
+
+## Importing data from other software with `haven` (Optional)
+
+The package `haven` allows us to import data in other software formats, including SAS, Stata, or SPSS data.
+
+Here is an example reading in a SAS data set:
+
+```{r}
+library(haven)
+mtsas <- read_sas("data/mtcars.sas7bdat")
+head(mtsas)
+```
+
+For SPSS, the function we need is `read_sav()`
+
+while for Stata, the function we need is `read_dta()`.
+
+These all read in the data as tibbles. If the data is in SAS export (.xpt) format, we can use the `read_xpt()` function. We can also export data into these formats using the `write_*` versions of these functions such as `write_sas()`.
+
+Often, the data set from these software have additional attributes, such as labels. You can read more about dealing with these attributes in the `haven` vignettes: <https://haven.tidyverse.org/articles/semantics.html>
+
+Here, we have downloaded data from the CDC's National Ambulatory Medical Care Survey located and described at: <https://www.cdc.gov/nchs/ahcd/datasets_documentation_related.htm#data>
+
+This is a very large SPSS data set from one year (2015) of the survey. We can read it in using `{haven}`, and note that many of the variables have labeled attributes ("dbl+lbl" format in `glimpse`):
+
+```{r}
+namcs <- read_sav("data/namcs2015-spss.sav")
+glimpse(namcs[,1:5])
+```
+
+When we print one of the columns, we see the labels printed at the bottom:
+
+```{r}
+namcs$RACEUN[1:10]
+```
+
+We can see more detail with `str()`, including the column label better defining the value "Patient race - unimputed":
+
+```{r}
+str(namcs$RACEUN)
+```
+
+But note that the values of the vector are the numeric values. This can be cumbersome for analysis, and as stated in the [haven conversion vignette](https://haven.tidyverse.org/articles/semantics.html), the goal of `haven` is not to give you a data set and labels to use for analysis, but to give an intermediate data set that can be processed and wrangled into the analysis data set that you want to use. One such way is to convert these labeled columns to factors with the `haven` function `as_factor()`:
+
+```{r}
+namcs <- namcs %>% mutate(
+  race_fac = as_factor(RACEUN)
+)
+head(namcs$race_fac)
+levels(namcs$race_fac)
+```
+
+Now, we have preserved the labels in R, and we could further convert this vector to a character vector with `as.character()` if that works better for our analysis pipeline.
+
+### For Further Information
+
+Importing labeled data can be challenging. This is a good post that delves more into loaded labeled data with `{haven}`:
+
+<https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/>
 
 ## What you learned today:
 

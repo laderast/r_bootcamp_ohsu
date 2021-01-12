@@ -23,15 +23,11 @@ Please review the machine learning introduction before you start working with th
 -   *Unsupervised Learning* - A machine learning task for examining groupings/variability in a dataset. Examples include clustering, principle components analysis, TSNE.
 -   *Supervised Learning* - A machine learning task for predicting the identity of a sample (usually a row) based on other data.
 
-
-
 # Caveat
 
 This is meant to only be an introduction to the machine learning workflow rather than a comprehensive overview. I highly recommend that you think about taking an online machine learning course to follow this up.
 
 There is a neural network/deep learning course at OHSU, and Xubo Song's Machine Learning course in DMICE, as well as Melanie Mitchell's machine learning course at PSU.
-
-
 
 # Learning Objectives
 
@@ -41,21 +37,15 @@ There is a neural network/deep learning course at OHSU, and Xubo Song's Machine 
 -   *Utilize* data reduction methods, such as PCA for exploratory data analysis.
 -   *Run* and *interpret* three different machine learning methods and compare them
 
-
-
 # What is `tidymodels`?
 
 There are a lot of different packages and machine learning methods available for R. One big issue is that the output of all of these models is not standardized - for example, if you wanted a p-value from a model, you'd look in different places for the results.
 
 The `tidymodels` workflow is designed to map to common tasks you use for machine learning.
 
-
-
 ## The different parts of `tidymodels`
 
 The different sections of `tidymodels` are designed to be useful in a `tidy` workflow and roughly map to the different steps and requirements of a machine learning workflow.
-
-
 
 ## Let's run through a basic `tidymodels` workflow
 
@@ -71,8 +61,6 @@ More advanced packages:
 
 -   {tune} - helps you decide the optimal parameters for a model by running models at different levels of that parameter
 -   {stacks} - lets you run model ensembles of ML algorithms
-
-
 
 ## Step 1: Explore the Data First
 
@@ -98,9 +86,6 @@ penguins_matrix <- penguins %>%
 skimr::skim(penguins_matrix)
 ```
 
-
-
-
 # Step 2: {rsample} - split the data up
 
 Build test/train set
@@ -114,109 +99,74 @@ penguins_test <- rsample::testing(penguins_split)
 dim(penguins_train)
 ```
 
-
-
-
 # Step 3: {recipes} - process the data for use by our models
 
-https://www.tidymodels.org/start/recipes/
+<https://www.tidymodels.org/start/recipes/>
 
-- Specifying Features, outcomes, and id columns with model formula 
-- Convert factors to dummy variables 
-- Normalizing Numeric Data 
-- Exploring Data with Principal Components/UMAP
-
-
+-   Specifying Features, outcomes, and id columns with model formula
+-   Convert factors to dummy variables
+-   Normalizing Numeric Data
+-   Exploring Data with Principal Components/UMAP
 
 ### Starting a recipe with `recipe()`
 
 All preprocessing begins with the `recipe()` function:
 
-
-```
-my_recipe <- recipe(species ~ . , data = penguin_train)
-```
+    my_recipe <- recipe(species ~ . , data = penguin_train)
 
 You can see that we provided an argument `data` to specify that our data should come from the `penguin_train` split from our data.
-
-
 
 ## How does recipes know what column is what?
 
 There are three main column types in {recipes}:
 
-- Outcomes (what we want to predict)
-- Features (the columns we use to build our model)
-- Identifiers (columns not used in analysis, but are useful as identifiers, such as sample ids)
-
+-   Outcomes (what we want to predict)
+-   Features (the columns we use to build our model)
+-   Identifiers (columns not used in analysis, but are useful as identifiers, such as sample ids)
 
 We can specify the outcomes and features in `recipe()` using a formula:
 
-```
-species ~ . 
-```
+    species ~ . 
 
 In our case, our outcome is `species` (because it is on the left of the `~`), and we use a `.` to denote that every other column is a potential feature, or predictor.
 
-
-
 What if we had an id column in the data, such as `penguin_name`? We can use `update_role()` to tell `recipes` they're an id.
-
 
 So, if we had `penguin_name` as an ID column in our data set, we'd do this at the beginning of our recipe:
 
-
-```
-my_recipe <- recipe(species ~ . , data = penguin_train) %>%
-     update_role(penguin_name, role = "ID")
-```
-
-
+    my_recipe <- recipe(species ~ . , data = penguin_train) %>%
+         update_role(penguin_name, role = "ID")
 
 ## A recipe consists of `step_`s
 
 Now we have our basic recipe built, it's time to add processing for the columns. These processing steps all begin with `step_` such as:
 
-- `step_normalize()` - scale all predictors to have a mean of 0 and standard deviation (SD) of 1
-- `step_dummy()` - transform `factor` variables into dummy variables
-- `step_arrange()` - sort data using `arrange()`
-
+-   `step_normalize()` - scale all predictors to have a mean of 0 and standard deviation (SD) of 1
+-   `step_dummy()` - transform `factor` variables into dummy variables
+-   `step_arrange()` - sort data using `arrange()`
 
 How does each step know what columns to process? We need to provide the column names as an argument. For example, if we wanted to just normalize the `bill_length_mm` and `bill_depth_mm` columns:
 
-
-```
-my_recipe <- recipe(species ~ . , data = penguin_train) %>%
-   step_normalize(bill_length_mm, bill_depth_mm)
-```
-
-
+    my_recipe <- recipe(species ~ . , data = penguin_train) %>%
+       step_normalize(bill_length_mm, bill_depth_mm)
 
 ## Some handy selectors: `all_predictors()`
 
-Using column names 
+Using column names
 
-Some steps you may want to run on all the predictors in the dataset, so you instead of the column names, you can use *selectors* instead. 
-
+Some steps you may want to run on all the predictors in the dataset, so you instead of the column names, you can use *selectors* instead.
 
 If we wanted to `step_normalize` all the predictors, we can use `all_predictors()` instead of the column names:
 
+    my_recipe <- recipe(species ~ . , data = penguin_train) %>%
+       step_normalize(all_predictors())
 
-```
-my_recipe <- recipe(species ~ . , data = penguin_train) %>%
-   step_normalize(all_predictors())
+There are some built in `all_`\* functions:
 
-```
-
-There are some built in `all_`* functions:
-
-- `all_numeric()` - apply step to all numeric variables in the dataset
-- `all_nominal()` - apply step to all categorical variables
+-   `all_numeric()` - apply step to all numeric variables in the dataset
+-   `all_nominal()` - apply step to all categorical variables
 
 In fact, if you know tidy select helpers, you can use these as well.
-
-
-
 
 ## Step 3a Building a Recipe: Principal Components Analysis
 
@@ -237,7 +187,7 @@ pca_prep
 tidied_pca <- tidy(pca_prep, 2)
 ```
 
-##
+## 
 
 If you want to see the data that has been processed by `recipes` you need to run the `juice` command to produce the transformed data.
 
@@ -263,7 +213,7 @@ juice(pca_prep) %>%
 
 ### PCA: Contributions from each variable
 
-Now we have our `tidied_pca` version of the data, let's take a look at the linear combinations 
+Now we have our `tidied_pca` version of the data, let's take a look at the linear combinations
 
 ```{r}
 tidied_pca %>%
@@ -274,9 +224,6 @@ tidied_pca %>%
   facet_wrap(~component, nrow = 1) +
   labs(y = NULL)
 ```
-
-
-
 
 ## Step 3b: Predicting penguin species - Setup a `recipe` for our ML model
 
@@ -303,6 +250,9 @@ juice(class_prep)
 skimr::skim(juice(class_prep))
 ```
 
+### Resources for understanding preprocessing of data
+
+[Max Kuhn's Feature Engineering](http://www.feat.engineering/) book is one of the best sources I know if you want to understand why preprocessing features is so important for machine learning.
 
 ## Step 4 {parsnip} - specify the model
 
@@ -310,24 +260,19 @@ Once you have the preprocessed data that is split properly, you can use it as an
 
 A model specifies the type of algorithm we want to use, and what *engine* we want to use to calculate it, and based on how it is used, the *mode* (usually classification or regression) we want to use it in.
 
-
-
-- Specifying model type/engine 
-- (Learning optimum parameters for a model {tune/rsample})
-- Fitting the model to training data
-
-
+-   Specifying model type/engine
+-   (Learning optimum parameters for a model {tune/rsample})
+-   Fitting the model to training data
 
 ### What models exist?
 
 Nearly all of the popular machine learning methods work within the `tidymodels` framework.
 
-<https://www.tidymodels.org/find/parsnip/>
-
+Check here for a list: <https://www.tidymodels.org/find/parsnip/>
 
 ### Step 4a - K Nearest Neighbor
 
-A really robust model we can use to predict our `species` is `K-Nearest Neighbor`. 
+A really robust model we can use to predict our `species` is [`K-Nearest Neighbor`]().
 
 ```{r}
 knn_model <- nearest_neighbor(neighbors = 3) %>% 
@@ -335,12 +280,15 @@ knn_model <- nearest_neighbor(neighbors = 3) %>%
   set_mode("classification")
 ```
 
-
 ## Step 5 {workflows}: fitting a recipe and a model together
 
 We now have our recipe and our model. How do we tie them together?
 
-We can use a *workflow* from the {workflows}
+We can first `prep()` our recipe, and then use `juice()` on our training data to produce an output dataset that we can use to train the model.
+
+Then we can use the `fit()` function on the training data to produce a what's called a `fit` object. This fit object can be used to predict labels on the test data, and we can assess its accuracy.
+
+There is another way that helps us reuse code, and actually will let us sub in different algorithms in a reproducible manner. We can use a *workflow* from the {workflows} package.
 
 ```{r}
 knn_workflow <- workflow() %>%
@@ -352,11 +300,7 @@ knn_fit <- fit(knn_workflow, data = penguins_train)
 knn_fit
 ```
 
-
-
 ## Step 6: {yardstick}: how well did we do on the test data?
-
-
 
 ```{r}
 knn_fit <- knn_workflow %>%
@@ -377,12 +321,9 @@ knn_predictions %>%
 
 ### Putting in fake penguins to understand what's going on with predict
 
-
-
 ## Your Turn
 
 Apply a decision tree using the following model and `classification_rec()` in a workflow. Compare how you did with KNN on the test data using `last_fit()`:
-
 
 ```{r}
 tree_model <- decision_tree() %>%
@@ -399,7 +340,6 @@ tree_fit <- tree_workflow %>%
 
 
 ```
-
 
 ```{r}
 tree_model <- decision_tree() %>%
@@ -423,15 +363,12 @@ test_performance <- penguin_predictions %>%
 test_performance
 ```
 
-
-
 ```{r}
 tree_fit <- tree_workflow %>% fit(data=penguins_train) %>% 
   pull_workflow_fit() 
 
 rpart.plot::rpart.plot(tree_fit$fit)
 ```
-
 
 ```{r}
 nn_model <- mlp(epochs = 100, hidden_units = 5, dropout = 0.1) %>%
@@ -453,11 +390,9 @@ nn_results %>%
   yardstick::accuracy(truth=species, estimate =.pred_class)
 ```
 
-
 ## Optional Steps (using `tune`)
 
-We've gone through the basic workflow
-
+We've gone through the basic workflow with our dataset for K-Nearest Neighbor.
 
 ### Random Forests
 
@@ -559,9 +494,6 @@ test_predictions %>%
                alpha = 0.5)
 ```
 
-
-
-
 ## More Steps in Data Exploration
 
 ### Running UMAP as a recipe (Optional)
@@ -590,14 +522,12 @@ juice(umap_prep) %>%
   labs(color = NULL)
 ```
 
-
-
-
 ## Acknowledgements
 
-Adapted from 
+Adapted from
 
-- <http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/> 
-- <http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/> 
-- <https://juliasilge.com/blog/cocktail-recipes-umap/> 
-- <https://bcullen.rbind.io/post/2020-06-02-tidymodels-decision-tree-learning-in-r/>
+-   <http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/>
+-   <http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/>
+-   <https://juliasilge.com/blog/cocktail-recipes-umap/>
+-   <https://bcullen.rbind.io/post/2020-06-02-tidymodels-decision-tree-learning-in-r/>
+-   [Feature Engineering](http://www.feat.engineering/)
