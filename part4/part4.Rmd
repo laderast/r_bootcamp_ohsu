@@ -37,6 +37,11 @@ smoke_complete <- read_excel("data/smoke_complete.xlsx",
 # `mutate()` - A confusing name, a powerful `dplyr` verb
 
 
+```{r}
+knitr::include_graphics("image/dplyr_mutate.png")
+```
+
+
 So what is mutate? `mutate()` is one of the most useful `dplyr` verbs. You can use it to transform data (variables in your `data.frame`) and add it as a new variable into the data.frame.
 
 I tend to think of this much like adding a formula in Excel to calculate the value of a new column based on previous columns. You can do lots of things such as:
@@ -66,7 +71,7 @@ Create a variable called `cigarettes_total` by multiplying `cigarettes_per_day` 
 
 ```{r}
 smoke_complete %>%
-    mutate(cigarettes_total = ) 
+    mutate(cigarettes_total = -------) 
 
 ```
 
@@ -123,6 +128,11 @@ smoke_complete %>%
 
 
 ## Using `mutate` to make a continuous variable categorical using `case_when`
+
+```{r}
+knitr::include_graphics("image/dplyr_case_when.png")
+```
+
 
 
 Say we want to make the `cigarettes_per_day` into a categorical variable with the values:
@@ -198,9 +208,6 @@ smoke_complete %>%
 ```
 
 
-
-
-
 # `summarize()`
 
 The `summarize()` verb produces summaries across your data. 
@@ -224,6 +231,8 @@ smoke_complete %>%
     summarize(average_yrs_smoked = mean(years_smoked, na.rm = TRUE))
 
 ```
+
+
 
 What are the kinds of things that summarize is useful for?
 
@@ -310,6 +319,11 @@ smoke_complete %>%
 
 # `summarize()` and `mutate()` across multiple columns with `across()`
 
+```{r}
+knitr::include_graphics("image/dplyr_across.png")
+```
+
+
 Often we may want to summarize or mutate multiple variables in the same way. We can follow the examples above and specify each operation individually. For instance, suppose we want to calculate the mean of multiple numeric variables:
 
 ```{r}
@@ -318,6 +332,7 @@ smoke_complete %>%
               mean_days_to_birth = mean(days_to_birth),
               mean_days_to_last_followup = mean(days_to_last_follow_up, na.rm = TRUE))
 ```
+
 Phew, that's a lot of typing! But there's an easier way:
 
 ```{r}
@@ -326,6 +341,7 @@ smoke_complete %>%
         across(c(days_to_death, days_to_birth, days_to_last_follow_up), 
                mean, na.rm = TRUE))
 ```
+
 The `across()` function used above, first asks which variables, then asks which operation. In the example above, we named the variables first, and then we named the function `mean` and added an argument `na.rm = TRUE` which is applied to the mean function. If we had not done this, we would have `NA`s in our results.
 
 We can also use the syntax from `select()` to choose our variables, for instance, we could call the same variables by using `starts_with("days")`:
@@ -377,7 +393,14 @@ smoke_complete %>%
     glimpse()
 ```
 
+
+
 # Standardizing variable names: `clean_names()`
+
+```{r}
+knitr::include_graphics("image/janitor_clean_names.png")
+```
+
 
 The last package we'll talk about today is the `janitor` package. This package adds some really useful functions for *cleaning* data.
 
@@ -405,6 +428,8 @@ smoke_good_colnames
 
 By default, `clean_names()` converts to snake case (spaces between words are replaced by an underscore `_`).  `clean_names()` will help you standardize your dataset's column names.
 
+
+
 ## Using `rename()` to rename!
 
 We can easily change names by hand, as well, with the `rename()` function in `dplyr` which is essentially a wrapper for `mutate()`:
@@ -415,6 +440,224 @@ smoke_good_colnames %>%
     glimpse()
 ```
 
+
+
+# More `ggplot2` stuff
+
+Due to the number of requests, I have added this section on `ggplot2`.
+
+## `geom`s are layers on your plot
+
+The really neat thing about `geom`s are that they can be layered onto your plot.
+
+Here we're layering another geom, `geom_violin()` on `geom_boxplot()`.
+
+We're providing a couple of values to `geom_violin()`: 
+
+- `alpha`, which controls the transparency of the geom
+- `width`, which controls the overall width of the violins.
+
+```{r}
+our_boxplot <- ggplot(smoke_complete) +
+    aes(y = cigarettes_per_day, x=disease, fill=disease) +
+    geom_boxplot() +
+    geom_violin(alpha = 0.5, width = 0.5)
+    
+our_boxplot
+```
+
+
+
+## Scales
+
+Scales are added to a ggplot for multiple reasons:
+
+- Transform numerical axes (such as change a plot to a log scale)
+- Change the breaks (tick values) in a plot
+- Format values in a scale (such as dollars: "$500", "600")
+- Map discrete values to particular colors (make "LUSC" = "blue")
+
+
+All scale functions begin with `scale_` and are followed by the `aesthetic` it's working on, and the `transformation` of the data.
+
+For example:
+
+
+## Changing axis ticks and values using `scale_x_continuous()`
+
+
+One main use for `scale_` functions is to modify the *breaks* (the tick values along an axis):
+
+Here we're providing `scale_x_continuous()` an argument called `breaks`, which is a numeric vector that specifies the values we want each tick to be at:
+
+```{r}
+our_plot <- ggplot(smoke_complete) +
+
+  aes(x = age_at_diagnosis, 
+      y = cigarettes_per_day, 
+      color = disease) +
+  
+  geom_point(alpha = 0.5) +
+  
+  labs(title = "Cigarettes per Day versus Age at Diagnosis",
+       x = "Age at Diagnosis",
+       y = "Cigarettes Smoked per Day") + 
+
+  scale_x_continuous(breaks = c(10000, 20000, 30000))
+  
+our_plot
+```
+
+
+### Your Turn
+
+How would you modify the `y` axis to have the following breaks? 
+
+c(2, 4, 6, 8, 10)
+
+Hint: it's not `scale_x_continuous`, but `scale_y_continuous`:
+
+```{r}
+our_plot +
+    scale_y_continous()
+
+```
+
+
+
+## Better Labels
+
+The other main use for `scale_` functions is to improve the formatting on the axis tick labels.
+
+Say our y axis was dollars instead of number of cigarettes. We can supply `label_dollar()` as an argument to our `labels` argument in scale_y_continuous: 
+
+
+```{r}
+our_plot +
+    scale_y_continuous(labels = scales::label_dollar())
+```
+Other useful label_ functions for formatting labels:
+
+
+`label_date()` - Lets you control the way dates are formatted on the axis
+`label_scientific()` - lets you format the labels with scientific notation
+`label_pvalue()` - formatting specific to p-values
+
+
+
+
+## scale_color_manual() - mapping discrete colors to categories
+
+If you want to customize the colors values in your data set are mapped to, you can use `scale_color_manual()`:
+
+```{r}
+our_plot +
+    scale_color_manual(values = c("LUSC" = "limegreen", 
+                                  "BLCA" = "orange",
+                                  "CESC" = "pink"))
+
+```
+
+
+## Color Palettes: `{wesanderson}`
+
+If you don't want to meticulously control every color, you can use palettes as a starting point for your
+
+```{r}
+library(wesanderson)
+
+names(wes_palettes)
+```
+
+```{r}
+wes_palette("IsleofDogs1")
+```
+
+```{r}
+our_plot +
+    scale_color_manual(values = wes_palette("IsleofDogs1"))
+
+```
+Remember, if we want to do this with `our_boxplot`, the scale we want to manipulate is not `color`, but `fill`, so we need to use `scale_fill_manual()`
+
+```{r}
+our_boxplot +
+    scale_fill_manual(values = wes_palette("IsleofDogs1"))
+
+```
+
+
+### Your Turn
+
+Pick one of the palettes from `wesanderson` and use it to modify `our_plot`:
+
+```{r}
+
+our_plot +
+    scale_color_manual(values = __________)
+```
+
+
+
+## `scale_color_gradient()`
+
+We've talked about variables with discrete values, but what about variables with continuous values?
+
+
+```{r}
+ggplot(smoke_complete) +
+
+  aes(x = age_at_diagnosis, 
+      y = cigarettes_per_day, 
+      color = year_of_birth) +
+  
+  geom_point(alpha = 0.5) +
+  
+  labs(title = "Cigarettes per Day versus Age at Diagnosis",
+       x = "Age at Diagnosis",
+       y = "Cigarettes Smoked per Day") +
+  
+  scale_color_gradient(low = "black", high="blue")
+
+
+```
+
+
+## Color Palettes: `{viridisLite}` 
+
+
+One really important package to know about is `{viridisLite}`, which contains a number of color-blind friendly palettes.
+
+They have built in functions that use these:
+
+For discrete values:
+
+- `scale_color_viridis_d()`
+- `scale_fill_viridis_d()`
+
+For continuous values:
+
+- `scale_color_viridis_c()`
+- `scale_fill_viridis_c()`
+
+```{r}
+library(viridisLite)
+
+our_plot +
+  theme_minimal() +
+  scale_color_viridis_d()
+```
+# More Palettes
+
+The `{paleteer}` package has a lot of other palettes:
+
+https://emilhvitfeldt.github.io/paletteer/
+
+
+
+# Make sure to fill out your survey!
+
+https://ohsu.ca1.qualtrics.com/jfe/form/SV_0rjxy6FgXapnMk5
 
 
 

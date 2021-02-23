@@ -1,0 +1,39 @@
+---
+title: "Here Example (2)"
+author: "Ted Laderas"
+date: "1/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Motivation for here
+
+Let's knit this in the root folder first.
+
+```{r}
+library(tidyverse)
+library(readxl)
+
+smoke_complete <- read_excel("data/smoke_complete.xlsx", 
+                             sheet=1, 
+                             na="NA")
+```
+
+Now try moving this document into the `markdown` folder and try knitting it there. It won't work!
+
+Now modify the above code chunk to contain this code:
+
+```
+library(tidyverse)
+library(readxl)
+library(here)
+
+smoke_complete <- read_excel(
+                   here("data/smoke_complete.xlsx"), 
+                   sheet=1, 
+                   na="NA")
+
+```

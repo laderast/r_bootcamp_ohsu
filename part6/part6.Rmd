@@ -1,396 +1,258 @@
 ---
-title: 'Part 6: Purr and Batch Processing'
+title: "Part 6: Lists and RMarkdown"
 author: "Ted Laderas"
-date: "11/2/2020"
+date: "2/9/2021"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
+library(purrr)
+library(palmerpenguins)
+data(penguins)
 ```
 
-# Learning Objectives
+## Learning Objectives
 
--   **Process** elements of a list one at a time using `for` loops
--   **Write** and **use** functions that can be applied (or `map`ped) to elements of a list
--   **Consolidate** elements of a list using `reduce()`.
--   Write a pipeline that fails gracefully using `possibly()` and `safely().`
+- **Learn** about lists as a general purpose data structure
+- **Learn** and **utilize** list properties 
+- **Access** list elements using `$` and `[[]]`
+- **Understand** the difference between homogeneous and heterogeneous lists
+- **Use** `purrr::pluck()` to access list elements
+- **Understand** how `data.frames()` are list-like
+- **Understand** how to apply a function to a list.
 
-## Reminder
+## What are lists?
 
-Please go through `tidyowl::learn_lists()` before you start this unit. You'll need to understand how lists work and how we put things into them and get things out of them for this unit to make sense.
+Lists are a general purpose data structure in R. They are very flexible, in that they have *slots*. A *slot* can contain anything: it could contain a `vector`, a `data.frame`, or even another list!
 
+Unlike vectors, a `list` can also be heterogeneous: each slot can contain a different data type.
 
-```{r}
-library(tidyowl)
-learn_lists()
+We'll start with a making a list and understand different properties about it.
+
+```{r list1, exercise=TRUE}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
+
+my_list
 ```
 
+`my_list` has some properties and ways to access things in it that are really useful. The first is that `my_list` has a `length()`
 
+```{r list2, exercise=TRUE}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
 
-
-## Don't Repeat Yourself (DRY) - use functions!
-
-If you do something in R once and have to do it again, it's probably best to think of how to do it well once, rather than cutting and pasting again.
-
-For example, say that you have multiple files that have the same format and you want to load them all into R, and glue them into a single dataset.
-
-Part of doing this is by using and writing *functions*. We can take code that we might have to write 10 times in a row, and package it in a way that we can use it multiple times.
-
-```{r}
-load_files <- function(path){
-  out_frame <- readxl::read_excel(path)
-  out_frame <- janitor::clean_names(out_frame)
-  return(out_frame)
-}
-smoke1 <- load_files("data/smoke_1.xlsx")
-smoke1
+length(my_list)
 ```
 
-```{r eval=FALSE}
-files_to_load <- list.files(path="data/", full.names = TRUE)
-files_to_load
+Additionally, because the elements are named, it also will give you the names:
+
+```{r list3, exercise=TRUE}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
+
+names(my_list)
 ```
 
-Now we can utilize our `load_files()` function that takes these file locations (or paths) as an argument for this function.
+We can access a single element in the list using a name and `$`:
 
-```{r eval=FALSE}
-load_files(files_to_load[1])
+```{r list4, exercise=TRUE}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
+
+my_list$cat_names
 ```
 
+You can also access an element using the `[[]]` (double brackets) accessor to access an element in order. Here we're accessing the first element of a list.
 
+```{r list5, exercise=TRUE}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
 
-
-## For Loops
-
-Why do we need functions?
-
-If we do something once with a function, we can do it multiple times on different elements in a list with that function. This is especially true in the case of loading files. When we run the same function on different elements of a dataset, it is known as *iteration*.
-
-Let's go through the bottom code below. You've seen for loops before, but it's worth reviewing.
-
-The tricky thing to understand is that `single_file` is a *placeholder*. It changes each time we go through the loop, and it's a way to refer to the element of the list that time around.
-
-We use our function `load_files()` on `single_file`. Because `load_files()` returns a `data.frame`, we need to store the output somewhere. So, we're storing the `data.frame` into a slot of a list called `file_list`.
-
-```{r}
-#initialize an empty list
-file_list <- list()
-
-
-#use single_file as a placeholder
-for(single_file in files_to_load){
-  #show what single file is
-  print(single_file)
-  
-  loaded_file <- load_files(single_file)
-  #put the contents of loaded file into a slot with
-  #the name of the file.
-  
-  file_list[[single_file]] <- loaded_file
-}
-
-
-file_list
+my_list[[1]]
 ```
 
-### Your turn
+You can also pass a name here as a `character`, if the slots are named.
 
-Try subsetting `files_to_load` to contain just the second and third elements. How many elements does `file_list2` contain? What are their `names()`?
+```{r list6, exercise=TRUE}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
 
-```{r}
-file_list2 <- list()
-
-files_to_load2 <- files_to_load[2:3]
-
-
-for(single_file in files_to_load2){
-  file_list2[[single_file]] <- load_files(single_file)
-}
-file_list2
+my_list[["hedgehog_names"]]
 ```
 
-## purrr::map()
+Beware of the difference between `[[]]` and `[]`. The `[]` accessor returns a list of length 1 that is named `hedgehog_names`, not the element in it:
 
-```{r}
-knitr::include_graphics("image/purrr_cat.png")
+```{r list7, exercise=TRUE}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
+
+my_list["hedgehog_names"]
 ```
 
-Initializing an empty list and using a `for` loop is a bit clunky. We can do better. Enter the `purrr` package and `map()`.
-
-`purrr::map()` lets us *apply* a function to each element of a list. It will always return a list with the number of elements that is the same as the list we input it with. Each slot of the returned list will contain the output of the functions applied to each element of the input list.
-
-The way to read a `map()` statement is:
-
-    `map(.x = files_to_load, .f = load_files)` 
-
-> We're going to apply (map) our function .f,
->
-> `load_files(),`
->
-> to the `list` called `files_to_load`.
-
-```{r}
-file_list <- purrr::map(.x = files_to_load, .f = load_files)
-file_list
-```
-
-```{r}
-knitr::include_graphics("image/map_frosting.png")
-```
-
-In other words, we're taking a list of something (`cupcakes`), applying a function (`frost()`) to each of them. Thus, we should get back three frosted cupcakes.
-
-Where does the list come from? By default, `map()` returns the results of your functions to a list.
-
+In most cases, you want to use `[[]]`.
 
 
 
 ### Your Turn
 
-Use `map()` to return the `length` of each of the elements in `my_list`. 
+Find the length of the `cat_names` element in `my_list`:
 
-Remember that you don't want to put the `()` after the function name.
+```{r list8, exercise=TRUE}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
+
+length(-------)
+```
+
+
+### `purrr::pluck()`
+
+The `purrr` package has an additional way to extract list elements: `purrr::pluck()`. This can be a handy way to get a single list element.
+
+```{r pluck, exercise=TRUE}
+my_list <- list(cat_names = c("Morris", "Julia"), 
+                hedgehog_names = "Spiny", 
+                dog_names = c("Rover", "Spot"))
+
+my_list %>%
+  pluck("cat_names")
+```
+
+This can be a handy way to extract something from a list within a list element.
+
+### Your Turn
+
+Try the following code. What did it return? 
+
+Did it return a `data.frame`, or a vector?
+
+```{r}
+penguins %>%
+  pluck("species")
+```
+
+
+## Putting things into Lists
+
+The slots in a `list` are not fixed. We can take an already made list and add a new slot to it using `<-`:
 
 ```{r}
 my_list <- list(cat_names = c("Morris", "Julia"), 
                 hedgehog_names = "Spiny", 
                 dog_names = c("Rover", "Spot"))
-lengths <- map(.x = my_list, .f = ------)
-lengths
-```
 
-If we know what data type we want to return, we can use one of the `map_*` functions. We know that the lengths should return `integer`, so let's use `map_int().`
+my_list$raccoon_names <- c("Rocky")
 
-Check the class of `lengths2` - is it a `list` or a `vector`?
-
-
-
-```{r}
-lengths2 <- map_int(my_list, length)
-lengths2
+my_list
 ```
 
 
+### *homogeneous* versus *heterogeneous* lists
 
+When we automate a repetitive process, we usually assume that the lists that we process are *homogeneous*. That is, the data type of the list element is the same for each slot in the list. In our case, usually the data.type will be a `data.frame`
 
-## Passing in multiple parameters
+However, another common pattern is to return a *heterogenous* list from a function. For example, the `lm()` function actually returns a list.
 
-If you were using a function such as `mean`, you might want to specify an argument to it, such as `na.omit=TRUE`.
+```{r output_sum, exercise=TRUE}
+output <- lm(body_mass_g ~ bill_length_mm, data=penguins)
+sum_output <- summary(output)
 
-```{r}
-my_list2 <- list(vec1 = c(10, 133, 1, NA), 
-                 vec2 = c(11, 12, NA, 4), 
-                 vec3 = c(1, 5, NA, 4)
-                 )
-map(my_list2, mean)
+#show that sum_output is a list
+names(sum_output)
+
+sum_output$coefficients
 ```
 
-How do we do this? We can add any arguments that we need to by adding them after our function.
+You often return a heterogeneous list when you are returning multiple objects from a function:
 
-```{r}
-map(my_list2, mean, na.rm=TRUE)
+```{r function1, exercise=TRUE}
+run_penguin_model <- function(species = "Torgersen") {
+  
+  subset_penguins <- penguins %>%
+    filter(species == species)
+    
+  output <- summary(lm(body_mass_g ~ bill_length_mm, data=subset_penguins))
+  
+  out_list <- list(coefficients = output$coefficients, call = output$call)
+  
+  return(out_list)
+}
+
+output_model <- run_penguin_model("Torgersen")
+
+output_model
 ```
-
-There is another way to specify arguments to a function, but to explain it will require some work. We'll use what's called **formula notation** to specify a function, and the `.` to specify the **current element** (much like a placeholder variable in a for loop) in the list we're processing. We'll talk about this below.
-
-```{r}
-map(my_list2, ~mean(x = ., na.rm = TRUE))
-```
-
-
-
-
-## Anonymous Functions to save typing
-
-One thing about when you look at other peoples' `purrr` code is that it can be super confusing. There's all sorts of weird notation, such as `.` and `~`. Depending on what your function does, and what is in your `list`.
-
-`purrr`/`dplyr` has a shorthand way of defining functions, called *anonymous* functions, using the *formula* notation:
-
-    ~mean(.$bill_length_mm, na.rm=TRUE)
-
-is the same as
-
-    function(x) {
-       mean(x$bill_length_mm, na.rm=TRUE)
-       }
-
-The `~` basically takes the place of `function(x)` and the `.` takes the place of `x`.
-
-Let's use the `split()` function to split our data.frame into a list:
-
-```{r}
-library(palmerpenguins)
-data(penguins)
-penguins_by_species <- penguins %>%
-  split(.$species) 
-penguins_by_species
-```
-
-Notice that in the above we use `.`, which is a way to refer to what's in the current element of a list. In our case, we are using `.` to refer to the `data.frame` in the current slot position:
-
-```{r}
-purrr::map(.x = penguins_by_species, 
-          .f =  ~nrow(.))
-```
-
-The nice thing about anonymous functions is that you can pass in additional parameters within the function, rather than placing them outside of the function.
-
 
 
 ### Your Turn
 
-What does the following code do? How did we supply the `na.rm` argument?
+From `output_model`, return the `call` slot.
 
 ```{r}
-purrr::map(penguins_by_species, 
-             ~mean(.$bill_depth_mm, na.rm  = TRUE))
-```
-
-
-
-
-## `purrr::reduce()`
-
-Once we've done something to our `data.frame`s in `my_list2`, how do we combine them?
-
-We can use another command called `purrr::reduce()` that will take our list and combine them together, one element at a time.
-
-The big difference between `map()` and `reduce()` has to do with what it returns:
-
-> `map()` usually returns a list or data structure with the same number as its input;
->
-> The goal of `reduce` is to take a list of items and return a single object.
-
-
-```{r}
-bound_file <- purrr::reduce(file_list, dplyr::bind_rows) 
-dim(bound_file)
-```
-
-### Your Turn
-
-Use `purrr::reduce` to find the total number of rows in all three files using `sum`.
-
-```{r}
-file_rows <- purrr::map(file_list2, nrow)
-purrr::reduce(file_rows, -----)
-```
-
-
-
-
-## `map_*`: Return a specific data type
-
-There are a lot of `map_` functions, as you can see if you type in `map_:`
-
--   `map_int()` - function should return an integer
--   `map_int()` - function should return an integer
--   `map_lgl()` - function should return a logical value
--   `map_dbl()` - function should return a double (decimal) value
--   `map_df`() - function should return a `data.frame`
-
-The main difference between these is that they are *strict*: if you function doesn't return the desired data type, it will return an error.
-
-```{r}
-file_list <- purrr::map_df(files_to_load, load_files)
-file_list
-```
-
-Why do this? It's good coding practice, because you're guaranteeing that you will return something in that format.
-
-
-
-
-## Failing Gracefully: `possibly()` and `safely()`
-
-We might have a list of objects where one of the elements is *faulty*. Maybe there's no data in it, only a big `NA`. That is what `possibly()` is for. Let's add an element to `files_to_load` that isn't a file path:
-
-```{r}
-files_to_load3 <- c("blah", files_to_load)
-files_to_load3
-```
-
-If we `map` `load_files()` on this vector, we're going to get an error, because there is no file called `blah`:
-
-```{r}
-test <- map(files_to_load3, load_files)
-```
-
-Arrgh, it stopped at the first element! We need to use `possibly()` to *wrap* around our function. We first need to define new function called `load_files_possibly()`. The second argument (`otherwise`) is what the function will return if there's an error. 
-
-```{r}
-load_files_possibly <- possibly(.f = load_files, otherwise = NULL)
-
-load_files_possibly(files_to_load3[1])
-```
-
-You can see that it returns a `NULL` value rather than returning an error.
-
-Now we can use `load_files_safely()` on our list:
-
-```{r}
-file_list <- map(files_to_load3, load_files_possibly)
-file_list
-```
-
-The nice thing about returning `NULL` instead of an error here is that we can continue to work. That is, the `NULL` value won't affect our `reduce()`:
-
-```{r}
-reduce(file_list, bind_rows)
-```
-
-
-## Chopping up a data frame by group: `split()`
-
-We've seen `group_by`, which can group the rows of a data.frame by a factor. 
-
-Sometimes it is easier to split the dataframe into a list and work from there.
-
-
-
-
-
-## Working with Two Lists at a Time: map2()
-
-```{r}
-knitr::include_graphics("image/map2_cupcakes.png")
-```
-
-Say we had two lists with two elements, and one list contains elements that we want to combine with the other list somehow. `map2()` lets us use both lists as arguments to a function.
-
-Here we're using the `paste()` function to paste our two vectors together, element by element.
-
-```{r}
-cupcakes <- c("cupcake", "croissant", "shortcake")
-frostings <- c("vanilla", "chocolate", "strawberry")
-map2(frostings, cupcakes, paste)
-```
-
-### Your Turn
-
-Use `map2()` to resample the `penguins` data three times.
-
-```{r}
-indices <- map(1:3, ~sample(x = 1:nrow(penguins), size = 40, replace = FALSE))
-map(indices, ~(penguins[.,]))
+output_model$
 
 ```
 
 
+## `data.frame`s are list-like
 
+One last note. You might know that you can access columns in a `data.frame` using `$`. This is because a `data.frame` is a special *instance* of a list.
 
-## Where Next?
+Hence, you can use all of the above accessors to manipulate variables in a `data.frame`.
 
-Using and understanding `purrr` functions opens up something really powerful: parallel computing. You can have multiple cores of a machine running iterations of your list using the `furrr` (short for future purrr) package.
+```{r df, exercise=TRUE}
+data(mtcars)
 
-Learning more about functions and vectorization will help you to reduce the number of mistakes in analysis. 
+length(mtcars)
 
+mtcars$mpg
 
+mtcars[[1]]
 
-## Acknowledgments
+mtcars[["mpg"]]
+```
 
-Thanks so much to Rebecca Barter, whose treatment of `purrr` is one of the best I've ever seen. Very clear. http://www.rebeccabarter.com/blog/2019-08-19_purrr/ 
+A common pattern in Base-R for filtering that you should be aware of is using the `$` operator for filtering on rows. The `tidyverse` simplifies this with `filter()`, but this pattern is often used with objects in Bioconductor.
 
-Illustrations are from Hadley Wickham's talk ["The Joy of Functional Programming (for Data Science)."](https://learning.acm.org/techtalks/functionalprogramming)
+```{r echo=TRUE}
+mtcars[mtcars$cyl == 8,]
+```
+
+## Applying a function to a list using `map()`
+
+Let's make a function:
+
+```{r}
+get_first_element <- function(input_list){
+  return(input_list[[1]])
+}
+
+```
+
+We can *apply* this function to each element of a list. This is usually easiest if the list is homogeneous.
+
+The function we use is called `map()`. `map()` usually takes two inputs:
+
+- the list to process
+- the function to process them with
+
+Note that we don't call `get_first_element()` with the parentheses. 
+
+```{r}
+new_list <- map(my_list, get_first_element)
+new_list
+```
+
+Next time we will use `map()` to load in multiple `data.frame`s from files in a folder.
+

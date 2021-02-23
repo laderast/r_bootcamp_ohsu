@@ -1,0 +1,101 @@
+---
+title: "Introduction to RMarkdown"
+author: "Ted Laderas"
+date: "2/8/2021"
+output: 
+  html_document:
+    df_print: paged
+#    toc: true
+#    toc_float: true
+#    code_folding: show
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(palmerpenguins)
+data(penguins)
+```
+
+## The HTML document format
+
+The `html_document()` format is extremely powerful and customizable.
+
+
+## Table of Contents
+
+Try uncommenting the following code and reknit the document.
+
+```
+#    toc: true
+#    toc_float: true
+```
+
+## Themes
+
+Try out the following themes in the `theme:` front matter to change the appearance of the document.
+
+- cosmo
+- lumen
+- paper
+
+## A Pretty Table
+
+Try changing the argument for `df_print:` to the following formats:
+
+- paged
+- kable
+
+```{r}
+penguins
+```
+
+
+## {gt} package
+
+There is also the `{gt}` package (**g**rammar of **t**ables), which lets you highly customize tables. I'm not an expert at it, but you can group columns and such.
+
+```{r}
+library(gt)
+gt(penguins[1:10,])
+```
+
+## {gtsummary}
+
+For making table 1s of most papers (the cohort table), `{gtsummary}` is extremely helpful:
+
+```{r}
+library(gtsummary)
+
+penguins %>%
+tbl_summary(by=species) %>% 
+  add_n() %>% # add column with total number of non-missing observations
+  add_p() %>% # test for a difference between groups
+  modify_header(label = "**Variable**") %>% # update the column header
+  bold_labels()
+```
+
+
+## Example of a Tabset {.tabset}
+
+### Showing Graph
+
+```{r echo=FALSE}
+ggplot(penguins) +
+  aes(x = species, y= flipper_length_mm, fill = species) +
+  geom_boxplot() +
+  facet_wrap(vars(island))
+
+```
+
+### Showing Code
+
+```{r eval=FALSE, echo=TRUE}
+ggplot(penguins) +
+  aes(x = species, y= flipper_length_mm, fill = species) +
+  geom_boxplot() +
+  facet_wrap(vars(island))
+
+```
+

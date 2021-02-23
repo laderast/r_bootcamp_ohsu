@@ -71,4 +71,10 @@ Color your plot by `disease` and facet by `vital_status`.
 
 ```
 
-5. Extra (2 bonus points): For one of the `geom` types in the BERD Workshop slides, produce a plot with `smoke_complete`.
+5. Extra (1 bonus points): For one of the `geom` types in the BERD Workshop slides, produce a plot with `smoke_complete`. The slides are here (the link is also under the reading for Part 3): https://sph-r-programming.netlify.app/ggplot_flipbookr_berd/04_ggplot_slides.html
+
+
+```{r}
+
+
+```

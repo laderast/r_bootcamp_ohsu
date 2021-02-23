@@ -1,0 +1,81 @@
+---
+title: "Part 1 Review: More about for loops"
+author: "You"
+date: "1/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## More about For Loops
+
+
+```{r}
+knitr::include_graphics("image/for_loop1.JPG")
+```
+
+```{r}
+knitr::include_graphics("image/for_loop2.JPG")
+```
+
+```{r}
+knitr::include_graphics("image/for_loop3.JPG")
+```
+
+Given what we know so far about vectors, we might want to do something with each value in a vector.
+
+For example, say I had the following strings:
+
+```{r}
+
+pets <- c("dog", "cat", "mouse")
+
+for(pet in pets){print(pet)}
+```
+
+The curly brackets {} contain functions that you want to apply to each value in the vector. In this case, we're just printing out the values.
+
+
+Let's take some miles per gallon readings and convert them to miles per liter. We know that there are 3.78 liters in a gallon:
+
+```{r}
+cars_mpg <- c(20, 30, 44.2)
+#make an empty vector
+cars_mpl <- c()
+
+for(mpg in cars_mpg){
+  mpl <- mpg / 3.71
+  #add mpl to the end of cars_mpl
+  cars_mpl <- c(cars_mpl, mpl)
+}
+```
+
+We know `cars_mpl` is a vector. What does it contain? What is its length?
+
+```{r}
+
+
+
+```
+
+## Vectorized functions
+
+You might know that instead of doing the above, you can do this:
+
+```{r}
+cars_mpl <- cars_mpg / 3.71
+cars_mpl
+```
+
+This has to do with the fact that many functions in R are *vectorized* - they know how to handle vectors when you given them a vector.
+
+However, sometimes for loops are still very useful.
+
+## Final words from Alison Horst
+
+```{r}
+knitr::include_graphics("image/for_loop.jpg")
+```
+

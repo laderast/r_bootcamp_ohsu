@@ -1,5 +1,5 @@
 ---
-title: 'Ready for R, Part 3: Data Visualization and Data Manipulation'
+title: 'Part 3: Data Visualization and Data Manipulation'
 output: html_document
 author: "you!"
 ---
@@ -19,6 +19,47 @@ knitr::opts_chunk$set(echo = TRUE)
 - Filter a dataset using the `filter()` function
 
 
+# Getting Help on Errors
+
+## Understanding the difference between warnings and errors
+
+A *warning* is an indication that the data or arguments isn't quite what the function expected. 
+
+You can usually run the code, but you should be careful about it and verify the output.
+
+An *error* means that the code can't execute at all given what you have given the function.
+
+Errors can be difficult to understand, which is why
+
+
+## Googling is StandaRd pRactice foR eRRors
+
+The first thing I do when I encounter an error is to search for the error. I usually start with Google.
+
+I don't know everything, and the odds are that I made a mistake in understanding the documentation.
+
+There are some resources that I especially check (in order):
+
+- RStudio Community (for `tidyverse`): https://community.rstudio.com/
+- Stack Overflow: http://stackoverflow.com/
+- Biostars (for Bioinformatics): https://www.biostars.org/
+- The package's github page (especially issues)
+
+
+
+## Where do I ask for help?
+
+I'm trying to be as helpful as I can, but I can't answer all of your questions.
+
+The following communities are extremely helpful to beginners:
+
+- R for Data Science Community: https://r4ds.slack.com/
+- RStudio Community: https://community.rstudio.com/
+
+
+## An aside on `here()`
+
+Let's open up the file `markdown/here_example.Rmd`.
 
 
 ## Getting set up
@@ -27,9 +68,10 @@ knitr::opts_chunk$set(echo = TRUE)
 # load library
 library(tidyverse)
 library(readxl)
+library(here)
 
 
-smoke_complete <- read_excel("data/smoke_complete.xlsx", 
+smoke_complete <- read_excel(here("data/smoke_complete.xlsx"), 
                              sheet=1, 
                              na="NA")
 
@@ -40,6 +82,7 @@ smoke_complete <- smoke_complete %>%
          cigarettes_per_day, gender, 
          vital_status, disease)
 ```
+
 
 ## Customizing a Scatterplot
 
@@ -82,9 +125,8 @@ Adding the `theme()` function will let us customize our plot further.
 There are a few arguments that are really helpful to modify:
 
 - `axis.title`
-- `axis.title.x` 
-- `axis.title.y` 
-- (The labels for the axes)
+- `axis.title.x`  (label for the x-axis)
+- `axis.title.y`  (label for the y-axis)
 - `legend.position` (Placing the legend, including removing it)
 
 
@@ -125,7 +167,7 @@ This automatically saves the last plot for which code was executed. This command
 
 One data type that we haven't yet looked at are `factor`s - factors are how R represents *categorical data*.
 
-For the most part, you can use `character` and `factors` interchangably for categorical data.
+For the most part, you can use `character` and `factors` interchangeably for categorical data.
 
 However, there is one main difference. `factor`s define the permissible values in a vector with an argument called `levels`. They also define the order in which these values are displayed.
 
@@ -153,9 +195,23 @@ factor_vector <- factor(character_vector,
 table(factor_vector)
 ```
 
-This ordering is the main reason to use `factors`. We will revisit this again in Part 4 when we learn how to manipulate the data type of a variable in a `data.frame`.
+This ordering is the main reason to use `factors`, at least in plotting and doing counts. We will revisit this again in Part 4 when we learn how to manipulate the data type of a variable in a `data.frame`.
 
 
+### Challenge
+
+Change the order of `factor_vector` to be "Mouse", "Cat", "Dog". 
+
+Verify that you did it correctly by calling `table()`.
+
+```{r}
+factor_vector <- factor(character_vector, 
+                        levels = c("Dog", "Cat", "Mouse"))
+
+table(factor_vector)
+
+
+```
 
 
 ## Back to `ggplot2`: Boxplots
@@ -193,7 +249,6 @@ ggplot(smoke_complete) +
 
 
 
-
 ## Faceting our boxplot
 
 One of the most powerful ways to change a visualization is by *faceting*. We can make multiple plots using another categorical variable.
@@ -216,8 +271,28 @@ ggplot(smoke_complete) +
   facet_wrap(vars(disease))
 ```
 
+Don't try to facet on a `numeric` variable - it won't work.
 
 Don't forget to look at the help documentation (e.g., `?facet_wrap`) to learn more about additional ways to customize your plots!
+
+### Challenge
+
+Facet the boxplot by `gender`. Don't forget `vars()`
+
+```{r}
+ggplot(smoke_complete) +
+  
+  aes(x = vital_status, 
+      y = cigarettes_per_day, 
+      fill = vital_status) +
+  
+  geom_boxplot() +
+  
+  ylim(c(0,20)) +
+  
+  facet_wrap()
+
+```
 
 
 ## Further learning
@@ -225,45 +300,8 @@ Don't forget to look at the help documentation (e.g., `?facet_wrap`) to learn mo
 If you are interested in learning more about ggplot:
 - Documentation for all `ggplot` features is available [here](https://ggplot2.tidyverse.org).
 - RStudio also publishes a [ggplot cheat sheet](https://github.com/rstudio/cheatsheets/raw/master/data-visualization-2.1.pdf) that is really handy!
+- [Customizing ggplot2 Cheatsheet](http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/) is also handy, because it organizes ggplot2 commands by task.
 
-
-# Getting Help on Errors
-
-## Understanding the difference between warnings and errors
-
-A *warning* is an indication that the data or arguments isn't quite what the function expected. 
-
-You can usually run the code, but you should be careful about it and verify the output.
-
-An *error* means that the code can't execute at all given what you have given the function.
-
-Errors can be difficult to understand, which is why
-
-
-
-## Googling is StandaRd pRactice foR eRrors
-
-The first thing I do when I encounter an error is to search for the error. I usually start with Google.
-
-I don't know everything, and the odds are that I made a mistake in understanding the documentation.
-
-There are some resources that I especially check (in order):
-
-- RStudio Community (for `tidyverse`): https://community.rstudio.com/
-- Stack Overflow: http://stackoverflow.com/
-- Biostars (for Bioinformatics): https://www.biostars.org/
-- The package's github page (especially issues)
-
-
-
-## Where do I ask for help?
-
-I'm trying to be as helpful as I can, but I can't answer all of your questions.
-
-The following communities are extremely helpful to beginners:
-
-- R for Data Science Community: https://r4ds.slack.com/
-- RStudio Community: https://community.rstudio.com/
 
 
 
@@ -330,8 +368,25 @@ and
 arrange(smoke_complete, cigarettes_per_day)
 ```
 
-## One Step at a Time
+## Why pipes?
 
+Pipes make it easier to put together commands.
+
+Without pipes, I'd have to do the following:
+
+```{r}
+arrange(
+  filter(smoke_complete, 
+         gender == "male"),
+  cigarettes_per_day
+)
+```
+
+You can see that as you add more and more verbs, it gets more and more complicated. That's what pipes are supposed to save us from.
+
+
+
+## One Step at a Time
 
 One big advantage of the pipe is that you can build your processing line by line.
 
@@ -342,7 +397,6 @@ In practice, as I work, I will often pipe things into `View()` to confirm I did 
 smoke_complete %>%
   arrange(cigarettes_per_day) %>%
   View()
-
 ```
 
 This is a good way to work. By building each step and verifying that the output is correct, we can build really long *pipelines* of processing.
@@ -352,7 +406,9 @@ This is a good way to work. By building each step and verifying that the output 
 
 ## The difference between `+` and `%>%`
 
-Remember that `+` is for `ggplot2` and that `%>%` is for `dplyr`. To keep them distinct and avoid confusion, separate our your data processing and your plotting:
+Remember that `+` is for `ggplot2` and that `%>%` is for `dplyr`. To keep them distinct and avoid confusion, separate our your data processing and your plotting.
+
+You can chain them, but I always find that I get confused when I go back and alter the code.
 
 
 ```{r}
@@ -407,6 +463,14 @@ smoke_complete %>%
           )
 ```
 
+### Challenge
+
+Use `arrange()` to sort by `disease` and by descending `tumor_stage`.
+
+```{r}
+smoke_complete %>%
+  arrange()
+```
 
 
 ## `filter()`ing our data
@@ -472,6 +536,52 @@ smoke_complete %>%
 
 Think about it: which of the above two code blocks will return a larger number of patients?
 
+### How do I know what values exist in a categorical variable?
+
+We've already seen both `skim()` and `glimpse()` can give us an idea of what values exist in a categorical variable.
+
+We can use `distinct()` to grab all of the unique values for a categorical variable, and then use `arrange()` to get at them.
+
+```{r}
+smoke_complete %>%
+  distinct(tumor_stage) %>%
+  arrange(tumor_stage)
+```
+
+This can also alert us if there are categorical coding mistakes (such as misspellings) in our data.
+
+Another tidy way to do this is to use the `tabyl()` function from the {janitor} package:
+
+```{r}
+library(janitor)
+
+smoke_complete %>%
+  tabyl(tumor_stage)
+```
+
+```{r}
+smoke_complete %>%
+  distinct(tumor_stage) %>%
+  arrange(tumor_stage)
+
+```
+
+
+### Challenge
+
+Use `filter()` to select patients who have 
+
+disease == "LUSC" and
+
+who smoke less than 1 `cigarettes_per_day`.
+
+```{r}
+smoke_complete %>%
+  filter()
+
+```
+
+
 
 ## More about Comparison and Logical Operators
 
@@ -500,6 +610,16 @@ smoke_complete %>%
 
 ```
 
+## `tidyselect`
+
+There are ways to search column names and to select them. These are called the `tidyselect` helpers.
+
+For more info, please run this code in your console:
+
+```{r}
+library(tidyowl)
+tidyowl::learn_tidyselect()
+```
 
 
 ## The difference between `filter()` and `select()`
@@ -511,7 +631,6 @@ One thing to keep in mind is that:
 `select()` works on columns
 
 Keep that in mind!
-
 
 
 ## Saving our results
@@ -528,6 +647,10 @@ write_excel_csv(x = processed_data,
                 path = "data/processed_data.csv")
 ```
 
+## Further Reading about `dplyr`
+
+Please refer to https://sph-r-programming/reading/03-reading/ for more reading about `dplyr`.
+
 
 ## What you learned today
 
@@ -535,7 +658,7 @@ write_excel_csv(x = processed_data,
 - making boxplots 
 - faceting plots
 - a little bit about factors
-- pipes
+- pipes (`%>%`) 
 - `arrange()`
 - `filter()`
 - `select()`
@@ -543,9 +666,9 @@ write_excel_csv(x = processed_data,
 
 ## Survey
 
-Don't forget to fill out the survey (fill it out for Week 4)!
+Don't forget to fill out the survey! Fill it out for Part 3.
 
-https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn
+<https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
 
 
 

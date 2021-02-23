@@ -15,16 +15,16 @@ Submit your knitted html file to Sakai - if you are having issues, you can submi
 
 Make sure to name your assignment "assignment2-LASTNAME.html" and to fill out the author field with your name. 
 
+Try formatting parts of your text with markdown: https://sph-r-programming.netlify.app/reference/markdown/ - that is, try out some *italics* and **bolding**, or ways to format your text.
 
 ## Assignment (10 points)
 
-1.  Load the `data/smoke_complete.xlsx` file into R using `read_excel`. You'll need to take a look at it to make sure that your arguments are correct (2 points).
+1.  Load the `data/smoke_complete.xlsx` file into R using `read_excel`. You'll need to take a look at it to make sure that your arguments are correct (1 points).
 
 ```{r}
 smoke_complete <- read_excel()
 
 ```
-
 
 
 2.  Use `glimpse()` on `smoke_complete`. How many rows does the file have? How many variables does it have? What are the numeric variables in this dataset? (2 points)
@@ -37,7 +37,7 @@ glimpse(smoke_complete)
 [Put your answer here]
 
 
-3. Use `skim()` on `smoke_complete()`.  Is the `year_of_death` variable skewed or not? Describe how it is skewed.
+3. Use `skim()` on `smoke_complete()`.  Is the `year_of_death` variable skewed or not? Describe how it is skewed. (2 points)
 
 ```{r}
 library(skim)
@@ -66,4 +66,16 @@ ggplot(smoke_complete, aes(x = ____,
 
 ```
 
+5. There is a dataset called `penguins` in a package called `palmerpenguins` (it has already been installed in your project.) Use `skim()` to skim the dataset, and pick two numeric variables to plot as a scatterplot, and pick one of the categorical or (also known as `factor`) variables to color your plot by. (3 points)
 
+You can find out more about the dataset by using either `?penguins` or `help(penguins)`:
+
+```{r}
+#load the palmerpenguins library
+library(palmerpenguins)
+#load the dataset using data()
+data(penguins)
+penguins
+```
+
+1 Bonus point for an interpretation of your plot.

@@ -1,0 +1,53 @@
+---
+title: "Here Example"
+author: "Ted Laderas"
+date: "1/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Why `here()`?
+
+One of the big problems of RMarkdown documents is that so far, we've stuck to putting them in the root folder (where our .Rproj file lives), to make using relative paths easier.
+
+One big headache with Rmarkdown is that when you knit it, all the file paths are relative to the current location of the Rmarkdown file.
+
+What if we wanted to move our Rmarkdown files into a different place in our project, such as in a folder called `markdown`?
+
+That causes a big headache, because we would have to *rewrite* the relative paths. 
+
+This is where `here()` comes in. We can wrap any relative file path with `here()`, and it will act as if we're calling it from our *root* directory.
+
+For example, if I wanted to call a file from the `images` folder, which is one folder above the `markdown` folder where this document lives, we can do the following:
+
+```{r}
+library(here)
+#show what here is doing to our file path
+here("images/here.png")
+```
+
+Let's do something with that and load in Allison's illustration for `here()`:
+
+```{r}
+knitr::include_graphics(here("images/here.png"))
+
+```
+
+You can also provide the folder names as characters in a vector:
+
+```{r}
+here("images", "here.png")
+```
+
+This comes in handy the most when you're loading data.
+
+## Another bonus to using `here()`
+
+`here()` understands both PC and Mac/Unix style file paths, so you can use it on your own machine.
+
+## `here()` is tied to your current project
+
+`here()` only really works within the context of a project. It seems very simple, but it's a lifesaver in making your code and rmarkdown files usable by others.

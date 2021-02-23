@@ -13,18 +13,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Save your own version before you do anything!
 
-
 ## Learning Objectives
 
-- **Learn** and **apply** `bind_rows()` to combine rows from two or more datasets
-- **Learn** about the different kinds of joins and how they merge data
-- **Apply** `inner_join()` and `left_join()` to join tables on columns
-- **Standardize** variable names using `clean_names()`
-- **Utilize** `pivot_longer()` to make a *wide* dataset *long*
-- **Learn** and **apply** date manipulation functions in `lubridate`
-- **Learn** about functions and how to write them
-- **Learn** about for-loops and how to repeat operations using them
-
+-   **Learn** and **apply** `bind_rows()` to combine rows from two or more datasets
+-   **Learn** about the different kinds of joins and how they merge data
+-   **Apply** `inner_join()` and `left_join()` to join tables on columns
+-   **Standardize** variable names using `clean_names()`
+-   **Utilize** `pivot_longer()` to make a *wide* dataset *long*
+-   **Learn** about functions and how to write them
 
 ## Getting set up
 
@@ -33,8 +29,8 @@ library(tidyverse)
 library(readxl)
 library(janitor)
 library(here)
+library(forcats)
 ```
-
 
 ## `bind_rows()`
 
@@ -45,7 +41,6 @@ Imagine that your lab is part of a large consortium studying the effects of smok
 Many labs within the consortium have accumulated data, and not all were following the guidelines you set for the tables.
 
 Here, I'm just saving the first few rows of each of these tables, so it's easier to see what's going on.
-
 
 ```{r}
 smoke_1 <- read_excel(here('data/smoke_1.xlsx'), 
@@ -77,22 +72,20 @@ smoke_3
 
 ## Binding two tables together
 
-How can you combine  datasets from individual labs? Enter `bind_rows()`...
+How can you combine datasets from individual labs? Enter `bind_rows()`...
 
 ```{r}
 smoke_1 %>% 
   bind_rows(smoke_2)
 ```
 
-
 `bind_rows()` allows you to append one dataset to the bottom of another dataset. We can see that `smoke_1` contained 549 rows and `smoke_2` contained 603 rows. After using `bind_rows()`, we now have a single dataset containing 1152 rows.
 
-That's all pretty cool, until you meet a rogue lab. This lab almost seems as if they've gone out of their way to make things difficult. Rather than putting columns in the standard order specified, they've switched them around. 
+That's all pretty cool, until you meet a rogue lab. This lab almost seems as if they've gone out of their way to make things difficult. Rather than putting columns in the standard order specified, they've switched them around.
 
 Even worse, they've named the columns differently! If there are only a few columns, sure, we could manually fix this. But what if this was RNASeq data, with thousands of column names to fix?!
 
 Well, let's remember we still have `clean_names()`. That can at least help us get the column names into the standard format.
-
 
 ```{r}
 smoke_3_clean <- smoke_3 %>%
@@ -103,7 +96,6 @@ smoke_3_clean
 
 Our column names are at least the same, but they're still out of order! If we append `smoke_3_clean` to `smoke_1`, `vital_status` will be appened under `primary_diagnosis`, `age_at_diagnosis` will be appended under `tumor_stage`, and so on. Do we need to reorder the columns before we append them?
 
-
 ```{r}
 smoke_1 %>%
     bind_rows(smoke_3_clean) %>%
@@ -112,9 +104,9 @@ smoke_1 %>%
 
 Well look at that. `bind_rows()` takes care of the out-of-order columns for us!
 
-
 ## Renaming columns using select()
 
+One use for the `select()` function is to rename columns.
 
 ```{r}
 smoke_1 %>%
@@ -122,87 +114,74 @@ smoke_1 %>%
 
 ```
 
+If we wanted to just rename the `vital_status` column, we can use `rename()`:
+
+```{r}
+smoke_1 %>%
+  rename(vital_stat = vital_status)
+
+```
 
 ## Joining Tables
-
-
 
 ### Motivation
 
 You have data on patients from two sources - one are labs, and they supply patient ids. The second source comes from an electronic medical record. How do you combine these two into a single table?
 
-
-
 ### Naming conventions
 
-![](image/original-dfs.png)
-source: https://github.com/gadenbuie/tidyexplain
-
+![](image/original-dfs.png) source: <https://github.com/gadenbuie/tidyexplain>
 
 Before we talk about joins, we need to define some terms.
 
-`left table` and `right table`: Whenever we join two tables, we will have 
+`left table` and `right table`: Whenever we join two tables, we will have
 
-- a *left* table (in this case, the `x` table) and 
-- a *right* table (in this case, the `y` table). 
+-   a *left* table (in this case, the `x` table) and
+-   a *right* table (in this case, the `y` table).
 
-`key`: In order to join the two tables, we have to somehow map the rows of our left table (`x`) with the rows of our other table (`y`). We do this by joining together rows with a common variable. In our case, we need to join rows based on the first column in both tables. The column that we join on is called a *key*. 
+`key`: In order to join the two tables, we have to somehow map the rows of our left table (`x`) with the rows of our other table (`y`). We do this by joining together rows with a common variable. In our case, we need to join rows based on the first column in both tables. The column that we join on is called a *key*.
 
-![](image/original-dfs.png)
-source: https://github.com/gadenbuie/tidyexplain
+![](image/original-dfs.png) source: <https://github.com/gadenbuie/tidyexplain>
 
 In the above example, we see that there is a row in `x` whose *key* is 2, and there is a row in `y` whose *key* is 2 as well. So it makes sense to join these two rows together.
 
-So, by matching the rows with identical keys, we can put together a table that incorporates information from both tables. 
-
-
+So, by matching the rows with identical keys, we can put together a table that incorporates information from both tables.
 
 ### Inner Joins
 
-![Inner join animation](image/inner-join.gif)
-source: https://github.com/gadenbuie/tidyexplain
+![Inner join animation](image/inner-join.gif) source: <https://github.com/gadenbuie/tidyexplain>
 
 With an inner join, we are matching rows based on our *key*. If there is not a match in both tables, we don't include the row with that key.
 
 In the example above, we don't keep row 3 in table x or row 4 in table y.
 
-
-
 ## Joining Syntax
 
 Keeping these terms in mind, let's look at the syntax for joining two tables together.
 
-```
-inner_join(table_x, table_y,
-          by = c(key_column_x = key_column_y)
-          )
-```
+    inner_join(table_x, table_y,
+              by = c(key_column_x = key_column_y)
+              )
 
 If we just wanted to join the two tables, the above is enough. We first specify the left table (`table_x`), and the right table (`table_y`).
 
-Note the `by` argument. This is the argument where we specify which column in each table contains our key. 
-
-
+Note the `by` argument. This is the argument where we specify which column in each table contains our key.
 
 ### The more `dplyr` way to do joins
 
 The more `dplyr` way to do joins is below:
 
-```
-#start with left table
-table_x %>% 
+    #start with left table
+    table_x %>% 
 
-  #join left table with right table
-  inner_join(y = table_y, 
-  
-  #point out the key column in each table
-    by = c("key_column_x"= "key_column_y")
-    )
-```
+      #join left table with right table
+      inner_join(y = table_y, 
+      
+      #point out the key column in each table
+        by = c("key_column_x"= "key_column_y")
+        )
 
 We start with our *left* table, `table_x`. The main difference is that we don't need to specify the `x` argument in `inner_join()`, because we are piping `table_x` as the first argument of `inner_join()`.
-
-
 
 ## Left Joins
 
@@ -210,22 +189,17 @@ We start with our *left* table, `table_x`. The main difference is that we don't 
 
 Left joins are a little different. In a *left join*, we keep all the rows in the left table regardless of whether there is a match in the right table.
 
-In the example above, we keep row 3 in table x even though it doesn't have a match in table y. 
+In the example above, we keep row 3 in table x even though it doesn't have a match in table y.
 
 Because there is no information from the right table, these rows will have an `NA`. That is, the information is missing for the columns that come from the right table.
 
-
-
-
 ### Let's work through an example
 
-
-Say we have a set of patients. We want to join their information with their labs, in particular a white blood cell count (a WBC). 
+Say we have a set of patients. We want to join their information with their labs, in particular a white blood cell count (a WBC).
 
 We also need to know whether there are patients in our set who haven't gotten a WBC.
 
 Because the lab system isn't part of the electronic health record, we'll need to make a join on the patient table to the lab table.
-
 
 ```{r}
 patient_table <- read_excel("data/patient_example.xlsx", sheet = 1)
@@ -254,11 +228,9 @@ patient_table %>%
 
 ```
 
-
-
 ### Your Turn
 
-Modify the code below to do a `left_join()` on `patient_table` and `wbc_table`. 
+Modify the code below to do a `left_join()` on `patient_table` and `wbc_table`.
 
 ```{r}
 patient_table %>%
@@ -269,21 +241,15 @@ patient_table %>%
 
 Which patient in `patient_table` didn't get a WBC?
 
-
 ## Making your data long: `pivot_longer()`
 
-
 ![](image/tidyr-spread-gather.gif)
-
 
 The last thing we'll talk about is the difference between the *wide* data format and the *long* data format.
 
 A really common format in bioinformatics is the *expression matrix*.
 
-In an *expression matrix*, 
-  the *rows* correspond to different *genes* and
-  the *columns* correspond to different *samples*.
-
+In an *expression matrix*, the *rows* correspond to different *genes* and the *columns* correspond to different *samples*.
 
 ```{r}
 expression_example <- read_excel("data/expression_example.xlsx", sheet=1)
@@ -291,35 +257,28 @@ expression_example <- read_excel("data/expression_example.xlsx", sheet=1)
 expression_example
 ```
 
-
-
 ### However...
 
 This format isn't super useful for a lot of data manipulations.
 
-It's because the columns correspond to samples, and this prevents us from plotting things like PTEN expression across the samples. 
+It's because the columns correspond to samples, and this prevents us from plotting things like PTEN expression across the samples.
 
 This kind of data is in a format that is called *wide* format. What we need to do is collapse the numerical values into a single column.
 
 
-
-
 ### The magic of `pivot_longer()`
 
-
 ![](image/tidyr-spread-gather.gif)
-
 
 `pivot_longer()` is the function that will let us make our *wide* data *long*.
 
 It takes three arguments:
 
-- `cols` - the columns to collapse. We haven't talked about `tidyselect` verbs, but there are a few that let you select columns based on naming criteria. Here we're using the `starts_with()` selector to grab the columns that begin with `tcga`
+-   `cols` - the columns to collapse. We haven't talked about `tidyselect` verbs, but there are a few that let you select columns based on naming criteria. Here we're using the `starts_with()` selector to grab the columns that begin with `tcga`
 
-- `names_to` - the name of the column where the labels will be consolidated to
+-   `names_to` - the name of the column where the labels will be consolidated to
 
-- `values_to` - the name of the column where the values in the columns in the wide data will be consolidated to.
-
+-   `values_to` - the name of the column where the values in the columns in the wide data will be consolidated to.
 
 ```{r}
 expression_long <- 
@@ -331,8 +290,6 @@ expression_long <-
 expression_long
 ```
 
-
-
 ### Doing things with the long data
 
 Now that we have our long data, we can do our usual kinds of plotting.
@@ -343,7 +300,7 @@ ggplot(expression_long) +
   geom_boxplot()
 ```
 
-We can even make expression heatmaps with `geom_tile`. 
+We can even make expression heatmaps with `geom_tile`.
 
 ```{r}
 expression_long <-
@@ -358,19 +315,14 @@ ggplot(expression_long) +
 
 ```
 
-
 ### `pivot_wider()` exists too!
 
 And part of your assignment will be to figure out how to use it.
 
 
-## Working with dates: `lubridate`
 
 
-## 
-
-
-## Don't Repeat Yourself (DRY) - use functions!
+# Don't Repeat Yourself (DRY) - use functions!
 
 If you do something in R once and have to do it again, it's probably best to think of how to do it well once, rather than cutting and pasting again.
 
@@ -382,9 +334,7 @@ Let's learn about how we define a function.
 
 In this line, we define our function by giving it a name, `square_number`, and defining its *arguments* using `function()`. Our function only has one argument, `number`.
 
-```
-square_number <- function(number) {
-```
+    square_number <- function(number) {
 
 What about the `{`? It defines the beginning of a *code block* - a code block defines the code that will run when we use the function.
 
@@ -405,6 +355,8 @@ square_number(4)
 
 Make a function called `cube_number` that returns the cube of a number. Test it out and make sure it works.
 
+Hint: you can find the cube of a number using `num^3`.
+
 ```{r}
 cube_number <- function(-----){
   output_number <- -----------
@@ -412,18 +364,24 @@ cube_number <- function(-----){
 }
 ```
 
+
 ## Functions: Checking for Errors with `if()`
 
-What about when someone tries `square_number("two")`? Since "two" is a character, you can't multiply with it.
+What about when someone tries `square_number("two")`? Since "two" is a character, you can't multiply with it. We probably want them to know that this isn't what we are expecting.
 
 ```{r}
 square_number("two")
 ```
-What does this look like? Remember `case_when()`? 
+
+We can use `if()` as a way to check if the value of `number` is actually numeric. 
+
+`if()` statements check for a condition in the parentheses, and then execute code in the {} (curly brackets) if true.
+
+What does this look like? Remember `case_when()`?
 
 ```{r}
 square_number_improved <- function(number) {
-  if(!is.numeric(number)){
+  if(!is.numeric(number)){ #check for whether number is numeric
     stop("Your input was not a number")
   }
 
@@ -437,127 +395,156 @@ square_number_improved(2)
 square_number_improved("two")
 ```
 
+
+
 ## Do You Need to Check for All Errors?
 
 It depends on who uses your functions. If they are just for you and your lab, as long as everyone understands what goes into the functions, you probably don't need to anticipate all kinds of errors, just a few major ones.
 
 It's when you are releasing your software as a freely available package that you should think about doing extensive testing for errors, especially the functions you anticipate will be used by most people who use your software.
 
+
+
 ## When should you write a function?
 
-Programmers have an acronym: DRY, which is short for "Don't Repeat Yourself". 
+Programmers have an acronym: DRY, which is short for "Don't Repeat Yourself".
 
 If you plan to do something multiple times, then you should probably think of writing a function.
 
 
-
-## Assignment
-
-1. Use `bind_rows()` to bind all three `smoke` datasets (`smoke_1`, `smoke_2`, and `smoke_3`) together. Hint: you'll have to do two `bind_row()` operations.
-
-```{r}
-smoke_1 <- read_excel(here('data/smoke_1.xlsx'), 
-                      sheet=1, 
-                      na="NA")
-smoke_2 <- read_excel(here('data/smoke_2.xlsx'), 
-                      sheet=1, 
-                      na="NA")
-
-smoke_3 <- read_excel(here('data/smoke_3.xlsx'), 
-                      sheet=1, 
-                      na="NA")
-```
-
-
-
-2. Take a look at the `patient` and `patient_encounter` tables loaded below.
-
-```{r}
-patient <- read_csv("data/patient_example.csv")
-patient_encounter <- read_csv("data/patient_enc_example.csv")
-
-```
-
-
-How many rows does each table have?
-
-```{r}
-nrow()
-nrow()
-```
-
-
-Write a `inner_join()` and assign it to `inner_patient` with 
-
-- `patient` as the *left* table
-- `patient_encounter` as the *right* table
-- joining on the approriate columns (look at the column names carefully!)
+## Practical Example of a function
 
 
 ```{r}
-inner_patient <- patient %>%
-  inner_join(y = ____, by = c())
-
-inner_patient
-```
-
-How many rows does `inner_patient` have?
-
-
-
-Do a `left_join` of the two tables with the same criteria as above. Assign it to `left_patient`. 
-
-Count the number of rows in `left_patient`. Is it what you expected?
-
-```{r}
-left_patient <- patient %>%
-  left_join()
-
-nrow(left_patient)
-```
-
-
-
-3. Look up the documentation for `pivot_wider`. Transform `expression_longer` back to a *wide* format, but this time with **columns** as *genes* and **rows** as *samples*.
-
-Hint: Always look at the examples in the documentation! They'll help you.
-
-```{r}
-expression_longer %>%
-  pivot_wider(id_cols = ,
-              names_from = ,
-              values_from) 
-
-
-```
-
-4. What does this function do? 
-
-Write up a short explanation here:
-
-
-
-```{r}
-load_files <- function(path){
-  out_frame <- readxl::read_excel(path)
-  out_frame <- janitor::clean_names(out_frame)
-  return(out_frame)
+count_categories <- function(df){
+  counts <- df %>%
+    count(disease)
+  
+  return(counts)
 }
+
 ```
 
-Write up an example here (You can use one of the excel files in the `data` folder).
+```{r}
+count_categories(smoke_complete)
+
+```
+
+This might be useful if you needed to summarize these disease across a large number of files.
+
+One thing you might notice is that `disease` is hard coded. There is a way to make this more flexible using something called `tidyeval`, which we will learn about next time.
+
+
+# More about factors
+
+In response to the questions about factors, here is more about factors.
+
+## Making a factor variable out of disease
+
+
+We're adding a fourth value, `BRCA` to our levels here.
+
+```{r}
+smoke_complete <- read_excel(here("data/smoke_complete.xlsx"), na="NA")
+
+smoke_complete2 <- smoke_complete %>% 
+    mutate(disease_factor = 
+               factor(disease,
+                      levels = c("LUSC", "CESC", "BLCA", "BRCA")
+                      )
+           ) 
+    
+```
+
+## Using the character variable
+
+```{r}
+ggplot(smoke_complete2) + 
+  aes(x=disease, y=cigarettes_per_day) +
+  geom_boxplot()
+```
+
+## Compare to the factor variable
+
+```{r}
+ggplot(smoke_complete2) + aes(x=disease_factor, y=cigarettes_per_day) +
+  geom_boxplot()
+```
+
+## Another thing about factors
+
+Factor `levels` also specify the permissible values.
+
+In this example, `LUSC` and `BRCA` are the permissible values. We pass a character vector into them, and you can see those values (`BLCA`, `CESC`) are recoded as NAs
+
+```{r}
+character_vector <- c("LUSC", "LUSC", "BRCA", "BLCA", "BRCA", "CESC", "CESC")
+
+factor_vector <- factor(character_vector, levels=c("LUSC", "BRCA"))
+
+factor_vector
+
+```
+
+### `fct_rev()` - reversing the order of a factor
+
+Very useful when using factors on the y-axis, because the default ordering is first value at the bottom, rather than first value at the top.
+
+```{r}
+library(forcats)
+
+#fct_rev()
+
+smoke_complete3 <- smoke_complete2 %>%
+  mutate(disease_rev = fct_rev(disease_factor))
+
+#show original factor
+ggplot(smoke_complete3) + aes(y=disease_factor, x=cigarettes_per_day) +
+  geom_boxplot()
+
+#show factor with reversed order
+ggplot(smoke_complete3) + aes(y=disease_rev, x=cigarettes_per_day) +
+  geom_boxplot()
+
+```
+
+## `fct_reorder()`
+
+`fct_reorder()` lets you reorder factors by another `numeric` variable.
+
+```{r}
+library(forcats)
+
+#fct_rev()
+
+smoke_complete3 <- smoke_complete2 %>%
+  mutate(disease_reorder = fct_reorder(disease_factor, cigarettes_per_day))
+
+ggplot(smoke_complete3) + aes(y=disease_reorder, x=cigarettes_per_day) +
+  geom_boxplot()
+```
+
+# `fct_collapse`
+
+`fct_collapse()` lets you collapse multiple categories into one category.
 
 ```{r}
 
+smoke_complete3 %>% 
+  mutate(disease_collapse = fct_collapse(
+    disease_factor,
+    other = c("BLCA", "CESC"),
+    LUSC = c("LUSC")
+  )) %>%
+  tabyl(disease_collapse)
 ```
 
-5. Write a function
+# Other really useful `forcats` functions
 
-```{r}
-
-```
+`fct_recode()` - lets you recode values manually.
+`fct_other()` - lets you define what categories are in an `other` variable.
 
 
 ## Acknowledgements
 
-Written by Aaron Coyner and Ted Laderas. Data is derived from Intro to R from fredhutch.io. 
+Written by Aaron Coyner and Ted Laderas. Data is derived from Intro to R from fredhutch.io.

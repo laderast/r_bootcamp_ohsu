@@ -1,5 +1,5 @@
 ---
-title: 'Part 5: Doing useful things with multiple tables/dates/functions/for-loops'
+title: 'Part 5: Doing useful things with multiple tables/factors/functions'
 author: "you"
 date: "5/5/2020"
 output: html_document
@@ -121,7 +121,7 @@ Write up a short explanation here:
 
 
 ```{r}
-load_files <- function(path){
+load_files <- function(path="data/smoke_1.xlsx"){
   out_frame <- readxl::read_excel(path, sheet = 1)
   out_frame <- janitor::clean_names(out_frame)
   return(out_frame)
@@ -134,12 +134,16 @@ Write up an example here (You can use one of the excel files in the `data` folde
 
 ```
 
-5. Write a function called `count_columns()` that takes a `data.frame` as input and returns the number of columns in the `data.frame`
+5. Write a function called `count_columns()` that takes a `data.frame` as input and returns the number of columns in the `data.frame` (you can use `ncol()` to count the number of columns in a data.frame()). If `df` isn't a `data.frame`, then have the function `stop()` and tell the user that they didn't input a `data.frame`.
 
 ```{r}
 count_columns <- function(df){
+  if(!is.data.frame(df)){
+    
+  }
   
-  
+  number_of_cols <- --------------
+  return(number_of_cols)
 }
 ```
 
@@ -147,11 +151,5 @@ Show an example of your function in use:
 
 ```{r}
 
-
 ```
 
-
-
-## Acknowledgements
-
-Written by Aaron Coyner and Ted Laderas. Data is derived from Intro to R from fredhutch.io. 

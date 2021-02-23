@@ -1,0 +1,56 @@
+---
+title: "More `case_when()` examples"
+author: "Ted Laderas"
+date: "2/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(palmerpenguins)
+data(penguins)
+```
+
+## More `case_when()` examples
+
+In this document, we'll go over more `case_when()` examples.
+
+
+## Making a continuous variable categorical: "short", "medium" and "long" billed penguins:
+
+We want to be `exhaustive` in our coding. 
+
+```{r}
+coded_penguins <- penguins %>%
+  mutate(bill_class = 
+           case_when(
+              bill_length_mm < 39 ~ "short",
+              bill_length_mm >= 39 & bill_length_mm < 48 ~ "medium",
+              bill_length_mm >= 48 ~ "long"
+            )
+         ) %>%
+  select(species, island, bill_length_mm, bill_class)
+
+coded_penguins
+```
+
+One way to check if you're exhaustive in your recoding is to plot your categorical variable on the x-axis and your numeric variable on the y-axis.
+
+```{r}
+ggplot(coded_penguins) +
+  aes(x=bill_class, y=bill_length_mm) +
+  geom_jitter()
+```
+
+## Combining categorical information
+
+Note that both `species` and `island` are `factors`. Because of this, if we want to combine values from both of them, we have to cast them as `character()`.
+
+```{r}
+penguins %>%
+  mutate(penguin_type = case_when(species == "Gentoo" ~ as.character(species),
+                                  species == "Adelie" ~ as.character(island),
+                                  TRUE ~ "other")) %>%
+  select(species, island, penguin_type)
+
+```
