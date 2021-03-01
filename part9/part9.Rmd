@@ -1,0 +1,505 @@
+---
+title: "Introduction to Tidymodels"
+author: "Ted Laderas"
+date: "12/7/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Before you get started
+
+Please review the machine learning introduction before you start working with this notebook. It will acquaint you with the terminology you will need to understand to work with `tidymodels`.
+
+# Glossary
+
+-   *Machine Learning* - utilizing algorithms to discover and utilize patterns in a dataset
+-   *Engine* - `tidymodels` speak for a machine learning package that has an algorithm - usually a specific package such as `ranger`
+-   *Features* - machine learning speak for *variables* used in your model (usually a column) used to predict your outcome (also known as *predictors*)
+-   *Training Set* - a set of data used for training your models
+-   *Test Set* - a set of data used for testing your model - *must* be a distinct subset from the training set.
+-   *Unsupervised Learning* - A machine learning task for examining groupings/variability in a dataset. Examples include clustering, principle components analysis, TSNE.
+-   *Supervised Learning* - A machine learning task for predicting the identity of a sample (usually a row) based on other data.
+
+# Caveat
+
+This is meant to only be an introduction to the machine learning workflow rather than a comprehensive overview. I highly recommend that you think about taking an online machine learning course to follow this up.
+
+There is a neural network/deep learning course at OHSU, and Xubo Song's Machine Learning course in DMICE, as well as Melanie Mitchell's machine learning course at PSU.
+
+# Learning Objectives
+
+-   *Utilize* the `resample` package to produce test/train datasets
+-   *Understand* how the `recipes` package makes preprocessing reproducible
+-   *Apply* a recipe to a dataset to preprocess it
+-   *Utilize* data reduction methods, such as PCA and UMAP for exploratory data analysis.
+-   **Utilize** k-means clustering to understand our data
+
+# What is `tidymodels`?
+
+There are a lot of different packages and machine learning methods available for R. One big issue is that the output of all of these models is not standardized - for example, if you wanted a p-value from a model, you'd look in different places for the results.
+
+The `tidymodels` workflow is designed to map to common tasks you use for machine learning.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+## The different parts of `tidymodels`
+
+The different sections of `tidymodels` are designed to be useful in a `tidy` workflow and roughly map to the different steps and requirements of a machine learning workflow.
+
+## Let's run through a basic `tidymodels` workflow
+
+These are the major packages where `tidymodels` is used in machine learning.
+
+-   `{rsample}` - use these functions to specify a test/training set, or to build a cross-validation set, or for bootstrap sampling
+-   `{recipes}` - use these functions to normalize variables and process them for use in machine learning, also known as **feature engineering**.
+-   `{parsnip}` - use these functions to specify and train your model
+-   `{workflows}` - use a model and recipe together (allows you to switch out models and use them reproducibly)
+-   `{yardstick}` - use these functions to evaluate your model (accuracy on test data)
+
+More advanced packages:
+
+-   `{tune}` - helps you decide the optimal parameters for a model by running models at different levels of that parameter
+-   `{stacks}` - lets you run model ensembles of ML algorithms
+
+
+
+
+
+## Step 1: Explore the Data First
+
+We need to do a little bit of tidying on the `penguins` data before we can use it. The first thing we need to do is select the numeric measurements, and then subset the species to be only two species instead of three.
+
+```{r}
+library(palmerpenguins)
+library(tidymodels)
+library(rsample)
+library(tidyverse)
+set.seed(101050)
+
+data("penguins")
+
+penguins_matrix <- penguins %>% 
+  select(species, c(contains("mm"), contains("_g"))) %>%
+  filter(species %in% c("Gentoo", "Adelie")) %>%
+  filter(complete.cases(.)) %>%
+  mutate(species = forcats::fct_drop(species))
+```
+
+```{r}
+skimr::skim(penguins_matrix)
+```
+
+# Step 2: {rsample} - split the data up
+
+Build test/train set. 
+
+```{r}
+penguins_split <- initial_split(penguins_matrix, prop = 0.7, strata = species)
+
+penguins_train <- training(penguins_split)
+penguins_test <- rsample::testing(penguins_split)
+
+dim(penguins_train)
+```
+
+# Step 3: {recipes} - process the data for use by our models
+
+<https://www.tidymodels.org/start/recipes/>
+
+-   Specifying Features, outcomes, and id columns with model formula
+-   Convert factors to dummy variables
+-   Normalizing Numeric Data
+-   Exploring Data with Principal Components/UMAP
+
+### Starting a recipe with `recipe()`
+
+All preprocessing begins with the `recipe()` function:
+
+    my_recipe <- recipe(species ~ . , data = penguin_train)
+
+You can see that we provided an argument `data` to specify that our data should come from the `penguin_train` split from our data.
+
+
+
+
+## How does recipes know what column is what?
+
+There are three main column types in {recipes}:
+
+-   *Outcomes* (what we want to predict)
+-   *Features* (the columns we use to build our model)
+-   *Identifiers* (columns not used in analysis, but are useful as unique identifiers, such as sample ids)
+
+We can specify the outcomes and features in `recipe()` using a formula:
+
+    species ~ . 
+
+In our case, our outcome is `species` (because it is on the left of the `~`), and we use a `.` to denote that every other column is a potential feature, or predictor.
+
+What if we had an id column in the data, such as `penguin_name`? We can use `update_role()` to tell `recipes` they're an id.
+
+So, if we had `penguin_name` as an ID column in our data set, we'd do this at the beginning of our recipe:
+
+    my_recipe <- recipe(species ~ . , data = penguin_train) %>%
+         update_role(penguin_name, role = "ID")
+
+
+
+## A recipe consists of `step_`s
+
+Now we have our basic recipe built, it's time to add processing for the columns. These processing steps all begin with `step_` such as:
+
+-   `step_normalize()` - scale all predictors to have a mean of 0 and standard deviation (SD) of 1
+-   `step_dummy()` - transform `factor` variables into dummy variables
+-   `step_arrange()` - sort data using `arrange()`
+
+How does each step know what columns to process? We need to provide the column names as an argument. For example, if we wanted to just normalize the `bill_length_mm` and `bill_depth_mm` columns:
+
+    my_recipe <- recipe(species ~ . , data = penguin_train) %>%
+       step_normalize(bill_length_mm, bill_depth_mm)
+
+
+## What is the difference between `{recipes}` and `{dplyr}`?
+
+Most everything you can do in `{recipes}` can be done in `dplyr`. 
+
+However, most of the operations in `{recipes}` are dedicating to processing data so you can input into a machine learning algorithm.
+
+
+
+
+## Some handy selectors: `all_predictors()`
+
+Using column names
+
+Some steps you may want to run on all the predictors in the dataset, so you instead of the column names, you can use *selectors* instead.
+
+If we wanted to `step_normalize` all the predictors, we can use `all_predictors()` instead of the column names:
+
+    my_recipe <- recipe(species ~ . , data = penguin_train) %>%
+       step_normalize(all_predictors())
+
+
+
+There are some built in `all_`\* functions:
+
+-   `all_numeric()` - apply step to all numeric variables in the dataset
+-   `all_nominal()` - apply step to all categorical variables
+
+In fact, if you know tidy select helpers, you can use these as well.
+
+
+## Step Normalize
+
+
+```{r}
+normalized_recipe <- recipe(species ~., data = penguins_train) %>%
+  step_normalize(all_predictors())
+
+norm_prep <- prep(normalized_recipe)
+
+norm_prep
+```
+
+```{r}
+prepped_data <- juice(norm_prep)
+
+prepped_data
+```
+
+```{r}
+skimr::skim(prepped_data)
+```
+
+## Step 3a Building a Recipe: Principal Components Analysis
+
+Let's build a recipe that helps us explore the data.
+
+We might want to start understanding how difficult it is to actually predict the species.
+
+One technique we can use is `Principal Components Analysis` (PCA). PCA 
+
+```{r}
+pca_rec <- recipe(species ~., data = penguins_train) %>%
+  step_normalize(all_predictors()) %>%
+  step_pca(all_predictors())
+
+pca_prep <- prep(pca_rec)
+pca_prep
+
+tidied_pca <- tidy(pca_prep, 2)
+```
+
+
+If you want to see the data that has been processed by `recipes` you need to run the `juice` command to produce the transformed data.
+
+```{r}
+pca_data <- juice(pca_prep)
+
+pca_data
+```
+
+```{r}
+pca_data %>%
+  ggplot(aes(PC1, PC2)) +
+  geom_point(aes(color = species), alpha = 0.7, size = 2) +
+  labs(color = NULL)
+```
+
+Plot `PC1` versuse `PC3`
+
+```{r}
+juice(pca_prep) %>%
+  ggplot(aes(PC1, PC3)) +
+  geom_point(aes(color = species), alpha = 0.7, size = 2) +
+  labs(color = NULL)
+```
+
+### PCA: Contributions from each variable
+
+Now we have our `tidied_pca` version of the data, let's take a look at the linear combinations:
+
+```{r}
+tidied_pca %>%
+  filter(component %in% paste0("PC", 1:4)) %>%
+  mutate(component = fct_inorder(component)) %>%
+  ggplot(aes(value, terms, fill = terms)) +
+  geom_col(show.legend = FALSE) +
+  theme(axis.text.x =  element_text(angle = 45)) +
+  facet_wrap(~component, nrow = 1) +
+  labs(y = NULL)
+```
+
+
+### Running UMAP as a recipe (Optional)
+
+Another method for summarizing data is UMAP.
+
+```{r}
+library(embed)
+
+umap_rec <- recipe(species ~., data = penguins_train) %>%
+  step_normalize(all_predictors()) %>%
+  step_umap(all_predictors())
+
+umap_prep <- prep(umap_rec)
+
+umap_prep
+
+```
+
+```{r}
+umap_pca <- tidy(umap_prep, 2)
+
+juice(umap_prep)
+
+juice(umap_prep) %>%
+  ggplot(aes(umap_1, umap_2)) +
+  geom_point(aes(color = species), alpha = 0.7, size = 2) +
+  labs(color = NULL)
+```
+
+
+
+## Clustering
+
+https://www.tidymodels.org/learn/statistics/k-means/
+
+We may want to ask the question of whether there are *natural* groupings in the data. 
+
+```{r}
+knitr::include_graphics("image/kmeans.gif")
+````
+
+The only argument we supply to k-means is the number of clusters.
+
+```{r}
+penguins_numeric <- penguins_train %>%
+  select(-species)
+
+kmeans_model <- kmeans(penguins_numeric, centers = 2) 
+```
+
+We can add the cluster assignments using our `augment()` function, which will take our original `penguins_train` data.frame and add cluster assignments.
+
+```{r}
+clusters <- augment(kmeans_model, penguins_train)
+
+clusters %>% 
+  select(species, .cluster)
+```
+
+We can try a cross tab of our true `species` versus cluster assignments using `janitor::tabyl()`:
+
+```{r}
+clusters %>%
+  janitor::tabyl(species, .cluster)
+```
+
+## Trying different values of k
+
+One question you might have is how to pick k?
+
+```{r}
+kclusts <- 
+  tibble(k = 1:4) %>%
+  mutate(
+    kclust = map(k, ~kmeans(penguins_numeric, .x)),
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, penguins_numeric)
+  )
+
+kclusts
+```
+
+
+```{r}
+clusters <- 
+  kclusts %>%
+  unnest(cols = c(tidied))
+
+assignments <- 
+  kclusts %>% 
+  unnest(cols = c(augmented))
+
+clustering_information <- 
+  kclusts %>%
+  unnest(cols = c(glanced))
+
+```
+
+```{r}
+ggplot(clustering_information) +
+  aes(x=k, y=tot.withinss) +
+  geom_line()
+
+```
+
+
+```{r}
+clusters
+```
+
+```{r}
+clusterings
+```
+
+```{r}
+  ggplot(assignments, aes(x = bill_depth_mm, y = body_mass_g)) +
+  geom_point(aes(color = .cluster), alpha = 0.8) + 
+  facet_wrap(~ k)
+
+```
+
+```{r}
+assignments %>%
+  janitor::tabyl(species)
+
+```
+
+
+## Logistic Regression
+
+
+Let's fit a logistic regression model to our data.
+
+A **logistic regression** attempts to predict a binary variable (in our case: the species of penguin)
+
+```{r}
+penguins_train2 <- penguins_train %>%
+  mutate(is_adelie = case_when(species == "Adelie" ~ TRUE,
+                               species == "Gentoo" ~ FALSE
+                              )) %>%
+  select(-species)
+
+penguin_logit <- lm(is_adelie ~ ., data = penguins_train2, family = "binomial")
+```
+
+
+In a logistic regression, one of the outputs is a *predicted probability* - in our case, what is the probability that a penguin is going to be `Adelie`.
+
+```{r}
+penguin_augmented <- augment(penguin_logit, data=penguins_train2, type.predict = "response")
+penguin_augmented <- penguin_augmented %>%
+  mutate(species = penguins_train$species)
+```
+
+Let's plot the predicted probability for each patient.
+
+```{r}
+ggplot(penguin_augmented) + aes(x=.fitted, fill=species) + 
+  geom_histogram() + ggtitle("Predicted probability for each patient")
+```
+
+Separating out `Adelie` versus `Gentoo` penguins is relatively easy using this dataset. We'll see this is the case when we run a *machine learning* algorithm next time.
+
+
+## Your Turn
+
+Given the above probability distribution plot, pick a probability threshold for the model that will separate out `Adelie` versus `Gentoo` penguins.
+
+Make a crosstab of `species` versus `species_prediction`.
+
+```{r}
+cutoff <- ------
+
+penguin_predictions <- 
+  penguin_augmented %>% 
+  mutate(species_prediction = case_when(.fitted > cutoff ~ "Adelie",
+                                        TRUE ~ "Gentoo"))
+
+penguin_predictions %>%
+  janitor::tabyl()
+```
+
+
+Part of your assignment will be to run a logistic regression on `Gentoo` versus `Chinstrap` penguins. 
+
+
+# Running multiple formulas on a dataset (optional)
+
+We can run multiple models by first specifying them as a `character` vector. We can then use `as.formula` to transform it into a formula: 
+
+```{r}
+penguin_formulas <- data.frame(
+  formula = c("is_adelie ~ bill_depth_mm",
+              "is_adelie ~ bill_length_mm + bill_depth_mm",
+              "is_adelie ~ body_mass_g + bill_length_mm")
+)
+
+run_model <- function(x){
+  lm(formula = as.formula(x), data=penguins_train2)
+}
+
+multiple_models <- penguin_formulas %>%
+  mutate(model = map(formula, run_model)) %>%
+  mutate(tidy_output = map(model, broom::tidy)) %>%
+  mutate(glanced_output = map(model, broom::glance))
+
+multiple_models
+```
+
+
+```{r}
+multiple_models %>%
+  unnest(glanced_output)
+```
+
+
+```{r}
+multiple_models %>%
+  unnest(tidy_output)
+
+```
+
+I will note that variable selection is much easier to do in machine learning, and there is a principled framework for selecting appropriate predictors.
+
+## Acknowledgements
+
+Portions of this tutorial are adapted from
+
+https://juliasilge.com/blog/cocktail-recipes-umap/
+https://www.tidymodels.org/learn/statistics/k-means/
+

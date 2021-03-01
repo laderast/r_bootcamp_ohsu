@@ -1,0 +1,348 @@
+---
+title: 'Part 10: Machine Learning: Classification'
+author: "You"
+date: "3/1/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidymodels)
+library(tidyverse)
+```
+
+# Learning Objectives
+
+- **Discuss** the difference between statistical modeling and machine learning
+- **Compile** a recipe to process our data
+- **Specify** and **fit** a machine learning algorithm to our data using `{parsnip}`
+- **Integrate** our recipe and our algorithm to make a *workflow*. 
+- **Run** multiple workflows
+- **Assess** our predictive model using `{yardstick}`.
+
+# Glossary
+
+-   *Machine Learning* - utilizing algorithms to discover and utilize patterns in a dataset
+-   *Engine* - `tidymodels` speak for a machine learning package that has an algorithm - usually a specific package such as `ranger`
+-   *Features* - machine learning speak for *variables* used in your model (usually a column) used to predict your outcome (also known as *predictors*)
+-   *Training Set* - a set of data used for training your models
+-   *Test Set* - a set of data used for testing your model - *must* be a distinct subset from the training set.
+-   *Unsupervised Learning* - A machine learning task for examining groupings/variability in a dataset. Examples include clustering, principle components analysis, TSNE.
+-   *Supervised Learning* - A machine learning task for predicting the identity of a sample (usually a row) based on other data.
+
+
+
+# Statistical Modeling versus Machine Learning
+
+https://towardsdatascience.com/the-actual-difference-between-statistics-and-machine-learning-64b49f07ea3
+
+> there are lots of statistical models that can make predictions, but predictive accuracy is not their strength.
+
+> Likewise, machine learning models provide various degrees of interpretability, from the highly interpretable lasso regression to impenetrable neural networks, but they generally sacrifice interpretability for predictive power.
+
+> For many cases, especially in research (such as the sensor example below), the point of our model is to characterize the relationship between the data and our outcome variable, not to make predictions about future data. 
+
+> The purpose of (supervised) machine learning is obtaining a model that can make repeatable predictions. 
+
+
+>  The assessment of the machine learning algorithm uses a test set to validate its accuracy. Whereas, for a statistical model, analysis of the regression parameters via confidence intervals, significance tests, and other tests can be used to assess the model’s legitimacy. 
+
+
+
+# Resources for understanding preprocessing of data in Machine Learning
+
+[Max Kuhn's Feature Engineering](http://www.feat.engineering/) book is one of the best sources I know if you want to understand why preprocessing features is so important for machine learning.
+
+
+
+
+# Step 2: {rsample} - split the data up
+
+Build test/train set. 
+
+```{r}
+penguins_split <- initial_split(penguins_matrix, prop = 0.7, strata = species)
+
+penguins_train <- training(penguins_split)
+penguins_test <- rsample::testing(penguins_split)
+
+dim(penguins_train)
+```
+
+
+## Step 3b: Predicting penguin species - Setup a `recipe` for our ML model
+
+Ok, the PCA gave us an idea of how hard it is to separate the two different penguin species.
+
+We can set up a recipe for preprocessing the numeric data in our model. We use `step_normalize()` to standardize the ranges of each variable.
+
+Again, we need to provide a formula at this step because it helps `tidymodels` identify what the outcome is, what the features are, and what shouldn't be included.
+
+```{r}
+classification_rec <- recipe(species ~., data = penguins_train) %>%
+  step_normalize(all_predictors())
+
+classification_rec
+```
+
+Let's take a look at the transformed data.
+
+```{r}
+class_prep <- prep(classification_rec)
+
+juice(class_prep)
+
+skimr::skim(juice(class_prep))
+```
+
+
+## Step 4 {parsnip} - specify the model
+
+Once you have the preprocessed data that is split properly, you can use it as an input to {parsnip}. But first we need a model!
+
+A model specifies the type of algorithm we want to use, and what *engine* we want to use to calculate it, and based on how it is used, the *mode* (usually classification or regression) we want to use it in.
+
+-   Specifying model type/engine
+-   (Learning optimum parameters for a model {tune/rsample})
+-   Fitting the model to training data
+
+### What models exist?
+
+Nearly all of the popular machine learning methods work within the `tidymodels` framework.
+
+Check here for a list: <https://www.tidymodels.org/find/parsnip/>
+
+### Step 4a - K Nearest Neighbor
+
+A really robust model we can use to predict our `species` is [`K-Nearest Neighbor`]().
+
+```{r}
+knn_model <- nearest_neighbor(neighbors = 3) %>% 
+  set_engine("kknn") %>% 
+  set_mode("classification")
+```
+
+## Step 5 {workflows}: fitting a recipe and a model together
+
+We now have our recipe and our model. How do we tie them together?
+
+We can first `prep()` our recipe, and then use `juice()` on our training data to produce an output dataset that we can use to train the model.
+
+Then we can use the `fit()` function on the training data to produce a what's called a `fit` object. This fit object can be used to predict labels on the test data, and we can assess its accuracy.
+
+There is another way that helps us reuse code, and actually will let us sub in different algorithms in a reproducible manner. We can use a *workflow* from the {workflows} package.
+
+```{r}
+knn_workflow <- workflow() %>%
+  add_recipe(classification_rec) %>%
+  add_model(knn_model)
+
+knn_fit <- fit(knn_workflow, data = penguins_train)
+
+knn_fit
+```
+
+## Step 6: {yardstick}: how well did we do on the test data?
+
+```{r}
+knn_fit <- knn_workflow %>%
+  # fit on the training set and evaluate on test set
+  fit(data = penguins_train)
+
+knn_predictions <- knn_fit %>%
+  predict(new_data = penguins_test) %>%
+  bind_cols(penguins_test) %>%
+  select(truth = species, estimate=.pred_class)
+
+knn_predictions %>%
+  janitor::tabyl(truth, estimate)
+
+knn_predictions %>%
+  yardstick::accuracy(truth, estimate)
+```
+
+### Putting in fake penguins to understand what's going on with predict
+
+## Your Turn
+
+Apply a decision tree using the following model and `classification_rec()` in a workflow. Compare how you did with KNN on the test data using `last_fit()`:
+
+```{r}
+tree_model <- decision_tree() %>%
+  set_engine("rpart") %>%
+  set_mode("classification")
+
+tree_workflow <- workflow() %>%
+  ------------- %>%
+  -------------
+  
+tree_fit <- tree_workflow %>%
+  last_fit(split = -------)
+
+
+
+```
+
+```{r}
+tree_model <- decision_tree() %>%
+  set_engine("rpart") %>%
+  set_mode("classification")
+
+tree_workflow <- workflow() %>%
+  add_recipe(classification_rec)  %>%
+  add_model(tree_model)
+
+tree_fit <- fit(tree_workflow, data=penguins_train)
+
+penguin_predictions <- tree_fit %>%
+  predict(new_data=penguins_test) %>%
+  bind_cols(penguins_test) %>%
+  select(truth=species, estimate=.pred_class)
+  
+
+test_performance <- penguin_predictions %>% 
+  yardstick::accuracy(truth, estimate)
+test_performance
+```
+
+```{r}
+tree_fit <- tree_workflow %>% fit(data=penguins_train) %>% 
+  pull_workflow_fit() 
+
+rpart.plot::rpart.plot(tree_fit$fit)
+```
+
+```{r}
+nn_model <- mlp(epochs = 100, hidden_units = 5, dropout = 0.1) %>%
+  set_mode("classification") %>%
+  set_engine("keras")
+
+nn_workflow <- workflow() %>%
+  add_recipe(classification_rec)  %>%
+  add_model(nn_model)
+
+nn_fit <- nn_workflow %>%
+  fit(data= penguins_test)
+  
+nn_results <- nn_fit %>%
+  predict(new_data = penguins_test) %>%
+  bind_cols(penguins_test)
+
+nn_results %>%
+  yardstick::accuracy(truth=species, estimate =.pred_class)
+```
+
+## Optional Steps (using `tune`)
+
+We've gone through the basic workflow with our dataset for K-Nearest Neighbor.
+
+### Random Forests
+
+Here we're using the random forest model
+
+```{r}
+tree_model <- decision_tree() %>% 
+  set_engine("rpart") %>% 
+  set_mode("classification") 
+
+tree_workflow <- workflow() %>%
+  add_recipe(classification_rec) %>%
+  add_model(tree_model)
+
+tree_fit <- fit(tree_workflow, data = penguins_train)
+```
+
+```{r}
+library(tune)
+
+rf_model <- 
+  # specify that the model is a random forest
+  rand_forest() %>%
+  # specify that the `mtry` parameter needs to be tuned
+  set_args(mtry = tune()) %>%
+  # select the engine/package that underlies the model
+  set_engine("ranger", importance = "impurity") %>%
+  # choose either the continuous regression or binary classification mode
+  set_mode("classification") 
+
+library(workflows)
+
+rf_workflow <- workflow() %>%
+  # add the recipe
+  add_recipe(classification_rec) %>%
+  # add the model
+  add_model(rf_model)
+```
+
+### Tuning Results
+
+We have a parameter, `mtry`, that we don't know the best value for. We can use `tune_grid()`
+
+```{r}
+penguins_cv <- rsample::vfold_cv(penguins_train)
+
+rf_grid <- expand.grid(mtry = c(3, 4, 5))
+# extract results
+rf_tune_results <- rf_workflow %>%
+  tune_grid(resamples = penguins_cv, #CV object
+            grid = rf_grid, # grid of values to try
+            metrics = metric_set(accuracy, roc_auc) # metrics we care about
+            )
+
+```
+
+```{r}
+rf_tune_results %>%
+  collect_metrics()
+```
+
+```{r}
+param_final <- rf_tune_results %>%
+  select_best(metric = "accuracy")
+param_final
+
+```
+
+```{r}
+rf_workflow <- rf_workflow %>%
+  finalize_workflow(param_final)
+```
+
+```{r}
+rf_fit <- rf_workflow %>%
+  # fit on the training set and evaluate on test set
+  last_fit(penguins_split)
+```
+
+## Yardstick
+
+Evaluating Accuracy Comparing different methods
+
+```{r}
+test_performance <- rf_fit %>% collect_metrics()
+test_performance
+```
+
+```{r}
+test_predictions <- rf_fit %>% collect_predictions()
+test_predictions
+
+test_predictions %>% 
+  conf_mat(truth = species, estimate = .pred_class)
+
+test_predictions %>%
+  ggplot() +
+  geom_density(aes(x = .pred_Adelie, fill = species), 
+               alpha = 0.5)
+```
+
+
+## Acknowledgements
+
+Adapted from
+
+-   <http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/>
+-   <http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/>
+-   <https://juliasilge.com/blog/cocktail-recipes-umap/>
+-   <https://bcullen.rbind.io/post/2020-06-02-tidymodels-decision-tree-learning-in-r/>
+-   [Feature Engineering](http://www.feat.engineering/)
