@@ -19,7 +19,8 @@ Please review the machine learning introduction before you start working with th
 -   *Engine* - `tidymodels` speak for a machine learning package that has an algorithm - usually a specific package such as `ranger`
 -   *Features* - machine learning speak for *variables* used in your model (usually a column) used to predict your outcome (also known as *predictors*)
 -   *Training Set* - a set of data used for training your models
--   *Test Set* - a set of data used for testing your model - *must* be a distinct subset from the training set.
+-   *Test Set* - a set of data used for testing your model 
+    - *must* be a distinct subset from the training set.
 -   *Unsupervised Learning* - A machine learning task for examining groupings/variability in a dataset. Examples include clustering, principle components analysis, TSNE.
 -   *Supervised Learning* - A machine learning task for predicting the identity of a sample (usually a row) based on other data.
 
@@ -42,28 +43,7 @@ There is a neural network/deep learning course at OHSU, and Xubo Song's Machine 
 There are a lot of different packages and machine learning methods available for R. One big issue is that the output of all of these models is not standardized - for example, if you wanted a p-value from a model, you'd look in different places for the results.
 
 The `tidymodels` workflow is designed to map to common tasks you use for machine learning.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-## The different parts of `tidymodels`
-
-The different sections of `tidymodels` are designed to be useful in a `tidy` workflow and roughly map to the different steps and requirements of a machine learning workflow.
-
-## Let's run through a basic `tidymodels` workflow
-
-These are the major packages where `tidymodels` is used in machine learning.
-
--   `{rsample}` - use these functions to specify a test/training set, or to build a cross-validation set, or for bootstrap sampling
--   `{recipes}` - use these functions to normalize variables and process them for use in machine learning, also known as **feature engineering**.
--   `{parsnip}` - use these functions to specify and train your model
--   `{workflows}` - use a model and recipe together (allows you to switch out models and use them reproducibly)
--   `{yardstick}` - use these functions to evaluate your model (accuracy on test data)
-
-More advanced packages:
-
--   `{tune}` - helps you decide the optimal parameters for a model by running models at different levels of that parameter
--   `{stacks}` - lets you run model ensembles of ML algorithms
-
-
-
+                                                                                                                                                                                                                          
 
 
 ## Step 1: Explore the Data First
@@ -81,7 +61,7 @@ data("penguins")
 
 penguins_matrix <- penguins %>% 
   select(species, c(contains("mm"), contains("_g"))) %>%
-  filter(species %in% c("Gentoo", "Adelie")) %>%
+  filter(species %in% c("Chinstrap", "Adelie")) %>%
   filter(complete.cases(.)) %>%
   mutate(species = forcats::fct_drop(species))
 ```
@@ -92,7 +72,7 @@ skimr::skim(penguins_matrix)
 
 # Step 2: {rsample} - split the data up
 
-Build test/train set. 
+Build test/train set. `strata` argument ensures that there is equivalent sampling across both test and train set.
 
 ```{r}
 penguins_split <- initial_split(penguins_matrix, prop = 0.7, strata = species)
@@ -150,8 +130,8 @@ So, if we had `penguin_name` as an ID column in our data set, we'd do this at th
 
 Now we have our basic recipe built, it's time to add processing for the columns. These processing steps all begin with `step_` such as:
 
--   `step_normalize()` - scale all predictors to have a mean of 0 and standard deviation (SD) of 1
--   `step_dummy()` - transform `factor` variables into dummy variables
+-   `step_normalize()` - scale all predictors to have a mean of 0 and standard deviation (SD) of 1 (done on `all_numeric()`)
+-   `step_dummy()` - transform `factor` variables into dummy variables (usually do this on `all_nominal()` varia2wws2bles)
 -   `step_arrange()` - sort data using `arrange()`
 
 How does each step know what columns to process? We need to provide the column names as an argument. For example, if we wanted to just normalize the `bill_length_mm` and `bill_depth_mm` columns:
@@ -195,7 +175,7 @@ In fact, if you know tidy select helpers, you can use these as well.
 
 ```{r}
 normalized_recipe <- recipe(species ~., data = penguins_train) %>%
-  step_normalize(all_predictors())
+  step_normalize(all_numeric()) 
 
 norm_prep <- prep(normalized_recipe)
 
@@ -208,9 +188,25 @@ prepped_data <- juice(norm_prep)
 prepped_data
 ```
 
+
+
 ```{r}
 skimr::skim(prepped_data)
 ```
+
+There is another step called `step_dummy()` that will transform categorical variables into dummy variables.
+
+```{r}
+normalized_recipe <- recipe(species ~., data = penguins_train) %>%
+  step_normalize(all_numeric()) %>%
+  step_dummy(all_nominal())
+
+norm_prep <- prep(normalized_recipe)
+
+juice(norm_prep)
+```
+
+
 
 ## Step 3a Building a Recipe: Principal Components Analysis
 
@@ -227,17 +223,23 @@ pca_rec <- recipe(species ~., data = penguins_train) %>%
 
 pca_prep <- prep(pca_rec)
 pca_prep
-
-tidied_pca <- tidy(pca_prep, 2)
 ```
 
 
 If you want to see the data that has been processed by `recipes` you need to run the `juice` command to produce the transformed data.
 
+In this case, we want to see the principle components.
+
 ```{r}
 pca_data <- juice(pca_prep)
 
 pca_data
+```
+
+```{r}
+tidied_pca <- pca_data %>%
+  pivot_longer(-species, names_to="component", )
+
 ```
 
 ```{r}
@@ -247,7 +249,7 @@ pca_data %>%
   labs(color = NULL)
 ```
 
-Plot `PC1` versuse `PC3`
+Plot `PC1` versuse `PC3`:
 
 ```{r}
 juice(pca_prep) %>%
@@ -261,6 +263,8 @@ juice(pca_prep) %>%
 Now we have our `tidied_pca` version of the data, let's take a look at the linear combinations:
 
 ```{r}
+tidied_pca <- tidy(pca_prep, 2)
+
 tidied_pca %>%
   filter(component %in% paste0("PC", 1:4)) %>%
   mutate(component = fct_inorder(component)) %>%
@@ -271,33 +275,25 @@ tidied_pca %>%
   labs(y = NULL)
 ```
 
-
-### Running UMAP as a recipe (Optional)
-
-Another method for summarizing data is UMAP.
+This is a more informative plot that gives us an idea of the magnitude of the contributions to each prinicipal component.
 
 ```{r}
-library(embed)
+library(tidytext)
 
-umap_rec <- recipe(species ~., data = penguins_train) %>%
-  step_normalize(all_predictors()) %>%
-  step_umap(all_predictors())
+tidied_pca %>%
+  filter(component %in% paste0("PC", 1:4)) %>%
+  group_by(component) %>%
+  ungroup() %>%
+  mutate(terms = tidytext::reorder_within(terms, abs(value), component)) %>%
+  ggplot(aes(abs(value), terms, fill = value > 0)) +
+  geom_col() +
+  facet_wrap(~component, scales = "free_y") +
+  scale_y_reordered() +
+  labs(
+    x = "Absolute value of contribution",
+    y = NULL, fill = "Positive?"
+  )
 
-umap_prep <- prep(umap_rec)
-
-umap_prep
-
-```
-
-```{r}
-umap_pca <- tidy(umap_prep, 2)
-
-juice(umap_prep)
-
-juice(umap_prep) %>%
-  ggplot(aes(umap_1, umap_2)) +
-  geom_point(aes(color = species), alpha = 0.7, size = 2) +
-  labs(color = NULL)
 ```
 
 
@@ -306,7 +302,7 @@ juice(umap_prep) %>%
 
 https://www.tidymodels.org/learn/statistics/k-means/
 
-We may want to ask the question of whether there are *natural* groupings in the data. 
+We may want to ask the question of whether there are *natural* groupings in the data. We can do this with a *clustering* algorithm.
 
 ```{r}
 knitr::include_graphics("image/kmeans.gif")
@@ -320,6 +316,9 @@ penguins_numeric <- penguins_train %>%
 
 kmeans_model <- kmeans(penguins_numeric, centers = 2) 
 ```
+
+
+## Comparing our Clusters to the Species Labels
 
 We can add the cluster assignments using our `augment()` function, which will take our original `penguins_train` data.frame and add cluster assignments.
 
@@ -337,67 +336,6 @@ clusters %>%
   janitor::tabyl(species, .cluster)
 ```
 
-## Trying different values of k
-
-One question you might have is how to pick k?
-
-```{r}
-kclusts <- 
-  tibble(k = 1:4) %>%
-  mutate(
-    kclust = map(k, ~kmeans(penguins_numeric, .x)),
-    tidied = map(kclust, tidy),
-    glanced = map(kclust, glance),
-    augmented = map(kclust, augment, penguins_numeric)
-  )
-
-kclusts
-```
-
-
-```{r}
-clusters <- 
-  kclusts %>%
-  unnest(cols = c(tidied))
-
-assignments <- 
-  kclusts %>% 
-  unnest(cols = c(augmented))
-
-clustering_information <- 
-  kclusts %>%
-  unnest(cols = c(glanced))
-
-```
-
-```{r}
-ggplot(clustering_information) +
-  aes(x=k, y=tot.withinss) +
-  geom_line()
-
-```
-
-
-```{r}
-clusters
-```
-
-```{r}
-clusterings
-```
-
-```{r}
-  ggplot(assignments, aes(x = bill_depth_mm, y = body_mass_g)) +
-  geom_point(aes(color = .cluster), alpha = 0.8) + 
-  facet_wrap(~ k)
-
-```
-
-```{r}
-assignments %>%
-  janitor::tabyl(species)
-
-```
 
 
 ## Logistic Regression
@@ -408,22 +346,26 @@ Let's fit a logistic regression model to our data.
 A **logistic regression** attempts to predict a binary variable (in our case: the species of penguin)
 
 ```{r}
+
 penguins_train2 <- penguins_train %>%
-  mutate(is_adelie = case_when(species == "Adelie" ~ TRUE,
-                               species == "Gentoo" ~ FALSE
+  mutate(is_adelie = case_when(species == "Adelie" ~ 1,
+                               species == "Chinstrap" ~ 0
                               )) %>%
   select(-species)
 
-penguin_logit <- lm(is_adelie ~ ., data = penguins_train2, family = "binomial")
+penguin_logit <- glm(species ~ bill_depth_mm + flipper_length_mm + body_mass_g, family = "binomial", data = penguins_train, maxit=100)
+
+tidy(penguin_logit)
 ```
 
 
 In a logistic regression, one of the outputs is a *predicted probability* - in our case, what is the probability that a penguin is going to be `Adelie`.
 
 ```{r}
-penguin_augmented <- augment(penguin_logit, data=penguins_train2, type.predict = "response")
+penguin_augmented <- augment(penguin_logit, newdata = penguins_test, type.predict = "response")
+
 penguin_augmented <- penguin_augmented %>%
-  mutate(species = penguins_train$species)
+  mutate(species = penguins_test$species)
 ```
 
 Let's plot the predicted probability for each patient.
@@ -433,7 +375,7 @@ ggplot(penguin_augmented) + aes(x=.fitted, fill=species) +
   geom_histogram() + ggtitle("Predicted probability for each patient")
 ```
 
-Separating out `Adelie` versus `Gentoo` penguins is relatively easy using this dataset. We'll see this is the case when we run a *machine learning* algorithm next time.
+Separating out `Adelie` versus `Chinstrap` penguins is relatively easy using this dataset. We'll see this is the case when we run a *machine learning* algorithm next time.
 
 
 ## Your Turn
@@ -443,19 +385,30 @@ Given the above probability distribution plot, pick a probability threshold for 
 Make a crosstab of `species` versus `species_prediction`.
 
 ```{r}
-cutoff <- ------
+cutoff <- 0.4
 
 penguin_predictions <- 
   penguin_augmented %>% 
-  mutate(species_prediction = case_when(.fitted > cutoff ~ "Adelie",
-                                        TRUE ~ "Gentoo"))
+  mutate(species_prediction = case_when(.fitted > cutoff ~ "Chinstrap",
+                                        TRUE ~ "Adelie")) %>%
+  mutate(species_prediction = factor(species_prediction))
 
 penguin_predictions %>%
-  janitor::tabyl()
+  janitor::tabyl(species, species_prediction)
+```
+
+Once we have our predictions using `augment`
+
+```{r}
+library(yardstick)
+conf_mat(penguin_predictions, truth = species, estimate = species_prediction)
+bal_accuracy(penguin_predictions, truth = species, estimate=species_prediction)
+sensitivity(penguin_predictions, truth = species, estimate = species_prediction)
+specificity(penguin_predictions, truth = species, estimate = species_prediction)
 ```
 
 
-Part of your assignment will be to run a logistic regression on `Gentoo` versus `Chinstrap` penguins. 
+Part of your assignment will be to run a logistic regression on `Adelie` versus `Chinstrap` penguins. 
 
 
 # Running multiple formulas on a dataset (optional)
@@ -469,6 +422,12 @@ penguin_formulas <- data.frame(
               "is_adelie ~ body_mass_g + bill_length_mm")
 )
 
+penguin_formulas
+```
+
+Here we're using `as.formula` to transform the `character` into a `formula`:
+
+```{r}
 run_model <- function(x){
   lm(formula = as.formula(x), data=penguins_train2)
 }
@@ -494,7 +453,98 @@ multiple_models %>%
 
 ```
 
-I will note that variable selection is much easier to do in machine learning, and there is a principled framework for selecting appropriate predictors.
+I will note that variable selection is much easier to do in machine learning, and there is a more principled framework for selecting appropriate predictors.
+
+
+## Trying different values of k (optional)
+
+One question you might have is: how to pick k for the kmeans algorithm?
+
+```{r}
+kclusts <- 
+  tibble(k = 1:5) %>%
+  mutate(
+    kclust = map(k, ~kmeans(penguins_numeric, .x)),
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, penguins_numeric)
+  )
+
+kclusts
+```
+
+
+```{r}
+assignments <- 
+  kclusts %>% 
+  unnest(cols = c(augmented))
+
+clustering_information <- 
+  kclusts %>%
+  unnest(cols = c(glanced))
+```
+
+The output of `broom::glance()` contains metrics about the clustering, including the total within group sum of squares. As k increases, you can see this number go down.
+
+```{r}
+ggplot(clustering_information) +
+  aes(x=k, y=tot.withinss) +
+  geom_line()
+
+```
+
+
+```{r}
+clusters
+```
+
+```{r}
+clusterings
+```
+
+```{r}
+  ggplot(assignments, aes(x = bill_depth_mm, y = body_mass_g)) +
+  geom_point(aes(color = .cluster), alpha = 0.8) + 
+  facet_wrap(~ k)
+```
+
+```{r}
+assignments %>%
+  janitor::tabyl(species)
+```
+
+
+### Running UMAP as a recipe (Optional)
+
+Another method for summarizing numeric data is UMAP.
+
+```{r}
+library(embed)
+
+umap_rec <- recipe(species ~., data = penguins_train) %>%
+  step_normalize(all_predictors()) %>%
+  step_umap(all_predictors())
+
+umap_prep <- prep(umap_rec)
+
+umap_prep
+
+```
+
+```{r}
+umap_pca <- tidy(umap_prep, 2)
+
+juice(umap_prep)
+```
+
+```{r}
+juice(umap_prep) %>%
+  ggplot(aes(umap_1, umap_2)) +
+  geom_point(aes(color = species), alpha = 0.7, size = 2) +
+  labs(color = NULL)
+```
+
+
 
 ## Acknowledgements
 
@@ -502,4 +552,4 @@ Portions of this tutorial are adapted from
 
 https://juliasilge.com/blog/cocktail-recipes-umap/
 https://www.tidymodels.org/learn/statistics/k-means/
-
+https://allisonhorst.github.io/palmerpenguins/articles/articles/pca.html

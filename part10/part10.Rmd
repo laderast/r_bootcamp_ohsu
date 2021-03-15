@@ -9,6 +9,19 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidymodels)
 library(tidyverse)
+library(rsample)
+library(tidyverse)
+library(palmerpenguins)
+set.seed(101050)
+
+data("penguins")
+
+penguins_matrix <- penguins %>% 
+  select(species, c(contains("mm"), contains("_g"))) %>%
+  filter(species %in% c("Chinstrap", "Adelie")) %>%
+  filter(complete.cases(.)) %>%
+  mutate(species = forcats::fct_drop(species))
+
 ```
 
 # Learning Objectives
@@ -56,7 +69,7 @@ https://towardsdatascience.com/the-actual-difference-between-statistics-and-mach
 
 
 
-# Step 2: {rsample} - split the data up
+# Step 1: {rsample} - split the data up
 
 Build test/train set. 
 
@@ -70,7 +83,7 @@ dim(penguins_train)
 ```
 
 
-## Step 3b: Predicting penguin species - Setup a `recipe` for our ML model
+## Step 2: Setup a `recipe` for our ML model
 
 Ok, the PCA gave us an idea of how hard it is to separate the two different penguin species.
 
@@ -90,13 +103,13 @@ Let's take a look at the transformed data.
 ```{r}
 class_prep <- prep(classification_rec)
 
-juice(class_prep)
+class_data_train <- bake(class_prep, new_data = NULL)
 
-skimr::skim(juice(class_prep))
+skimr::skim(class_data_train)
 ```
 
 
-## Step 4 {parsnip} - specify the model
+## Step 3 {parsnip} - specify the model
 
 Once you have the preprocessed data that is split properly, you can use it as an input to {parsnip}. But first we need a model!
 
@@ -106,53 +119,166 @@ A model specifies the type of algorithm we want to use, and what *engine* we wan
 -   (Learning optimum parameters for a model {tune/rsample})
 -   Fitting the model to training data
 
-### What models exist?
+## What models exist?
 
 Nearly all of the popular machine learning methods work within the `tidymodels` framework.
 
 Check here for a list: <https://www.tidymodels.org/find/parsnip/>
 
-### Step 4a - K Nearest Neighbor
+## Specifying a Logistic Regression Model
 
-A really robust model we can use to predict our `species` is [`K-Nearest Neighbor`]().
+This might seem like extra typing, but we'll see we can run the same formula using different algorithms.
 
 ```{r}
+lr_model <- logistic_reg() %>%
+  set_engine("glm") %>%
+  set_mode("classification")
+
+lr_fit <- fit(object= lr_model, 
+               formula = species ~ bill_length_mm,
+               data = class_data_train)
+
+```
+
+If we use `pluck()` we can see that what comes out of `fit()` has a `glm.fit` class:
+
+```{r}
+lr_fit %>% pluck("fit") 
+```
+
+# Step 4 - Testing our predictions using `yardstick`
+
+Now we can visualize the probabilities that are calculated by our logistic regression model.
+
+```{r}
+class_data_test <- bake(class_prep, new_data = penguins_test)
+
+lr_probabilities <- lr_fit %>%
+  predict(new_data = class_data_test, type="prob") %>%
+  bind_cols(penguins_test)
+
+lr_probabilities %>%
+  ggplot() + aes(x=.pred_Adelie, fill=species) +
+  geom_histogram()
+```
+
+
+## Predicting the type of penguin using predict
+
+```{r}
+lr_predictions <- lr_fit %>%  
+  predict(new_data = class_data_test, type="class") %>%
+  bind_cols(penguins_test) %>%
+  rename(truth = species, estimate=.pred_class)
+
+lr_predictions %>%
+  yardstick::conf_mat(truth = truth, estimate=estimate)
+
+lr_predictions 
+
+```
+
+
+```{r}
+lr_predictions %>%
+  yardstick::accuracy(truth = truth, estimate= estimate)
+```
+
+
+```{r}
+lr_predictions %>%
+  yardstick::bal_accuracy(truth = truth, estimate= estimate)
+```
+
+
+```{r}
+lr_predictions %>%
+  yardstick::sensitivity(truth = truth, estimate= estimate, event_level = "first")
+```
+
+```{r}
+lr_predictions %>%
+  yardstick::specificity(truth = truth, estimate= estimate, event_level = "first")
+```
+
+
+## The Full Logistic Regression Workflow
+
+This is the whole workflow summarized into an entire code block.
+
+```{r}
+#Part 1: split our data into test and train sets
+penguins_split <- initial_split(penguins_matrix, prop = 0.7, strata = species)
+
+penguins_train <- training(penguins_split)
+penguins_test <- rsample::testing(penguins_split)
+
+#Part 2: setup the recipe using the training data
+classification_rec <- recipe(species ~., data = penguins_train) %>%
+  step_normalize(all_predictors()) 
+
+#apply the recipe to the training data
+class_prep <- prep(classification_rec)
+class_data_train <- bake(class_prep, new_data = NULL)
+
+#Part 3: specify the model 
+lr_model <- logistic_reg() %>%
+  set_engine("glm") %>%
+  set_mode("classification")
+
+#fit ("train") the model
+lr_fit <- fit(object= lr_model, 
+               formula = species ~ .,
+               data = class_data_train)
+
+#Part 4: apply our recipe to the test set
+class_data_test <- bake(class_prep, new_data = penguins_test)
+
+#use our fitted model to predict species
+lr_predictions <- lr_fit %>%  
+  predict(new_data = class_data_test, type="class") %>%
+  #bind our predictions back to the original data
+  bind_cols(penguins_test) %>%
+  rename(truth = species, estimate=.pred_class)
+
+#look at our confusion matrix
+lr_predictions %>%
+  yardstick::conf_mat(truth = truth, estimate= estimate)
+
+#look at our accuracy of our predicted classes
+lr_predictions %>%
+  yardstick::bal_accuracy(truth = truth, estimate= estimate)
+```
+
+
+
+### Using a Machine Learning algorithm - K Nearest Neighbor
+
+Now we've learned about models and building fits, we can see we can swap out the algorithm pretty easily and run the same formula. 
+
+A really robust model we can use to predict our `species` is [`K-Nearest Neighbor`](). For a brand new point, we look at closely correlated points ("neighbors") and we use the identity of each of these points as a vote for the identity of our new point.
+
+Why should `neighbors` be an odd value?
+
+```{r} 
 knn_model <- nearest_neighbor(neighbors = 3) %>% 
   set_engine("kknn") %>% 
   set_mode("classification")
 ```
 
-## Step 5 {workflows}: fitting a recipe and a model together
-
-We now have our recipe and our model. How do we tie them together?
-
-We can first `prep()` our recipe, and then use `juice()` on our training data to produce an output dataset that we can use to train the model.
-
-Then we can use the `fit()` function on the training data to produce a what's called a `fit` object. This fit object can be used to predict labels on the test data, and we can assess its accuracy.
-
-There is another way that helps us reuse code, and actually will let us sub in different algorithms in a reproducible manner. We can use a *workflow* from the {workflows} package.
-
-```{r}
-knn_workflow <- workflow() %>%
-  add_recipe(classification_rec) %>%
-  add_model(knn_model)
-
-knn_fit <- fit(knn_workflow, data = penguins_train)
+```{r }
+knn_fit <- fit(object= knn_model, 
+               formula = species ~ .,
+               data = class_data_train)
 
 knn_fit
 ```
 
-## Step 6: {yardstick}: how well did we do on the test data?
-
 ```{r}
-knn_fit <- knn_workflow %>%
-  # fit on the training set and evaluate on test set
-  fit(data = penguins_train)
-
 knn_predictions <- knn_fit %>%
-  predict(new_data = penguins_test) %>%
+  predict(new_data = class_data_test) %>%
   bind_cols(penguins_test) %>%
-  select(truth = species, estimate=.pred_class)
+  rename(truth = species, estimate=.pred_class)
 
 knn_predictions %>%
   janitor::tabyl(truth, estimate)
@@ -161,180 +287,52 @@ knn_predictions %>%
   yardstick::accuracy(truth, estimate)
 ```
 
-### Putting in fake penguins to understand what's going on with predict
-
 ## Your Turn
 
-Apply a decision tree using the following model and `classification_rec()` in a workflow. Compare how you did with KNN on the test data using `last_fit()`:
+Compare the `sensitivity` and `specificity` of `knn_predictions` to our `lr_predictions` (remember to set event_level = "first"). Did we do better or worse than logistic regression? In which metric?
 
 ```{r}
-tree_model <- decision_tree() %>%
-  set_engine("rpart") %>%
-  set_mode("classification")
+knn_predictions %>%
+  yardstick::-------------
 
-tree_workflow <- workflow() %>%
-  ------------- %>%
-  -------------
+knn_predictions %>%
+  yardstick::----------
   
-tree_fit <- tree_workflow %>%
-  last_fit(split = -------)
-
-
-
 ```
 
+
+## Classification and Decision Trees (CART)
+
+Apply a decision tree using the following model. Compare how you did with KNN on the test data using `last_fit()`:
+
+
 ```{r}
 tree_model <- decision_tree() %>%
   set_engine("rpart") %>%
   set_mode("classification")
 
-tree_workflow <- workflow() %>%
-  add_recipe(classification_rec)  %>%
-  add_model(tree_model)
-
-tree_fit <- fit(tree_workflow, data=penguins_train)
+tree_fit <- fit(tree_model, 
+                formula = species ~ . ,
+                data=class_data_train)
 
 penguin_predictions <- tree_fit %>%
-  predict(new_data=penguins_test) %>%
+  predict(new_data=class_data_test) %>%
   bind_cols(penguins_test) %>%
-  select(truth=species, estimate=.pred_class)
+  rename(truth=species, estimate=.pred_class)
   
-
-test_performance <- penguin_predictions %>% 
+penguin_predictions %>% 
   yardstick::accuracy(truth, estimate)
-test_performance
 ```
 
-```{r}
-tree_fit <- tree_workflow %>% fit(data=penguins_train) %>% 
-  pull_workflow_fit() 
 
-rpart.plot::rpart.plot(tree_fit$fit)
+```{r warning=FALSE}
+rpart_object <- tree_fit %>% pluck("fit")
+rpart.plot::rpart.plot(rpart_object)
 ```
 
-```{r}
-nn_model <- mlp(epochs = 100, hidden_units = 5, dropout = 0.1) %>%
-  set_mode("classification") %>%
-  set_engine("keras")
 
-nn_workflow <- workflow() %>%
-  add_recipe(classification_rec)  %>%
-  add_model(nn_model)
 
-nn_fit <- nn_workflow %>%
-  fit(data= penguins_test)
-  
-nn_results <- nn_fit %>%
-  predict(new_data = penguins_test) %>%
-  bind_cols(penguins_test)
 
-nn_results %>%
-  yardstick::accuracy(truth=species, estimate =.pred_class)
-```
-
-## Optional Steps (using `tune`)
-
-We've gone through the basic workflow with our dataset for K-Nearest Neighbor.
-
-### Random Forests
-
-Here we're using the random forest model
-
-```{r}
-tree_model <- decision_tree() %>% 
-  set_engine("rpart") %>% 
-  set_mode("classification") 
-
-tree_workflow <- workflow() %>%
-  add_recipe(classification_rec) %>%
-  add_model(tree_model)
-
-tree_fit <- fit(tree_workflow, data = penguins_train)
-```
-
-```{r}
-library(tune)
-
-rf_model <- 
-  # specify that the model is a random forest
-  rand_forest() %>%
-  # specify that the `mtry` parameter needs to be tuned
-  set_args(mtry = tune()) %>%
-  # select the engine/package that underlies the model
-  set_engine("ranger", importance = "impurity") %>%
-  # choose either the continuous regression or binary classification mode
-  set_mode("classification") 
-
-library(workflows)
-
-rf_workflow <- workflow() %>%
-  # add the recipe
-  add_recipe(classification_rec) %>%
-  # add the model
-  add_model(rf_model)
-```
-
-### Tuning Results
-
-We have a parameter, `mtry`, that we don't know the best value for. We can use `tune_grid()`
-
-```{r}
-penguins_cv <- rsample::vfold_cv(penguins_train)
-
-rf_grid <- expand.grid(mtry = c(3, 4, 5))
-# extract results
-rf_tune_results <- rf_workflow %>%
-  tune_grid(resamples = penguins_cv, #CV object
-            grid = rf_grid, # grid of values to try
-            metrics = metric_set(accuracy, roc_auc) # metrics we care about
-            )
-
-```
-
-```{r}
-rf_tune_results %>%
-  collect_metrics()
-```
-
-```{r}
-param_final <- rf_tune_results %>%
-  select_best(metric = "accuracy")
-param_final
-
-```
-
-```{r}
-rf_workflow <- rf_workflow %>%
-  finalize_workflow(param_final)
-```
-
-```{r}
-rf_fit <- rf_workflow %>%
-  # fit on the training set and evaluate on test set
-  last_fit(penguins_split)
-```
-
-## Yardstick
-
-Evaluating Accuracy Comparing different methods
-
-```{r}
-test_performance <- rf_fit %>% collect_metrics()
-test_performance
-```
-
-```{r}
-test_predictions <- rf_fit %>% collect_predictions()
-test_predictions
-
-test_predictions %>% 
-  conf_mat(truth = species, estimate = .pred_class)
-
-test_predictions %>%
-  ggplot() +
-  geom_density(aes(x = .pred_Adelie, fill = species), 
-               alpha = 0.5)
-```
 
 
 ## Acknowledgements
