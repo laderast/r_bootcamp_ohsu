@@ -1,5 +1,5 @@
 ---
-title: 'Part 7: Doing Stats, Making Friends'
+title: 'Part 8: Doing Stats, Making Friends'
 author: "you"
 date: "5/5/2020"
 output: html_document
@@ -13,7 +13,18 @@ library(tidyverse)
 library(broom)
 ```
 
+# What about Part 7?
+
+There is no Part 7 for Ready for R, since it is an advanced topic. I'm keeping the numbering the same to reduce confusion with the video.
+
 # Learning Objectives
+
+Link to Video: https://youtu.be/CcEqOLNT77g?t=2034
+
+```{r}
+vembedr::embed_url("https://youtu.be/CcEqOLNT77g?t=2034")
+```
+
 
 -   **Learn** a basic analysis workflow for statistical modeling
 -   **Learn** about *formulas* and how to **specify** models using them
@@ -21,7 +32,6 @@ library(broom)
 -   **Learn** and **apply** linear regression models
 -   **Learn** and **apply** Analysis of Variance (ANOVA)
 -   **Learn** and **use** `nest()` to make a data.frame with a list-column
--   **Learn** how to use `map()` in a `mutate()` statement on a list-column
 -   **Utilize** `broom::glance()` and `broom::tidy()` on models in a list-column
 -   (Optional, choose your own adventure): **use** other statistical models
 
@@ -41,6 +51,12 @@ This is not meant to be a comprehensive course in statistics. We want to show yo
 Danielle Navarro's Learning Statistics with R is excellent and talks much more about statistics: <https://learningstatisticswithr.com/>
 
 # Introducing `tidymodels`
+
+Link to Video: https://youtu.be/CcEqOLNT77g?t=2199
+
+```{r}
+vembedr::embed_url("https://youtu.be/CcEqOLNT77g?t=2199")
+```
 
 We will be using the `broom` package from the `tidymodels` set of packages to make the modeling easier to work with.
 
@@ -92,6 +108,12 @@ head(body_comp)
 
 ## Exploratory Data Analysis
 
+Link to video: https://youtu.be/CcEqOLNT77g?t=2618
+
+```{r}
+vembedr::embed_url("https://youtu.be/CcEqOLNT77g?t=2618")
+```
+
 Before we do any statistical tests on our data, we should first visualize it.
 
 Since our ultimate goal is to examine the differences between bodyfat measurement methods, let's create boxplots that illustrate this difference, if any.
@@ -118,6 +140,12 @@ ggplot(body_comp_long) +
 It appears that our measurements are close to one another, but there are some noticeable differences.
 
 ## t-Test
+
+Link to video: https://youtu.be/CcEqOLNT77g?t=2874
+
+```{r}
+vembedr::embed_url("https://youtu.be/CcEqOLNT77g?t=2874")
+```
 
 Briefly, a t-Test should be used when examining whether the mean **between two groups** are similar This means that the measurements must be **numeric** (there are other tests for categorical data).
 
@@ -183,6 +211,12 @@ tidy_output
 
 # How Correlated are the Three Variables?
 
+Link to Video: https://youtu.be/CcEqOLNT77g?t=3536
+
+```{r}
+vembedr::embed_url("https://youtu.be/CcEqOLNT77g?t=3536")
+```
+
 Another question we'd like to check is whether the measurements are correlated or not.
 
 That is, can we reliably predict `dxa` from `st`?
@@ -220,6 +254,13 @@ body_comp %>%
 ```
 
 ## Let's build a linear model with one term
+
+Link to Video: https://youtu.be/CcEqOLNT77g?t=3872
+
+```{r}
+vembedr::embed_url("https://youtu.be/CcEqOLNT77g?t=3872")
+```
+
 
 We've established that there is a correlation between `dxa` and `st`. Can we use `st` to predict `dxa`?
 
@@ -281,143 +322,18 @@ lm(dxa ~ st + br, data=body_comp) %>%
   tidy()
 ```
 
-# `{purrr}` wrapup
+# Purrr is not in Ready for R
 
-## `split()` is better than `split_groups()`
 
-If you want to split your data.frame into a list, `split()` (which is a base-R function) might be a little easier than `split_groups()`. The main reason it's easier is because it outputs a named list.
 
-```{r}
-penguins_by_species <- split(penguins, penguins$species)
-```
-
-## Wrapping up with `purrr`: making list-columns with `nest()`
-
-I didn't cover this last time because I thought it was a little too mindbending on top of the other parts of `{purrr}`.
-
-We can actually make a `nested` `tibble` with the `group_by()` and `nest()` commands:
-
-```{r}
-penguins_nested <- penguins %>%
-  group_by(species) %>%
-  nest()
-
-penguins_nested
-```
-
-Hey, what happened to the data? It's been put into what's called a `list-column`.
-
-```{r}
-penguins_nested$data[1]
-```
-
-More importantly, check out the class of `penguins_nested$data`
-
-```{r}
-class(penguins_nested$data)
-```
-
-Yup, it's a list! That means you can use `map()` on it as an input.
-
-```{r}
-out_list <- map(penguins_nested$data, run_model)
-
-out_list
-```
-
-## Keeping everything together in one frame
-
-The best thing about this list-column format is that we can use `map()` in a `mutate()` statement. This is really nice because for each row of our nested tibble, we will have a model for each row of our `data.frame`:
-
-```{r}
-penguin_models <- penguins_nested %>%
-  mutate(model = purrr::map(data,run_model))
-
-penguin_models
-```
-
-What are we doing here? We are using `mutate()` to create a new list column (`model`) by mapping our data list column (`data`).
-
-The one thing is that it's a little difficult to pull the individual `estimate` and `p.value` values out of `modelvar`. We can write two functions to get it out of there.
-
-Remember, `model` is a list, so we need to use the `[[]]` (double bracket) accessor to pull the `data.frame` from the list:
-
-```{r}
-glance(penguin_models$model[[1]])
-```
-
-We can use `map()` to apply `broom::glance` to each row of our nested tibble. However, if we want the columns to be unpacked for each of the glanced output, we need to use `unnest()` to add them as columns in our data.frame
-
-```{r}
-glance_frame <- penguin_models %>%
-  mutate(glanced_output = map(model, broom::glance)) %>%
-  unnest(glanced_output)
-
-glance_frame
-```
-
-We can also use `tidy` on our models. Remember, because our model has two terms (intercept and `bill_depth_mm`), we'll have to add an additional step with `unnest()`, which will take each row of our tidied output, and add it as a row to our model:
-
-```{r}
-penguin_model_tidy <- penguin_models %>%
-  mutate(tidy_output = map(model, tidy)) %>%
-    unnest(tidy_output)
-  
-penguin_model_tidy
-```
-
-## Your Turn
-
-Try unnest() on both `glanced_output` and `tidy_output`. How many rows does your new nested tibble have?
-
-```{r}
-penguin_models %>%
-   mutate(glanced_output = map(model, broom::glance)) %>%
-   mutate(tidy_output = map(model, tidy)) %>%
-   unnest(-------------, ------------)
-```
-
-## Anonymous Functions Revisited
-
-An anonymous function doesn't have a name, it's just a bare `function()` with its arguments supplied. For example, we can use the following in a `map()`:
-
-    function(x){return(x$bill_length_mm)}
-
-```{r}
-map(penguin_models$data, 
-    function(x){
-      return(mean(x$bill_length_mm, 
-                  na.rm=TRUE))} )
-```
-
-> The following comes courtesy of Rebecca Barter:
-
-To make the code even more concise you can use the tilde-dot shorthand for anonymous functions (the functions that you create as arguments of other functions).
-
-The notation works by replacing
-
-    function(x) {
-      x + 10
-    }
-
-with
-
-    ~{.x + 10}
-
-`~` indicates that you have started an anonymous function, the argument of the anonymous function can be referred to using `.x` (or simply `.`).
-
-Unlike normal function arguments that can be anything that you like, the tilde-dot function argument is always `.x`.
-
-Thus, instead of defining a `addTen()` function separately, we could use the tilde-dot shorthand:
-
-```{r}
-dbl_vec <- c(1, 4, 7)
-
-map_dbl(dbl_vec, 
-        ~{.x + 10} )
-```
 
 # Analysis of Variance (ANOVA) (Optional)
+
+Link to video: https://youtu.be/CcEqOLNT77g?t=6861
+
+```{r}
+vembedr::embed_url("https://youtu.be/CcEqOLNT77g?t=6861")
+```
 
 We've determined that there isn't a statistical difference between `dxa` and `st` using a paired t-test, but we also measured bodyfat using bioelectric resistance, `br`.
 
@@ -463,6 +379,8 @@ smoke_complete <- read_excel("data/smoke_complete.xlsx",
 ```
 
 ## Chi-square test
+
+**NOTE**: there is no video for the following sections.
 
 We want to test the hypotheses:
 
