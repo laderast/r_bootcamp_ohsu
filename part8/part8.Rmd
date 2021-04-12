@@ -1,0 +1,595 @@
+---
+title: 'Part 7: Doing Stats, Making Friends'
+author: "you"
+date: "5/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(palmerpenguins)
+data(penguins)
+library(tidyverse)
+library(broom)
+```
+
+# Learning Objectives
+
+-   **Learn** a basic analysis workflow for statistical modeling
+-   **Learn** about *formulas* and how to **specify** models using them
+-   **Learn** about t Tests and how to **apply** them to your dataset
+-   **Learn** and **apply** linear regression models
+-   **Learn** and **apply** Analysis of Variance (ANOVA)
+-   **Learn** and **use** `nest()` to make a data.frame with a list-column
+-   **Learn** how to use `map()` in a `mutate()` statement on a list-column
+-   **Utilize** `broom::glance()` and `broom::tidy()` on models in a list-column
+-   (Optional, choose your own adventure): **use** other statistical models
+
+```{r functions}
+run_model <- function(df){
+  out_model <- lm(bill_length_mm ~ bill_depth_mm, data=df)
+  return(out_model)
+}
+```
+
+# Running Statisical Models in R
+
+## Caveat about statistics
+
+This is not meant to be a comprehensive course in statistics. We want to show you some basic techniques, but you will need to dig further.
+
+Danielle Navarro's Learning Statistics with R is excellent and talks much more about statistics: <https://learningstatisticswithr.com/>
+
+# Introducing `tidymodels`
+
+We will be using the `broom` package from the `tidymodels` set of packages to make the modeling easier to work with.
+
+`tidymodels` attempts to unify all of the various modeling packages in a consistent interface.
+
+`broom` works mostly with the output of models. One of the problems with R is that the many modeling packages are not consistent to work with. It can be just as difficult to get a p-value out of a model as it is to run it on some data! `broom` simplifies this a lot.
+
+There are 3 main functions in *broom*:
+
+-   `tidy()` - This is where you get most of the output you want, including *coefficients* and *p-values*
+-   `glance()` - additional measures on your model, including R-squared, log likelihood, and AIC/BIC
+-   `augment()` - make predictions with your model using new data
+
+We will mostly use `tidy()` and `glance()` for right now.
+
+# T-tests
+
+## The Dataset
+
+A study by Goran et.al (1996) examined the accuracy of some widely used body-composition techniques for children using three different methods:
+
+-   dual-energy X-ray absorptiometry (`dxa`) technique,
+-   skin-fold thickness (`st`),
+-   bioelectric resistance (`br`).
+
+Subjects were children between 4 and 10 years old. Data were collected on 98 subjects (49 males and 49 females).
+
+One purpose of the study was to determine whether there was a difference in fat mass measurements using `DXA` (considered the gold standard method) compared to the skin-fold thickness method.
+
+We also wish to determine if `DXA` levels are significantly different between males and females.
+
+## Getting set up
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(broom)
+library(readxl)
+library(janitor)
+library(GGally)
+library(broom)
+```
+
+```{r message=FALSE}
+body_comp <- read_csv('data/body_composition.csv', na="NA") %>%
+  clean_names() %>%
+  mutate(gender = factor(gender, levels=c("1", "0")))
+head(body_comp)
+```
+
+## Exploratory Data Analysis
+
+Before we do any statistical tests on our data, we should first visualize it.
+
+Since our ultimate goal is to examine the differences between bodyfat measurement methods, let's create boxplots that illustrate this difference, if any.
+
+Notice that the `aes()` for `ggplot()` only accepts one `x` value and one `y` value, but we have three columns we'd like to compare (`dxa`, `st`, `br`). So, we need to convert our data to long format using `pivot_longer()`.
+
+```{r}
+body_comp_long <- body_comp %>%
+  pivot_longer(cols = c('dxa', 'st', 'br'),
+               names_to = 'method',
+               values_to = 'body_fat_percentage') 
+head(body_comp_long)
+```
+
+Now that we've done that, we can set `x = method` and `y = body_fat_percentage`.
+
+```{r warning=FALSE}
+ggplot(body_comp_long) +
+  aes(x = method, y = body_fat_percentage, fill = method) +
+  geom_boxplot() +
+  geom_jitter(color="darkgrey")
+```
+
+It appears that our measurements are close to one another, but there are some noticeable differences.
+
+## t-Test
+
+Briefly, a t-Test should be used when examining whether the mean **between two groups** are similar This means that the measurements must be **numeric** (there are other tests for categorical data).
+
+The *null* hypothesis for a t-test is that the two means are equal, and the *alternative hypothesis* is that they are not.
+
+> One purpose of the study was to determine whether there was a difference in fat mass measurements using `dxa` (considered the gold standard method) compared to the skin-fold thickness method (`st`). Below, we will use a paired t-test. Paired simply means that each group (`dxa` and `st`) each contain measurements for the same subject on corresponding rows. If body fat measurements were collected using `dxa` for children in Group A and `st` for a separate set of children in Group B, then we would *not* use a paired t-test.
+
+### HYPOTHESIS: There is a difference in mean fat mass measurements between the DXA and skin-fold thickness (ST) methods.
+
+### NULL HYPOTHESIS: There is no difference in mean fat mass measurements between the two methods.
+
+We also need to set a significance threshold. We'll set it at 0.05.
+
+Like many statistical modeling methods in R, the `t.test` function takes the model in a couple different ways. The first takes two separate arguments with the paired measurements: measure 1 (dxa) and measure 2 (st). We use `tidy()` from `broom` to clean up the output into a data frame:
+
+```{r}
+tidy_output <- t.test(body_comp$dxa, body_comp$st, paired=TRUE) %>%
+  tidy()
+tidy_output
+```
+
+The second method uses the formula method, where the outcome and grouping variable (dxa vs. st) are specified using special syntax that uses the tilde (`~`) symbol, with the outcome on the left and the grouping on the right of the `~`. The tilde (`~`) can be translated to "is a function of".
+
+Note we need to use the long data filtered to only include the two methods of interest (our grouping variable), and then specify the data frame so `t.test` knows where the variables are coming from:
+
+```{r}
+body_comp_dxa_st <- body_comp_long %>%
+  filter(method %in% c("dxa", "st"))
+tidy_output2 <- 
+  t.test(body_fat_percentage ~ method, 
+        paired=TRUE, 
+        data=body_comp_dxa_st) %>%
+    tidy()
+tidy_output2
+```
+
+We see that `p.value` is approximately equal to `r round(tidy_output2$p.value,3)`; this means **we cannot reject the null hypothesis** (i.e., the difference in body fat measurements between `dxa` and `st` are not statistically different from one another).
+
+## Your Turn
+
+Try running `t.test`, comparing `dxa` and `br` using `body_comp_long`. Hint: You'll have to filter the `method` like above.
+
+```{r eval=FALSE}
+body_comp <- body_comp %>%
+  tidyr::drop_na()
+
+body_comp_long <- body_comp %>%
+  pivot_longer(cols = c('dxa', 'st', 'br'),
+               names_to = 'method',
+               values_to = 'body_fat_percentage') 
+
+body_comp_dxa_sf <- body_comp_long %>%
+  filter(method %in% c(---, ---))
+
+tidy_output <- 
+  t.test(body_fat_percentage ~ method, 
+       paired=TRUE, 
+       data=body_comp_dxa_sf) %>%
+    tidy()
+
+tidy_output
+```
+
+# How Correlated are the Three Variables?
+
+Another question we'd like to check is whether the measurements are correlated or not.
+
+That is, can we reliably predict `dxa` from `st`?
+
+Let's generate a pairs plot, which can be a useful way of visualizing correlated variables.
+
+We can do this by using `ggpairs()`, which is in the `GGally` package (not part of the `tidyverse`):
+
+```{r message=FALSE}
+GGally::ggpairs(body_comp,  aes(color=gender))  
+```
+
+We can generate a scatterplot with a trend line using a geom called `geom_smooth()`. We use `method = "lm"` to specify that we want a best fit straight line from the linear model method, not the default loess curve.
+
+We need to add the arguments `method` and `se` (short for standard error).
+
+```{r}
+body_comp %>%
+  ggplot() +
+  aes(x=dxa, y=st) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+## Your Turn
+
+Try setting `se` to `TRUE`. What does it add to the graph?
+
+```{r}
+body_comp %>%
+  ggplot() +
+  aes(x=dxa, y=st) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE)
+```
+
+## Let's build a linear model with one term
+
+We've established that there is a correlation between `dxa` and `st`. Can we use `st` to predict `dxa`?
+
+y = ax + b
+
+The function `lm()` uses the formula method, with the outcome (dependent variable) on the left and the predictors (independent variables) on the right, separated by the plus sign (`+`) if there are multiple predictors. We again specify the data frame with `data = body_comp` so the function knows where the variables in the formula are coming from.
+
+```{r}
+lm(dxa ~ st, data = body_comp) %>%
+  tidy()
+```
+
+The predicted line through the data is:
+
+dxa = 0.275 + 0.903 \* `st`
+
+## Adding another variable
+
+What if we included `gender` in our model? Our model can accept `factors` as inputs.
+
+```{r}
+lm(dxa ~ st + gender, data = body_comp) %>%
+  tidy()
+```
+
+In this case, `gender` is a useful predictor of `dxa`, since the p-value is less than our threshold of 0.05.
+
+However, if we did use the equation, it would correspond to this equation:
+
+`dxa` = 0.097 + 0.889 \* `st` + 0.536 \* `gender0`
+
+The factor `gender` here is recoded as a "dummy" variable, and reading it is a little confusing. Note that it says `gender0` and not `gender`. That's because it's coding `gender` = 0 as 1 here, and 0, if gender is 1.
+
+Dummy variables are very confusing. <http://www.sthda.com/english/articles/40-regression-analysis/163-regression-with-categorical-variables-dummy-coding-essentials-in-r/>
+
+We can make this dummy variable a bit more clear by taking care with the ordering of our factor levels. The reference variable is the first factor level. Right now, `gender` is a factor with levels:
+
+```{r}
+levels(body_comp$gender)
+```
+
+But we can change the reference group to 0 so that the coefficient is calculated for gender = 1:
+
+```{r}
+body_comp <- body_comp %>%
+  mutate(gender = fct_relevel(gender, "0"))
+lm(dxa ~ st + gender, data=body_comp) %>%
+  tidy()
+```
+
+Why did the coefficient of gender change signs?
+
+## Your Turn
+
+Try adding `br` as a term in the model. How does it change the p-value of `st`?
+
+```{r}
+lm(dxa ~ st + br, data=body_comp) %>%
+  tidy()
+```
+
+# `{purrr}` wrapup
+
+## `split()` is better than `split_groups()`
+
+If you want to split your data.frame into a list, `split()` (which is a base-R function) might be a little easier than `split_groups()`. The main reason it's easier is because it outputs a named list.
+
+```{r}
+penguins_by_species <- split(penguins, penguins$species)
+```
+
+## Wrapping up with `purrr`: making list-columns with `nest()`
+
+I didn't cover this last time because I thought it was a little too mindbending on top of the other parts of `{purrr}`.
+
+We can actually make a `nested` `tibble` with the `group_by()` and `nest()` commands:
+
+```{r}
+penguins_nested <- penguins %>%
+  group_by(species) %>%
+  nest()
+
+penguins_nested
+```
+
+Hey, what happened to the data? It's been put into what's called a `list-column`.
+
+```{r}
+penguins_nested$data[1]
+```
+
+More importantly, check out the class of `penguins_nested$data`
+
+```{r}
+class(penguins_nested$data)
+```
+
+Yup, it's a list! That means you can use `map()` on it as an input.
+
+```{r}
+out_list <- map(penguins_nested$data, run_model)
+
+out_list
+```
+
+## Keeping everything together in one frame
+
+The best thing about this list-column format is that we can use `map()` in a `mutate()` statement. This is really nice because for each row of our nested tibble, we will have a model for each row of our `data.frame`:
+
+```{r}
+penguin_models <- penguins_nested %>%
+  mutate(model = purrr::map(data,run_model))
+
+penguin_models
+```
+
+What are we doing here? We are using `mutate()` to create a new list column (`model`) by mapping our data list column (`data`).
+
+The one thing is that it's a little difficult to pull the individual `estimate` and `p.value` values out of `modelvar`. We can write two functions to get it out of there.
+
+Remember, `model` is a list, so we need to use the `[[]]` (double bracket) accessor to pull the `data.frame` from the list:
+
+```{r}
+glance(penguin_models$model[[1]])
+```
+
+We can use `map()` to apply `broom::glance` to each row of our nested tibble. However, if we want the columns to be unpacked for each of the glanced output, we need to use `unnest()` to add them as columns in our data.frame
+
+```{r}
+glance_frame <- penguin_models %>%
+  mutate(glanced_output = map(model, broom::glance)) %>%
+  unnest(glanced_output)
+
+glance_frame
+```
+
+We can also use `tidy` on our models. Remember, because our model has two terms (intercept and `bill_depth_mm`), we'll have to add an additional step with `unnest()`, which will take each row of our tidied output, and add it as a row to our model:
+
+```{r}
+penguin_model_tidy <- penguin_models %>%
+  mutate(tidy_output = map(model, tidy)) %>%
+    unnest(tidy_output)
+  
+penguin_model_tidy
+```
+
+## Your Turn
+
+Try unnest() on both `glanced_output` and `tidy_output`. How many rows does your new nested tibble have?
+
+```{r}
+penguin_models %>%
+   mutate(glanced_output = map(model, broom::glance)) %>%
+   mutate(tidy_output = map(model, tidy)) %>%
+   unnest(-------------, ------------)
+```
+
+## Anonymous Functions Revisited
+
+An anonymous function doesn't have a name, it's just a bare `function()` with its arguments supplied. For example, we can use the following in a `map()`:
+
+    function(x){return(x$bill_length_mm)}
+
+```{r}
+map(penguin_models$data, 
+    function(x){
+      return(mean(x$bill_length_mm, 
+                  na.rm=TRUE))} )
+```
+
+> The following comes courtesy of Rebecca Barter:
+
+To make the code even more concise you can use the tilde-dot shorthand for anonymous functions (the functions that you create as arguments of other functions).
+
+The notation works by replacing
+
+    function(x) {
+      x + 10
+    }
+
+with
+
+    ~{.x + 10}
+
+`~` indicates that you have started an anonymous function, the argument of the anonymous function can be referred to using `.x` (or simply `.`).
+
+Unlike normal function arguments that can be anything that you like, the tilde-dot function argument is always `.x`.
+
+Thus, instead of defining a `addTen()` function separately, we could use the tilde-dot shorthand:
+
+```{r}
+dbl_vec <- c(1, 4, 7)
+
+map_dbl(dbl_vec, 
+        ~{.x + 10} )
+```
+
+# Analysis of Variance (ANOVA) (Optional)
+
+We've determined that there isn't a statistical difference between `dxa` and `st` using a paired t-test, but we also measured bodyfat using bioelectric resistance, `br`.
+
+Maybe we should see if it measures differently from the other two methods. Because a t-test can only be used to measure the differences in means between two groups, we'd have to use multiple t-tests.
+
+But wait, should we do that right away? No, because we'll run into the [Multiple Comparisons Problem](https://en.wikipedia.org/wiki/Multiple_comparisons_problem)!
+
+So rather than performing multiple t-tests, we first want to examine whether any of the groups is different from the rest of the groups using an ANOVA (`aov()`).
+
+`aov()` uses the formula interface where the group variable is on the right of the `~`, and therefore we need the long version of our data with `method` denoting the three groups. Below, we are testing whether body fat percentage is a function of the type of body fat measurement method. We pipe the output of `aov()` to `tidy()` to get a clearer idea of the output of the ANOVA.
+
+```{r}
+aov(body_fat_percentage ~ method, data = body_comp_long) %>%
+  tidy()
+```
+
+The value `p.value` is what we're interested in. Because it is greater than 0.05, we can conclude that none of the measurement methods is significantly different from the others, and there is no reason to perform multiple t-tests on our dataset.
+
+## Post-hoc Tests
+
+Since our F statistic probability was not significant at below 0.05, we would not expect post-hoc pairwise t-tests comparing each pair of methods to be significant. But we can still perform multiple post-hoc t-tests using the function `pairwise.t.test()`. However, we need to account for inflation of false positives by using a multiple testing correction method (e.g., Bonferroni).
+
+```{r}
+pairwise.t.test(body_comp_long$body_fat_percentage, 
+                body_comp_long$method, 
+                p.adjust = "bonferroni") %>% 
+  tidy()
+```
+
+## More about the Multiple Testing Problem
+
+Consider what a p-value of 0.05 actually means: if a test is performed at the 0.05 level and the corresponding null hypothesis is true, there is only a 5% chance of incorrectly rejecting the null hypothesis. This is an okay risk to take given that we are only performing the t-test once. But if we were to perform the t-test 1,000 times on data where all null hypotheses were true, the expected number of incorrect rejections (also known as false positives or Type I errors) would be 50!
+
+# Binary Outcomes
+
+When we have a binary or categorical variable, we need different statistical models. We will use the smoking data and create a binary variable `cigarettes_per_day_gr3` that is `1` if the number of cigarettes smoked per day is greater than 3, and 0 otherwise.
+
+```{r}
+smoke_complete <- read_excel("data/smoke_complete.xlsx", 
+                             sheet=1, 
+                             na="NA") %>%
+  mutate(cigarettes_per_day_gr3 = 1*(cigarettes_per_day>3))
+```
+
+## Chi-square test
+
+We want to test the hypotheses:
+
+*Null Hypothesis:* Higher cigarette smoking is independent of gender.
+
+*Alternative Hypothesis:* Higher cigarette smoking is associated with (not independent of) gender.
+
+We will test this with a Chi-square test. The `chisq.test()` function requires a two-by-two table as input (notice this is yet another variation on types of inputs that models and tests take in R!).
+
+```{r}
+two_by_two <- smoke_complete %>% tabyl(cigarettes_per_day_gr3, gender)
+two_by_two
+```
+
+```{r}
+chisq_outcome <- chisq.test(two_by_two) %>% tidy()
+chisq_outcome
+```
+
+At a significance level of 0.05, we see that gender does appear to be associated with high smoking rate greater than 3 cigarettes per day.
+
+### Your turn:
+
+Perform a chi-square test of whether high cigarette smoking (greater than 3 per day) is associated with `vital_status`. We can pipe all of the above commands together, if we want:
+
+```{r, eval = FALSE}
+smoke_complete %>% 
+  tabyl(-----, -----) %>%
+  chisq.test() %>% 
+  tidy()
+```
+
+## Logistic regression
+
+We can use the `glm()` function to fit generalized linear models, including logistic regression. When we want to perform logistic regression, we specify the argument `family = "binomial"`. We need a binary outcome, and can have multiple predictors. Like `lm()`, this function takes a formula as argument to specify the model.
+
+Let's see if the outcome vital status is associated with some of our predictors. Note, we are ignoring time to event at the moment, and assuming everyone is followed up for the same amount of time (which is not true, but for the sake of example we will pretend). We need to convert our outcome into 0, 1 variable first.
+
+```{r}
+smoke_complete_glm <- smoke_complete %>%
+  mutate(vital_status = 1*(vital_status == "dead"))
+glm_fit <- glm( vital_status ~ cigarettes_per_day + gender + age_at_diagnosis,
+     family = "binomial",
+     data = smoke_complete_glm)
+glm_fit %>%
+  tidy() %>%
+  mutate(p.value = format.pval(p.value))
+```
+
+The coefficients are odds ratios on the log scale. We can use the `tidy()` function in `broom` to show us the corresponding odds ratios and confidence intervals:
+
+```{r}
+glm_fit %>%
+  tidy(exponentiate = TRUE, conf.int = TRUE)
+```
+
+## Survival Analysis
+
+When we have time to event data, as in the smoking and tumor data where the event is death specified in `vital_status` after a certain number of days, we must use survival analysis methods to fit our models and test hypotheses. We use the package `survival` to either fit Cox Proportional Hazard regression models, or use a log-rank test.
+
+Our survival data must be in a certain format. We need an indicator of event that is 1 if the event occurred and 0 if it did not or if the subject was censored. We also need the time to event or time to last follow up to be in the same variable. In this data, we want the event status to be 1 if `vital_status` is "dead" and 0 if `vital_status` is "alive". If we have information on the number of days until death, we will use this number, otherwise we will use days to last follow up.
+
+```{r}
+library(survival)
+smoke_complete_surv <- smoke_complete %>%
+  mutate(event_status = 1*(vital_status=="dead"),
+         event_time = case_when(
+           is.na(days_to_death) ~ days_to_last_follow_up,
+           !is.na(days_to_death) ~ days_to_death
+         ))
+glimpse(smoke_complete_surv)
+```
+
+We start by creating a survival object with the function `Surv`
+
+## Log-rank test
+
+Survival functions take a special kind of formula argument, where the left hand side is a survival object created with the function `Surv` with the first argument time to event, and the second argument event status. Then, we have the tilde (`~`) and have our categorical grouping or predictor on the right hand side. We will test whether survival time varies by disease type.
+
+Note: We are assuming right censoring where we lose people to follow up and they could have an event after that time, but we could also adapt this code for interval censoring.
+
+```{r}
+survdiff(Surv(event_time, event_status) ~ disease,
+        data = smoke_complete_surv)
+```
+
+We can visualize this with a Kaplan-Meier plot. A useful package is the `survminer` package which creates nice survival plots with `ggplot2`.
+
+```{r}
+library(survminer)
+smoke_surv <- survfit(Surv(event_time, event_status) ~ disease,
+        data = smoke_complete_surv)
+ggsurvplot(smoke_surv, risk.table = TRUE, conf.int = TRUE)
+```
+
+## Cox PH
+
+We can also fit Cox Proportional Hazards models with this data, using a similar formula but with the `coxph()` function.
+
+```{r}
+cph_fit <- coxph(Surv(event_time, event_status) ~ disease,
+        data = smoke_complete_surv)
+cph_fit %>% tidy()
+```
+
+Here we can see the log-hazard ratios and p-values. We can again use `tidy()` to extract the hazard ratios and confidence intervals.
+
+```{r}
+cph_fit %>% tidy(exponentiate = TRUE, conf.int = TRUE)
+```
+
+### Your turn
+
+1.  Use a log-rank test to test for the association of survival time with gender.
+
+```{r}
+survdiff(Surv(event_time, event_status) ~ -----,
+        data = smoke_complete_surv)
+```
+
+2.  Fit a Cox PH model with disease, gender, number of cigarettes per day, and age at diagnosis as predictors.
+
+```{r, eval = FALSE}
+coxph(Surv(event_time, event_status) ~ -----,
+        data = smoke_complete_surv) %>% tidy()
+```
+
+## Acknowledgements
+
+Written by Aaron Coyner, Eric Leung, Ted Laderas, and Jessica Minnier

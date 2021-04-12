@@ -1,0 +1,120 @@
+---
+title: "Part 8 Assignment"
+author: "You"
+date: "2/24/2021"
+output: 
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(mlbench)
+data("PimaIndiansDiabetes")
+```
+
+## Pima Indians and Diabetes
+
+(This description comes courtesy of Rebecca Barter: http://www.rebeccabarter.com/blog/2020-03-25_machine_learning/)
+
+> We will use the Pima Indian Women’s diabetes dataset which contains information on 768 Pima Indian women’s diabetes status, as well as many predictive features such as the number of pregnancies (pregnant), plasma glucose concentration (glucose), diastolic blood pressure (pressure), triceps skin fold thickness (triceps), 2-hour serum insulin (insulin), BMI (mass), diabetes pedigree function (pedigree), and their age (age). 
+
+> In case you were wondering, the Pima Indians are a group of Native Americans living in an area consisting of what is now central and southern Arizona. The short name, “Pima” is believed to have come from a phrase meaning “I don’t know,” which they used repeatedly in their initial meetings with Spanish colonists. Thanks Wikipedia!
+
+
+```{r}
+skimr::skim(PimaIndiansDiabetes)
+```
+
+1 (2 pts). Run `lm()` on the entire dataset to build a linear model that uses `pregnant` as the independent variable and `glucose` as the dependent variable.
+
+
+```{r}
+pima_model <- lm(------ ~ ------, data=PimaIndiansDiabetes)
+broom::tidy(pima_model)
+```
+
+Interpret the `pregnant` term - is `pregnant` predictive of `glucose`? Why or why not?
+
+2 (1 pt). Make a scatterplot of `glucose` vs `pregnant` faceted by `diabetes` status. Do you notice anything about the overall trend between the two subpopulations. Do you notice anything?
+
+```{r}
+ggplot(PimaIndiansDiabetes) +
+  aes(x=--------, y=--------) +
+  geom_point() + 
+  geom_smooth(method="lm") +
+  facet_wrap(vars(diabetes))
+
+```
+
+
+3 (3 pts). Use `nest()` to make a nested data.frame by `diabetes` status. Use map to apply `skimr::skim()` to each of the datasets in the dataset. Note any large differences between the two sub-populations.
+
+Look at the distributions of `glucose` across both subpopulations - are they the same or different?
+
+```{r}
+pima_nested <- PimaIndiansDiabetes %>%
+  group_by(diabetes, .keep=TRUE) %>%
+  nest()
+
+pima_nested
+```
+
+```{r}
+map(pima_nested$------, skimr::skim)
+```
+
+
+
+4. (2 pts) Use `map()` within a `mutate()` statement to make a linear model for each sub-population (`diabetes` pos or neg).
+
+glucose ~ pregnant
+
+```{r}
+run_model <- function(df){
+  model <- lm(-----  ~  ------ , data=df)
+  return(model)
+}
+
+pima_model <- pima_nested %>%
+    mutate(model = map(data, --------)) 
+
+```
+
+Use `broom::tidy` in a mutate statement and `unnest(tidy_output)` to return the coefficients of the model.
+
+```{r}
+pima_model %>% 
+  mutate(tidy_output = map(model, broom::-----)) %>%
+  unnest(-------)
+```
+
+
+5. (2 pts) Make a new function called `run_model2` using the `mass` instead of `pregnant`. Use `map()` within a `mutate()` statement to make a linear model for each sub-population using the following model formula.
+
+glucose ~ mass
+
+```{r}
+run_model2 <- function(df){
+  model <- -------------
+  return(model)
+}
+
+pima_model2 <- pima_nested %>%
+  mutate(model = map(-------,-------)) %>%
+  mutate(tidy_output = map(------,------)) %>%
+  unnest(--------)
+```
+
+
+
+Bonus (2 Bonus points) Build a new model using both terms. Run it on both subpopulations. 
+
+glucose ~ mass + pregnant
+
+```{r}
+
+
+```
+
+Interpret your findings. Is the new model more predictive than the other models?

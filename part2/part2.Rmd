@@ -18,10 +18,12 @@ In this session, we'll continue our introduction to R by working with a large da
 
 Remember to save this notebook under a new name, such as `part2_laderas.Rmd`.
 
-Link to video: <https://youtu.be/DKLT8M0lBOg>
+Link to video: <https://youtu.be/EJ6_DEhC8v4?t=3270>
+
+
 
 ```{r}
-vembedr::embed_youtube("DKLT8M0lBOg",  width = 600, height=300)
+vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=3270")
 ```
 
 # Learning Objectives
@@ -53,10 +55,12 @@ library(readxl)
 
 ## Importing spreadsheet-style data into R
 
-Link to video: <https://youtu.be/gCUkZUtNHVU>
+Link to video: <https://youtu.be/EJ6_DEhC8v4?t=3463>
+
+
 
 ```{r}
-vembedr::embed_youtube("gCUkZUtNHVU", width = 600, height=300)
+vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=3463")
 ```
 
 ```{r}
@@ -156,6 +160,13 @@ We will be covering loading in another format that you can export from many diff
 
 ### Tips on Formating your Excel file for R
 
+https://youtu.be/EJ6_DEhC8v4?t=5532
+
+```{r}
+vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=3463")
+```
+
+
 Here are some tips on formatting your data to get it into R easier.
 
 Click on the code block below to load up a graphic.
@@ -227,6 +238,9 @@ A `data.frame`, however, can include vectors (columns) of different data types. 
 
 ## `data.frame`s - How do they Work?
 
+https://youtu.be/EJ6_DEhC8v4?t=6058
+
+
 To learn more about this data frame, we'll first explore its dimensions:
 
 ```{r}
@@ -291,6 +305,8 @@ We'll see that `View()` can help you out when you're starting out with building 
 
 ### Summarizing our Data
 
+https://youtu.be/EJ6_DEhC8v4?t=6528
+
 Finally, we can also examine basic summary statistics for each column:
 
 ```{r}
@@ -350,6 +366,8 @@ vis_dat(brca_clinical)
 ## Introducing `ggplot2`
 
 Link to video: <https://youtu.be/wTU8i_vPnQ4>
+
+https://youtu.be/EJ6_DEhC8v4?t=7023
 
 ```{r}
 vembedr::embed_youtube("wTU8i_vPnQ4", width = 600, height=300)
@@ -443,6 +461,8 @@ ggplot(data = brca_clinical) +
 
 ## Simple arithmetic
 
+https://youtu.be/EJ6_DEhC8v4?t=7602
+
 Huh. `age_at_diagnosis` is in days, not years. We can fix that by dividing it by 365:
 
 ```{r}
@@ -532,6 +552,8 @@ We won't be using this very often (in fact, part of the reason to use the `tidyv
 
 
 ## Importing data from other software with `haven` (Optional)
+
+https://youtu.be/EJ6_DEhC8v4?t=8102
 
 The package `haven` allows us to import data in other software formats, including SAS, Stata, or SPSS data.
 

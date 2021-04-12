@@ -11,6 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Why `here()`?
 
+```{r}
+vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=1944")
+```
+
 One of the big problems of RMarkdown documents is that so far, we've stuck to putting them in the root folder (where our .Rproj file lives), to make using relative paths easier.
 
 One big headache with Rmarkdown is that when you knit it, all the file paths are relative to the current location of the Rmarkdown file.

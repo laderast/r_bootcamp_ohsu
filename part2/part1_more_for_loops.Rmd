@@ -11,6 +11,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## More about For Loops
 
+https://youtu.be/EJ6_DEhC8v4?t=1790
+
+```{r}
+
+```
+
 
 ```{r}
 knitr::include_graphics("image/for_loop1.JPG")

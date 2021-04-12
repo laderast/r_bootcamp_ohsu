@@ -8,6 +8,14 @@ author: "you!"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Slides/lecture: 
+
+```{r}
+vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=1206")
+```
+
+
+
 ## Learning Objectives
 
 - **Learn** about errors and warnings and where to ask for help
@@ -20,6 +28,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 # Getting Help on Errors
+
+
+```{r}
+vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=2993")
+```
 
 ## Understanding the difference between warnings and errors
 
@@ -85,6 +98,11 @@ smoke_complete <- smoke_complete %>%
 
 
 ## Customizing a Scatterplot
+
+
+```{r}
+vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=3280")
+```
 
 Now that we have the data generally displayed the way we'd like, we can start to customize a plot.
 
@@ -164,6 +182,9 @@ This automatically saves the last plot for which code was executed. This command
 
 # Brief Aside: Categorical Data (`factor`s)
 
+```{r}
+vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=4084")
+```
 
 One data type that we haven't yet looked at are `factor`s - factors are how R represents *categorical data*.
 
@@ -307,6 +328,9 @@ If you are interested in learning more about ggplot:
 
 # Data Manipulation using `dplyr`
 
+```{r}
+vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=5614")
+```
 What we have learned is pretty great overall for plotting. But there are a lot of other things we can do with `data.frame`s!
 
 We're going to talk about another tidyverse package: `dplyr`. `dplyr` is your all-purpose toolbox for filtering, summarizing, and transforming data.
@@ -425,6 +449,10 @@ ggplot(data=arranged_smokers) +
 
 ## Sorting Data Frames using `arrange()`
 
+```{r}
+vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=6805")
+```
+
 
 Ok, we already have encountered `arrange()`. It's a function that lets us sort a `data.frame` by a variable.
 
@@ -474,6 +502,10 @@ smoke_complete %>%
 
 
 ## `filter()`ing our data
+
+```{r}
+vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=7179")
+```
 
 
 `filter()` is an extremely powerful function. It lets us subset our data according to specific criteria.
@@ -591,6 +623,10 @@ This is a useful reference for all the different operators (both logical and com
 
 
 ## Selecting columns using `select()`
+
+```{r}
+vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=8075")
+```
 
 The final verb we'll look at is `select()`. It allows us to select variables from our dataset:
 
