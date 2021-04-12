@@ -9,14 +9,21 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Intro slides:
+
+Link to video: <https://youtu.be/7KZWcICwF54?t=976>
+
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=976")
+```
+
 # Learning Objectives
 
-- **Learn** and apply `mutate()` to change the data type of a variable
-- **Apply** `mutate()` to calculate a new variable based on other variables in a `data.frame`.
-- **Apply** `case_when` in a `mutate()` statement to make a continuous variable categorical
-- **Apply** `group_by()/summarize()` as a pattern to get summary statistics, including counts, means, and standard deviations within a category.
-- **Standardize** variable names using `clean_names()`
-
+-   **Learn** and apply `mutate()` to change the data type of a variable
+-   **Apply** `mutate()` to calculate a new variable based on other variables in a `data.frame`.
+-   **Apply** `case_when` in a `mutate()` statement to make a continuous variable categorical
+-   **Apply** `group_by()/summarize()` as a pattern to get summary statistics, including counts, means, and standard deviations within a category.
+-   **Standardize** variable names using `clean_names()`
 
 ## Getting set up
 
@@ -32,27 +39,26 @@ smoke_complete <- read_excel("data/smoke_complete.xlsx",
                              na="NA")
 ```
 
-
-
 # `mutate()` - A confusing name, a powerful `dplyr` verb
 
+Link to video: <https://youtu.be/7KZWcICwF54?t=1944>
+
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=1944")
+```
 
 ```{r}
 knitr::include_graphics("image/dplyr_mutate.png")
 ```
 
-
 So what is mutate? `mutate()` is one of the most useful `dplyr` verbs. You can use it to transform data (variables in your `data.frame`) and add it as a new variable into the data.frame.
 
 I tend to think of this much like adding a formula in Excel to calculate the value of a new column based on previous columns. You can do lots of things such as:
 
-- subtract one column from another
-- convert the units of one column to new units (such as days to years)
-- change the capitalization of categories in a variable
-- recode a continuous variable to be a categorical one
-
-
-
+-   subtract one column from another
+-   convert the units of one column to new units (such as days to years)
+-   change the capitalization of categories in a variable
+-   recode a continuous variable to be a categorical one
 
 ## Using `mutate` to calculate a new variable based on other variables
 
@@ -64,7 +70,6 @@ smoke_complete %>%
     glimpse()
 ```
 
-
 ## Your Turn
 
 Create a variable called `cigarettes_total` by multiplying `cigarettes_per_day` by `-days_to_birth` below:
@@ -75,16 +80,15 @@ smoke_complete %>%
 
 ```
 
-
-
-
 ## Using `mutate` to make our `character` variables into `factors`
+
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=2609")
+```
 
 Remember `factor`s? Well, we can use `mutate()` to make a `character` variable a `factor`.
 
 Let's convert `gender` from `character` into `factor`. We'll then pipe the output into `glimpse()` so you can see the variable types.
-
-
 
 ```{r}
 smoke_complete %>% 
@@ -93,12 +97,9 @@ smoke_complete %>%
     glimpse()
 ```
 
-
 One thing to notice: we are doing something called *reassignment* here. We're taking the previous values of our variable (`gender`), doing something to it (making it a `factor`), and then reassigning the variable `gender` to our fixed set of values.
 
-
 Remember when we wanted to decide the order of the categories in the factor? We can assign that order using the `levels` argument in `factor()`. To show the order, we can pipe the output into a command called `tabyl()`, from the `janitor` package, which is a `tidyverse` friendly version of `table()`.
-
 
 ```{r}
 smoke_complete %>% 
@@ -109,11 +110,13 @@ smoke_complete %>%
 
 Notice that the `female` value goes before the `male`, which is what we wanted.
 
-
-
-
-
 ## Using `mutate` to replace missing values with `replace_na`
+
+Link to video: <https://youtu.be/7KZWcICwF54?t=2878>
+
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=2878")
+```
 
 Sometimes we want to fill in missing values with a certain value. We can use the `replace_na()` function inside of `mutate()` to specify this. For example, if the days to last follow up is missing, we want to set their days to follow up to 0. The first two observations in this data have missing follow up, but when we replace them we note they are now equal to 0:
 
@@ -123,40 +126,36 @@ smoke_complete %>%
     glimpse()
 ```
 
-
-
-
-
 ## Using `mutate` to make a continuous variable categorical using `case_when`
+
+Link to Video: <https://youtu.be/7KZWcICwF54?t=3085>
+
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=3085")
+```
 
 ```{r}
 knitr::include_graphics("image/dplyr_case_when.png")
 ```
 
-
-
 Say we want to make the `cigarettes_per_day` into a categorical variable with the values:
 
-
-* 0-5 cigarettes/day
-* 6+ cigarettes/day
-
+-   0-5 cigarettes/day
+-   6+ cigarettes/day
 
 How would we do that?
 
 Well, we need to follow the basic pattern for each of our categories:
 
-*condition* ~ *category name*
+*condition* \~ *category name*
 
-
-The *left* side of the `~` is where we can specify how we define the *category&. 
+The *left* side of the `~` is where we can specify how we define the \*category&.
 
 The *right* side of the `~` is where we can specify the *category name* (as a character).
 
 In the example below,
 
-`cigarettes_per_day <= 5` is our left side,
-and `0-5` is our right side (our category).
+`cigarettes_per_day <= 5` is our left side, and `0-5` is our right side (our category).
 
 We need to do this for each level in our category.
 
@@ -177,18 +176,15 @@ smoke_complete %>%
     
 ```
 
-
-
 ## Your Turn
 
 Modify the code below to recode `cigarettes_category` to have 3 levels:
 
-* `0-5` 
-* `6-10` 
-* `11+`
+-   `0-5`
+-   `6-10`
+-   `11+`
 
 Hint: you'll have to chain conditions with a `&` to get the `6-10` category.
-
 
 ```{r}
 smoke_complete %>% 
@@ -207,13 +203,17 @@ smoke_complete %>%
     
 ```
 
-
 # `summarize()`
 
-The `summarize()` verb produces summaries across your data. 
+Link to video: <https://youtu.be/7KZWcICwF54?t=4368>
+
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=4368")
+```
+
+The `summarize()` verb produces summaries across your data.
 
 For example, if I wanted to find the average `cigarettes_per_day` across all my data, I'd do this:
-
 
 ```{r}
 smoke_complete %>%
@@ -232,30 +232,23 @@ smoke_complete %>%
 
 ```
 
-
-
 What are the kinds of things that summarize is useful for?
 
-Useful functions (from https://dplyr.tidyverse.org/reference/summarise.html)
+Useful functions (from <https://dplyr.tidyverse.org/reference/summarise.html>)
 
-Center: `mean()`, `median()`
-Spread: `sd()` (standard deviation) 
-Range: `min()`, `max()` 
-Position: `first()`, `last()`, `nth()`
-Count: `n()`, `n_distinct()`
-
-
+Center: `mean()`, `median()` Spread: `sd()` (standard deviation) Range: `min()`, `max()` Position: `first()`, `last()`, `nth()` Count: `n()`, `n_distinct()`
 
 By itself, `summarize()` is ok. But it's really combined with `group_by()` that it becomes extremely powerful.
 
-
-
-
 # `group_by()/summarize()`
 
+Link to video: <https://youtu.be/7KZWcICwF54?t=4575>
+
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=4575")
+```
 
 These two verbs always go together. `group_by()` doesn't do anything by itself, output wise. But what it does is split our data frame into a number of smaller `data.frame`s split out by category. Then we use `summarize` to do some sort of summary calculation (such as counting or calculating the mean) on these smaller `data.frame`s:
-
 
 For example, if we want to calculate the mean `cigarettes_per_day` smoked between `male`s and `female`s, we'd do the following:
 
@@ -265,13 +258,9 @@ smoke_complete %>%
    summarize(mean_cigarettes = mean(cigarettes_per_day))
 ```
 
-
-
-
 ## `group_by()/summarize` to calculate mean and standard deviation values
 
 Below, we'll calculate the average number of cigarettes smoked per day for males and females, and the standard deviation.
-
 
 ```{r}
 smoke_complete %>%
@@ -279,9 +268,6 @@ smoke_complete %>%
     summarize(mean = mean(cigarettes_per_day), 
               sd = sd(cigarettes_per_day))
 ```
-
-
-
 
 ## `group_by()` to `count()` things
 
@@ -300,12 +286,9 @@ smoke_complete %>%
     count(disease)
 ```
 
-
-
 ## Your Turn
 
 Use `group_by()/summarize()` to calculate the maximum cigarettes per day within each `disease` category.
-
 
 ```{r}
 smoke_complete %>%
@@ -314,15 +297,17 @@ smoke_complete %>%
 
 ```
 
-
-
-
 # `summarize()` and `mutate()` across multiple columns with `across()`
+
+Link to video: <https://youtu.be/7KZWcICwF54?t=7228>
+
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=7228")
+```
 
 ```{r}
 knitr::include_graphics("image/dplyr_across.png")
 ```
-
 
 Often we may want to summarize or mutate multiple variables in the same way. We can follow the examples above and specify each operation individually. For instance, suppose we want to calculate the mean of multiple numeric variables:
 
@@ -362,8 +347,7 @@ smoke_complete %>%
                mean, na.rm = TRUE))
 ```
 
-Using `across()` takes some getting used to, but seeing more examples will help you see how it works. There are also more complex ways to use your own functions and naming conventions. Look at this vignette for many examples:  [dplyr colwise vignette](https://dplyr.tidyverse.org/articles/colwise.html).
-
+Using `across()` takes some getting used to, but seeing more examples will help you see how it works. There are also more complex ways to use your own functions and naming conventions. Look at this vignette for many examples: [dplyr colwise vignette](https://dplyr.tidyverse.org/articles/colwise.html).
 
 For an example of using our own function, we calculate the number of `NA`s across all columns with `everything()` and a custom function defined with `~` operating on the argument `.x`:
 
@@ -393,21 +377,23 @@ smoke_complete %>%
     glimpse()
 ```
 
-
-
 # Standardizing variable names: `clean_names()`
+
+Link to video: <https://youtu.be/7KZWcICwF54?t=5368>
+
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=5368")
+```
 
 ```{r}
 knitr::include_graphics("image/janitor_clean_names.png")
 ```
 
-
 The last package we'll talk about today is the `janitor` package. This package adds some really useful functions for *cleaning* data.
 
-The one I use the most is called `clean_names()`. This will mutate column names into a standard format - all character values will be lowercase and spaces will be converted to underscores. 
+The one I use the most is called `clean_names()`. This will mutate column names into a standard format - all character values will be lowercase and spaces will be converted to underscores.
 
 The `smoke_complete` dataset has already had this function applied to it, but let's create a smaller example dataset where this wouldn't be the case.
-
 
 ```{r}
 smoke_bad_colnames <- read_csv("data/smoke_bad_colnames.csv")
@@ -418,7 +404,6 @@ Ack! These column names have spaces, inconsistent capitalization, which make the
 
 So let's use `clean_names()` to fix this:
 
-
 ```{r}
 smoke_good_colnames <- smoke_bad_colnames %>%
     clean_names()
@@ -426,9 +411,7 @@ smoke_good_colnames <- smoke_bad_colnames %>%
 smoke_good_colnames
 ```
 
-By default, `clean_names()` converts to snake case (spaces between words are replaced by an underscore `_`).  `clean_names()` will help you standardize your dataset's column names.
-
-
+By default, `clean_names()` converts to snake case (spaces between words are replaced by an underscore `_`). `clean_names()` will help you standardize your dataset's column names.
 
 ## Using `rename()` to rename!
 
@@ -440,8 +423,6 @@ smoke_good_colnames %>%
     glimpse()
 ```
 
-
-
 # More `ggplot2` stuff
 
 Due to the number of requests, I have added this section on `ggplot2`.
@@ -452,10 +433,10 @@ The really neat thing about `geom`s are that they can be layered onto your plot.
 
 Here we're layering another geom, `geom_violin()` on `geom_boxplot()`.
 
-We're providing a couple of values to `geom_violin()`: 
+We're providing a couple of values to `geom_violin()`:
 
-- `alpha`, which controls the transparency of the geom
-- `width`, which controls the overall width of the violins.
+-   `alpha`, which controls the transparency of the geom
+-   `width`, which controls the overall width of the violins.
 
 ```{r}
 our_boxplot <- ggplot(smoke_complete) +
@@ -466,25 +447,20 @@ our_boxplot <- ggplot(smoke_complete) +
 our_boxplot
 ```
 
-
-
 ## Scales
 
 Scales are added to a ggplot for multiple reasons:
 
-- Transform numerical axes (such as change a plot to a log scale)
-- Change the breaks (tick values) in a plot
-- Format values in a scale (such as dollars: "$500", "600")
-- Map discrete values to particular colors (make "LUSC" = "blue")
-
+-   Transform numerical axes (such as change a plot to a log scale)
+-   Change the breaks (tick values) in a plot
+-   Format values in a scale (such as dollars: "\$500", "600")
+-   Map discrete values to particular colors (make "LUSC" = "blue")
 
 All scale functions begin with `scale_` and are followed by the `aesthetic` it's working on, and the `transformation` of the data.
 
 For example:
 
-
 ## Changing axis ticks and values using `scale_x_continuous()`
-
 
 One main use for `scale_` functions is to modify the *breaks* (the tick values along an axis):
 
@@ -508,10 +484,9 @@ our_plot <- ggplot(smoke_complete) +
 our_plot
 ```
 
-
 ### Your Turn
 
-How would you modify the `y` axis to have the following breaks? 
+How would you modify the `y` axis to have the following breaks?
 
 c(2, 4, 6, 8, 10)
 
@@ -523,30 +498,22 @@ our_plot +
 
 ```
 
-
-
 ## Better Labels
 
 The other main use for `scale_` functions is to improve the formatting on the axis tick labels.
 
-Say our y axis was dollars instead of number of cigarettes. We can supply `label_dollar()` as an argument to our `labels` argument in scale_y_continuous: 
-
+Say our y axis was dollars instead of number of cigarettes. We can supply `label_dollar()` as an argument to our `labels` argument in scale\_y\_continuous:
 
 ```{r}
 our_plot +
     scale_y_continuous(labels = scales::label_dollar())
 ```
-Other useful label_ functions for formatting labels:
 
+Other useful label\_ functions for formatting labels:
 
-`label_date()` - Lets you control the way dates are formatted on the axis
-`label_scientific()` - lets you format the labels with scientific notation
-`label_pvalue()` - formatting specific to p-values
+`label_date()` - Lets you control the way dates are formatted on the axis `label_scientific()` - lets you format the labels with scientific notation `label_pvalue()` - formatting specific to p-values
 
-
-
-
-## scale_color_manual() - mapping discrete colors to categories
+## scale\_color\_manual() - mapping discrete colors to categories
 
 If you want to customize the colors values in your data set are mapped to, you can use `scale_color_manual()`:
 
@@ -557,7 +524,6 @@ our_plot +
                                   "CESC" = "pink"))
 
 ```
-
 
 ## Color Palettes: `{wesanderson}`
 
@@ -578,6 +544,7 @@ our_plot +
     scale_color_manual(values = wes_palette("IsleofDogs1"))
 
 ```
+
 Remember, if we want to do this with `our_boxplot`, the scale we want to manipulate is not `color`, but `fill`, so we need to use `scale_fill_manual()`
 
 ```{r}
@@ -585,7 +552,6 @@ our_boxplot +
     scale_fill_manual(values = wes_palette("IsleofDogs1"))
 
 ```
-
 
 ### Your Turn
 
@@ -597,12 +563,9 @@ our_plot +
     scale_color_manual(values = __________)
 ```
 
-
-
 ## `scale_color_gradient()`
 
 We've talked about variables with discrete values, but what about variables with continuous values?
-
 
 ```{r}
 ggplot(smoke_complete) +
@@ -622,9 +585,7 @@ ggplot(smoke_complete) +
 
 ```
 
-
-## Color Palettes: `{viridisLite}` 
-
+## Color Palettes: `{viridisLite}`
 
 One really important package to know about is `{viridisLite}`, which contains a number of color-blind friendly palettes.
 
@@ -632,13 +593,13 @@ They have built in functions that use these:
 
 For discrete values:
 
-- `scale_color_viridis_d()`
-- `scale_fill_viridis_d()`
+-   `scale_color_viridis_d()`
+-   `scale_fill_viridis_d()`
 
 For continuous values:
 
-- `scale_color_viridis_c()`
-- `scale_fill_viridis_c()`
+-   `scale_color_viridis_c()`
+-   `scale_fill_viridis_c()`
 
 ```{r}
 library(viridisLite)
@@ -647,19 +608,16 @@ our_plot +
   theme_minimal() +
   scale_color_viridis_d()
 ```
+
 # More Palettes
 
 The `{paleteer}` package has a lot of other palettes:
 
-https://emilhvitfeldt.github.io/paletteer/
-
-
+<https://emilhvitfeldt.github.io/paletteer/>
 
 # Make sure to fill out your survey!
 
-https://ohsu.ca1.qualtrics.com/jfe/form/SV_0rjxy6FgXapnMk5
-
-
+<https://ohsu.ca1.qualtrics.com/jfe/form/SV_0rjxy6FgXapnMk5>
 
 # Acknowledgments
 

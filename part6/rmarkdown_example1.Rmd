@@ -18,7 +18,21 @@ library(palmerpenguins)
 data(penguins)
 ```
 
+Link to Video: https://youtu.be/7c3xGQBmjIs?t=3235
+
+```{r}
+vembedr::embed_url("https://youtu.be/7c3xGQBmjIs?t=3235")
+```
+
+
 ## The HTML document format
+
+Link to Video: https://youtu.be/7c3xGQBmjIs?t=4447
+
+```{r}
+vembedr::embed_url("https://youtu.be/7c3xGQBmjIs?t=4447")
+```
+
 
 The `html_document()` format is extremely powerful and customizable.
 

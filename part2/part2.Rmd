@@ -20,8 +20,6 @@ Remember to save this notebook under a new name, such as `part2_laderas.Rmd`.
 
 Link to video: <https://youtu.be/EJ6_DEhC8v4?t=3270>
 
-
-
 ```{r}
 vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=3270")
 ```
@@ -56,8 +54,6 @@ library(readxl)
 ## Importing spreadsheet-style data into R
 
 Link to video: <https://youtu.be/EJ6_DEhC8v4?t=3463>
-
-
 
 ```{r}
 vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=3463")
@@ -160,12 +156,11 @@ We will be covering loading in another format that you can export from many diff
 
 ### Tips on Formating your Excel file for R
 
-https://youtu.be/EJ6_DEhC8v4?t=5532
+<https://youtu.be/EJ6_DEhC8v4?t=5532>
 
 ```{r}
 vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=3463")
 ```
-
 
 Here are some tips on formatting your data to get it into R easier.
 
@@ -194,9 +189,6 @@ We'll be seeing that this format is called **Tidy Data**, and it lets us do all 
 4.  **Color information is hard to get into R**. Avoid using color coding of cells if that is extra information attached to a cell. Instead, make the information the color is representing its own column.
 
 5.  **Extra Lines are OK!** Extra lines before the column header are ok, as you've seen. It's sometimes better to have a "notes" sheet where you put extra information or, better yet, a data dictionary.
-
-
-
 
 ## Further Reading: Organizing Data in Spreadsheets
 
@@ -234,12 +226,9 @@ As we learned in our last session, a vector needs to include all of the same typ
 
 A `data.frame`, however, can include vectors (columns) of different data types. This makes them an extremely versatile way of storing information.
 
-
-
 ## `data.frame`s - How do they Work?
 
-https://youtu.be/EJ6_DEhC8v4?t=6058
-
+<https://youtu.be/EJ6_DEhC8v4?t=6058>
 
 To learn more about this data frame, we'll first explore its dimensions:
 
@@ -258,8 +247,6 @@ We can also preview the content by showing the first few rows:
 head(brca_clinical) 
 ```
 
-
-
 ## Column Names
 
 We often need to reference the names of *variables* (also known as columns) in our `data.frame`, so it's useful to print only those to the screen:
@@ -271,8 +258,6 @@ colnames(brca_clinical)
 ```
 
 It's also possible to view row names using`rownames(brca_clinical)`, but our data only possess numbers for row names so it's not very informative.
-
-
 
 ## Okay, What's really in it?
 
@@ -300,12 +285,14 @@ View(brca_clinical)
 
 We'll see that `View()` can help you out when you're starting out with building data processing with `dplyr`, but that's for next time.
 
-
-
-
 ### Summarizing our Data
 
-https://youtu.be/EJ6_DEhC8v4?t=6528
+<https://youtu.be/EJ6_DEhC8v4?t=6528>
+
+```{r}
+vembedr::embed_url("https://youtu.be/yCPcijCj15c?t=1502")
+
+```
 
 Finally, we can also examine basic summary statistics for each column:
 
@@ -320,8 +307,6 @@ For numeric data (such as `year_of_death`), this output includes common statisti
 For `factor`s (also known as categorical variables), and `character` variables, such as `disease`, you're given a count of the number of times the top six most frequent factors (categories) occur in the data frame.
 
 We will talk more about `factors` in the next lab.
-
-
 
 ### `{skimr}`
 
@@ -343,8 +328,6 @@ skim(brca_clinical)
 
 ```
 
-
-
 ### `visdat`
 
 Another useful package for visualizing your data is `visdat`. It's especially useful for understanding missing values in your data.
@@ -361,16 +344,12 @@ help("visdat-package")
 vis_dat(brca_clinical)
 ```
 
-
-
 ## Introducing `ggplot2`
 
-Link to video: <https://youtu.be/wTU8i_vPnQ4>
-
-https://youtu.be/EJ6_DEhC8v4?t=7023
+Link to video: <https://youtu.be/EJ6_DEhC8v4?t=7023>
 
 ```{r}
-vembedr::embed_youtube("wTU8i_vPnQ4", width = 600, height=300)
+vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=7023")
 ```
 
 Click the button below to load up the graphic.
@@ -432,13 +411,9 @@ In code, this is translated as:
     # add the geometry
       geom_point()
 
-
 Things to note: we chain these three things together with `+` (plus sign). I tend to read the plus as `then`.
 
 [aes() function - mapping variables to visual properties of the graph]
-
-
-
 
 ## Challenge
 
@@ -457,11 +432,14 @@ ggplot(data = brca_clinical) +
 
 ```
 
-
-
 ## Simple arithmetic
 
-https://youtu.be/EJ6_DEhC8v4?t=7602
+<https://youtu.be/EJ6_DEhC8v4?t=7602>
+
+```{r}
+vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=7602")
+
+```
 
 Huh. `age_at_diagnosis` is in days, not years. We can fix that by dividing it by 365:
 
@@ -509,8 +487,6 @@ ggplot(data = brca_clinical) +
 
 ```
 
-
-
 ## Changing the Axis Labels
 
 We can change the x-axis titles and the y-axis titles using the `xlab()` (short for x label) and `ylab()` functions:
@@ -549,11 +525,13 @@ brca_clinical$tumor_stage
 
 We won't be using this very often (in fact, part of the reason to use the `tidyverse` is that we can avoid using this), but I just want you to be aware of it because it's used in the below section.
 
-
-
 ## Importing data from other software with `haven` (Optional)
 
-https://youtu.be/EJ6_DEhC8v4?t=8102
+Link to video: <https://youtu.be/EJ6_DEhC8v4?t=8102>
+
+```{r}
+vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=8102")
+```
 
 The package `haven` allows us to import data in other software formats, including SAS, Stata, or SPSS data.
 
@@ -612,23 +590,17 @@ Importing labeled data can be challenging. This is a good post that delves more 
 
 <https://www.pipinghotdata.com/posts/2020-12-23-leveraging-labelled-data-in-r/>
 
-
-
 ## What you learned today:
 
 -   Loading excel data and tips for formatting your data in excel
 -   Understanding basic properties of `data.frame`s
 -   The basics of the "grammar of graphics" with `ggplot2`
 
-
-
 ## Survey
 
 Please take the survey, as it is required for your attendance:
 
 <https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
-
-
 
 ## Practice
 

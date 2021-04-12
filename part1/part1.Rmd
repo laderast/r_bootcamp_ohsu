@@ -37,8 +37,11 @@ Throughout, we'll work on concepts of reproducibility by utilizing project and n
 
 # Learning Objectives for the Course
 
-https://youtu.be/yCPcijCj15c?t=1502
+Link to Video: <https://youtu.be/yCPcijCj15c?t=1502>
 
+```{r}
+vembedr::embed_url("https://youtu.be/yCPcijCj15c?t=1502")
+```
 
 # What is R?
 
@@ -81,7 +84,6 @@ A good reference is here. `Help -> Cheatsheets -> RStudio IDE cheat sheet`
 
 Link to video: <https://youtu.be/yCPcijCj15c?t=4019>
 
-
 ```{r}
 vembedr::embed_url("https://youtu.be/yCPcijCj15c?t=4019")
 ```
@@ -111,7 +113,6 @@ Try this one out. It's the same code as above, but with no spaces. Does it still
 ## Using Functions
 
 Link to video: <https://youtu.be/yCPcijCj15c?t=4591>
-
 
 ```{r}
 vembedr::embed_url("https://youtu.be/yCPcijCj15c?t=4591")
@@ -157,7 +158,6 @@ what does the function `hist` do? What are its main arguments? How did you deter
 ## Assigning objects
 
 Link to video: <https://youtu.be/yCPcijCj15c?t=5118>
-
 
 ```{r}
 vembedr::embed_url("https://youtu.be/yCPcijCj15c?t=5118")
@@ -241,7 +241,6 @@ Make your answers here:
 ## Vectors
 
 Link to video: <https://youtu.be/yCPcijCj15c?t=6049>
-
 
 ```{r}
 vembedr::embed_url("https://youtu.be/yCPcijCj15c?t=6049")
@@ -327,8 +326,6 @@ tricky <- c(1, 2, 3, "4")
 
 Link to video: <https://youtu.be/yCPcijCj15c?t=6967>
 
-
-
 ```{r}
 vembedr::embed_url("https://youtu.be/yCPcijCj15c?t=6967")
 ```
@@ -407,7 +404,6 @@ Link to video: <https://youtu.be/yCPcijCj15c?t=7593>
 ```{r}
 vembedr::embed_url("https://youtu.be/yCPcijCj15c?t=7593")
 ```
-
 
 The last thing I want to cover today is how to do something with each element in a `vector`. If we do something once with a function, we can do it multiple times on different elements in a vector with that function. When we run the same function on different elements of a dataset, it is known as *iteration*.
 

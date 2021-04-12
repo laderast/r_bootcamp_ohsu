@@ -1,5 +1,5 @@
 ---
-title: 'Part 5: Doing useful things with multiple tables/dates/functions/for-loops'
+title: 'Part 5: Doing useful things with multiple tables/dates/functions'
 author: "you"
 date: "5/5/2020"
 output: html_document
@@ -12,6 +12,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Remember
 
 Save your own version before you do anything!
+
+Link to Video: https://youtu.be/V4EACQWT8O8?t=2569
+
+```{r}
+vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=2569")
+```
 
 ## Learning Objectives
 
@@ -33,6 +39,13 @@ library(forcats)
 ```
 
 ## `bind_rows()`
+
+Link to video: https://youtu.be/V4EACQWT8O8?t=2775
+
+```{r}
+vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=2775")
+```
+
 
 ### Motivation for `bind_rows()`
 
@@ -123,6 +136,13 @@ smoke_1 %>%
 ```
 
 ## Joining Tables
+
+Link to video: https://youtu.be/V4EACQWT8O8?t=3449
+
+```{r}
+vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=3449")
+```
+
 
 ### Motivation
 
@@ -243,6 +263,12 @@ Which patient in `patient_table` didn't get a WBC?
 
 ## Making your data long: `pivot_longer()`
 
+Link to Video: https://youtu.be/V4EACQWT8O8?t=4617
+
+```{r}
+vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=4617")
+```
+
 ![](image/tidyr-spread-gather.gif)
 
 The last thing we'll talk about is the difference between the *wide* data format and the *long* data format.
@@ -323,6 +349,13 @@ And part of your assignment will be to figure out how to use it.
 
 
 # Don't Repeat Yourself (DRY) - use functions!
+
+Link to Video: https://youtu.be/V4EACQWT8O8?t=6357
+
+```{r}
+vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=6357")
+```
+
 
 If you do something in R once and have to do it again, it's probably best to think of how to do it well once, rather than cutting and pasting again.
 
@@ -438,6 +471,13 @@ One thing you might notice is that `disease` is hard coded. There is a way to ma
 # More about factors
 
 In response to the questions about factors, here is more about factors.
+
+Link to Video: https://youtu.be/V4EACQWT8O8?t=7836
+
+```{r}
+vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=7836")
+```
+
 
 ## Making a factor variable out of disease
 

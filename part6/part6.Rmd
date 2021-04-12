@@ -13,6 +13,13 @@ library(palmerpenguins)
 data(penguins)
 ```
 
+
+Link to Video: https://youtu.be/7c3xGQBmjIs?t=680
+
+```{r}
+vembedr::embed_url("https://youtu.be/7c3xGQBmjIs?t=680")
+```
+
 ## Learning Objectives
 
 - **Learn** about lists as a general purpose data structure
@@ -145,6 +152,12 @@ penguins %>%
 
 ## Putting things into Lists
 
+Link to video: https://youtu.be/7c3xGQBmjIs?t=1810
+
+```{r}
+vembedr::embed_url("https://youtu.be/7c3xGQBmjIs?t=1810")
+```
+
 The slots in a `list` are not fixed. We can take an already made list and add a new slot to it using `<-`:
 
 ```{r}
@@ -206,6 +219,13 @@ output_model$
 
 
 ## `data.frame`s are list-like
+
+Link to video: https://youtu.be/7c3xGQBmjIs?t=2479
+
+```{r}
+vembedr::embed_url("https://youtu.be/7c3xGQBmjIs?t=2479")
+```
+
 
 One last note. You might know that you can access columns in a `data.frame` using `$`. This is because a `data.frame` is a special *instance* of a list.
 
