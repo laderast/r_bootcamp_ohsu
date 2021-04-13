@@ -56,17 +56,7 @@ By the end of this session, you should be able to:
 1.  **Work** within the RStudio interface to **run** R code in an RMarkdown document
 2.  **Understand** basic R syntax to **use** functions and **assign** values to objects
 3.  **Create** and **manipulate** vectors and **understand** how R deals with missing data
-4.  **Learn** about `data.frame`s as a table structure in R.
-
-## Function of the Week
-
-Signup and learn about a function and share it with others. The function should be in the tidyverse.
-
-1.  What is the function for?
-2.  How do you use the function?
-3.  Is the function helpful in your work? How?
-
-The possible functions are listed here:
+4.  **Learn** about `for` loops as a way to process each value in a vector
 
 ## Introduction to R: Class 1
 
@@ -78,7 +68,7 @@ Link to video: <https://youtu.be/yCPcijCj15c?t=3062>
 vembedr::embed_url("https://youtu.be/yCPcijCj15c?t=3062")
 ```
 
-A good reference is here. `Help -> Cheatsheets -> RStudio IDE cheat sheet`
+A good reference is here: `Help -> Cheatsheets -> RStudio IDE cheat sheet`
 
 ## Code Blocks
 
@@ -146,6 +136,8 @@ round(digits = 1, x = 3.14)
 ```
 
 > You may notice that boxes pop up as you type. These represent RStudio's attempts to guess what you're typing and share additional options.
+>
+> You can also activate this by hitting the *Tab* key in the middle of typing. RStudio will attempt to complete, or fill in the rest of the characters.
 
 ### Challenge 1
 
@@ -212,6 +204,8 @@ remove(weight_lb)
 [removing objects]
 
 > You can clear the entire environment using the button at the top of the Environment panel with a picture of a broom. This may seem extreme, but don't worry! We can re-create all the work we've already done by executing each line of code again.
+>
+> Recreating code from scratch is a big part of *analytic reproducibility*, in which you can give someone else your R code and data and they can recreate the analysis, include figures and tables.
 
 ### Challenge 2
 
@@ -302,10 +296,10 @@ Answers here:
 
 -   **character**: sometimes referred to as string data, tend to be surrounded by quotes
 -   **numeric**: real or decimal numbers, sometimes referred to as "double"
--   integer: a subset of numeric in which numbers are stored as integers
+-   **integer**: a subset of numeric in which numbers are stored as integers
 -   **logical**: Boolean data (TRUE and FALSE)
--   complex: complex numbers with real and imaginary parts (e.g., 1 + 4i)
--   raw: bytes of data (machine readable, but not human readable)
+-   **complex**: complex numbers with real and imaginary parts (e.g., 1 + 4i)
+-   **raw**: bytes of data (machine readable, but not human readable)
 
 ### **Challenge 4:**
 
@@ -424,10 +418,6 @@ We won't be using `for` loops for a while, but I wanted you to see them so when 
 [R/Rstudio] [objects] [data types]
 
 ## Post Class Survey
-
-Please fill out the following post class survey in order for your attendance to be counted. I will summarize muddiest and clearest points before each class. Your responses are anonymous, and will not be used in your grade.
-
-<https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
 
 ## Acknowledgements
 
