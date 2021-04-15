@@ -66,8 +66,7 @@ One use for `mutate` is to do Excel type calculations using other columns on the
 
 ```{r}
 smoke_complete %>% 
-    mutate(age_at_death = age_at_diagnosis + days_to_death) %>%
-    glimpse()
+    mutate(age_at_death = age_at_diagnosis + days_to_death) 
 ```
 
 ## Your Turn
@@ -614,10 +613,6 @@ our_plot +
 The `{paleteer}` package has a lot of other palettes:
 
 <https://emilhvitfeldt.github.io/paletteer/>
-
-# Make sure to fill out your survey!
-
-<https://ohsu.ca1.qualtrics.com/jfe/form/SV_0rjxy6FgXapnMk5>
 
 # Acknowledgments
 

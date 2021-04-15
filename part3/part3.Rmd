@@ -8,27 +8,25 @@ author: "you!"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Slides/lecture: 
+## Slides/lecture
+
+This introduces the basic concepts used in Part 3.
 
 ```{r}
 vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=1206")
 ```
 
-
-
 ## Learning Objectives
 
-- **Learn** about errors and warnings and where to ask for help
-- create and modify scatterplots and boxplots
-- split figures into multiple panels using `facet_wrap()`
-- customize your plots using built in `theme()`s
-- Sort by a variable in a dataset using `arrange()`
-- Select variables in a dataset using `select()`
-- Filter a dataset using the `filter()` function
-
+-   **Learn** about errors and warnings and where to ask for help
+-   create and modify scatterplots and boxplots
+-   split figures into multiple panels using `facet_wrap()`
+-   customize your plots using built in `theme()`s
+-   Sort by a variable in a dataset using `arrange()`
+-   Select variables in a dataset using `select()`
+-   Filter a dataset using the `filter()` function
 
 # Getting Help on Errors
-
 
 ```{r}
 vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=2993")
@@ -36,14 +34,13 @@ vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=2993")
 
 ## Understanding the difference between warnings and errors
 
-A *warning* is an indication that the data or arguments isn't quite what the function expected. 
+A *warning* is an indication that the data or arguments isn't quite what the function expected.
 
 You can usually run the code, but you should be careful about it and verify the output.
 
 An *error* means that the code can't execute at all given what you have given the function.
 
 Errors can be difficult to understand, which is why
-
 
 ## Googling is StandaRd pRactice foR eRRors
 
@@ -53,12 +50,10 @@ I don't know everything, and the odds are that I made a mistake in understanding
 
 There are some resources that I especially check (in order):
 
-- RStudio Community (for `tidyverse`): https://community.rstudio.com/
-- Stack Overflow: http://stackoverflow.com/
-- Biostars (for Bioinformatics): https://www.biostars.org/
-- The package's github page (especially issues)
-
-
+-   RStudio Community (for `tidyverse`): <https://community.rstudio.com/>
+-   Stack Overflow: <http://stackoverflow.com/>
+-   Biostars (for Bioinformatics): <https://www.biostars.org/>
+-   The package's github page (especially issues)
 
 ## Where do I ask for help?
 
@@ -66,14 +61,12 @@ I'm trying to be as helpful as I can, but I can't answer all of your questions.
 
 The following communities are extremely helpful to beginners:
 
-- R for Data Science Community: https://r4ds.slack.com/
-- RStudio Community: https://community.rstudio.com/
-
+-   R for Data Science Community: <https://r4ds.slack.com/>
+-   RStudio Community: <https://community.rstudio.com/>
 
 ## An aside on `here()`
 
 Let's open up the file `markdown/here_example.Rmd`.
-
 
 ## Getting set up
 
@@ -96,9 +89,7 @@ smoke_complete <- smoke_complete %>%
          vital_status, disease)
 ```
 
-
 ## Customizing a Scatterplot
-
 
 ```{r}
 vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=3280")
@@ -122,8 +113,6 @@ our_plot <- ggplot(smoke_complete) +
 our_plot
 ```
 
-
-
 # Changing visual properties using built in themes
 
 ```{r}
@@ -131,10 +120,7 @@ our_plot +
   theme_minimal()
 ```
 
-A complete list of pre-set themes is available [here](https://ggplot2.tidyverse.org/reference/ggtheme.html), 
-and we'll cover ways to customize our own themes later in this lesson.
-
-
+A complete list of pre-set themes is available [here](https://ggplot2.tidyverse.org/reference/ggtheme.html), and we'll cover ways to customize our own themes later in this lesson.
 
 ### Using `theme()` to customize
 
@@ -142,12 +128,10 @@ Adding the `theme()` function will let us customize our plot further.
 
 There are a few arguments that are really helpful to modify:
 
-- `axis.title`
-- `axis.title.x`  (label for the x-axis)
-- `axis.title.y`  (label for the y-axis)
-- `legend.position` (Placing the legend, including removing it)
-
-
+-   `axis.title`
+-   `axis.title.x` (label for the x-axis)
+-   `axis.title.y` (label for the y-axis)
+-   `legend.position` (Placing the legend, including removing it)
 
 ```{r}
 our_plot + 
@@ -155,17 +139,13 @@ our_plot +
   theme(axis.text.x = element_text(angle = 90))
 ```
 
-
 ```{r}
 our_plot + 
   theme_bw() +
   theme(legend.position = "none")
 ```
 
-
-
 ## Saving your work
-
 
 After you're satisfied with a plot, it's likely you'd want to share it with other people or include in a manuscript or report.
 
@@ -174,11 +154,7 @@ After you're satisfied with a plot, it's likely you'd want to share it with othe
 ggsave("awesomePlot.jpg", width = 10, height = 10, dpi = 300)
 ```
 
-
 This automatically saves the last plot for which code was executed. This command interprets the file format for export using the file suffix you specify. The other arguments dictate the size (`width` and `height`) and resolution (`dpi`).
-
-
-
 
 # Brief Aside: Categorical Data (`factor`s)
 
@@ -192,7 +168,6 @@ For the most part, you can use `character` and `factors` interchangeably for cat
 
 However, there is one main difference. `factor`s define the permissible values in a vector with an argument called `levels`. They also define the order in which these values are displayed.
 
-
 ```{r}
 character_vector <- c("Dog", "Dog", "Cat", "Mouse")
 table(character_vector)
@@ -200,12 +175,9 @@ table(character_vector)
 
 You can make a character vector into a factor vector by using the `factor()` function, and supplying an argument called `levels`.
 
-
-
-
 ## Levels of a Factor
 
-The `levels` of a factor are the permissible values in a `factor`. The order of the values in a factor also control the order in which the values appear in tables and on the axes in a plot. 
+The `levels` of a factor are the permissible values in a `factor`. The order of the values in a factor also control the order in which the values appear in tables and on the axes in a plot.
 
 So, you can control the order of the categories in a factor by specifying the order of the categories in the `levels` argument.
 
@@ -218,10 +190,9 @@ table(factor_vector)
 
 This ordering is the main reason to use `factors`, at least in plotting and doing counts. We will revisit this again in Part 4 when we learn how to manipulate the data type of a variable in a `data.frame`.
 
-
 ### Challenge
 
-Change the order of `factor_vector` to be "Mouse", "Cat", "Dog". 
+Change the order of `factor_vector` to be "Mouse", "Cat", "Dog".
 
 Verify that you did it correctly by calling `table()`.
 
@@ -233,7 +204,6 @@ table(factor_vector)
 
 
 ```
-
 
 ## Back to `ggplot2`: Boxplots
 
@@ -251,11 +221,9 @@ ggplot(smoke_complete) +
   geom_boxplot()
 ```
 
-
 The main differences from the scatterplots we created earlier are the `geom` type and the variables plotted.
 
 We can change the color similarly to scatterplots. However, we map to `fill` and not `color`:
-
 
 ```{r box_color}
 # adding color
@@ -268,14 +236,11 @@ ggplot(smoke_complete) +
   geom_boxplot()
 ```
 
-
-
 ## Faceting our boxplot
 
 One of the most powerful ways to change a visualization is by *faceting*. We can make multiple plots using another categorical variable.
 
 To do this, we have to add the `facet_wrap()` command to our plot. We need to specify the variable to `facet_wrap` - `disease` by using the `vars()` function to specify it as a variable.
-
 
 ```{r box_color}
 # adding color
@@ -315,55 +280,44 @@ ggplot(smoke_complete) +
 
 ```
 
-
 ## Further learning
 
-If you are interested in learning more about ggplot:
-- Documentation for all `ggplot` features is available [here](https://ggplot2.tidyverse.org).
-- RStudio also publishes a [ggplot cheat sheet](https://github.com/rstudio/cheatsheets/raw/master/data-visualization-2.1.pdf) that is really handy!
-- [Customizing ggplot2 Cheatsheet](http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/) is also handy, because it organizes ggplot2 commands by task.
-
-
-
+If you are interested in learning more about ggplot: - Documentation for all `ggplot` features is available [here](https://ggplot2.tidyverse.org). - RStudio also publishes a [ggplot cheat sheet](https://github.com/rstudio/cheatsheets/raw/master/data-visualization-2.1.pdf) that is really handy! - [Customizing ggplot2 Cheatsheet](http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/) is also handy, because it organizes ggplot2 commands by task.
 
 # Data Manipulation using `dplyr`
 
 ```{r}
 vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=5614")
 ```
+
 What we have learned is pretty great overall for plotting. But there are a lot of other things we can do with `data.frame`s!
 
 We're going to talk about another tidyverse package: `dplyr`. `dplyr` is your all-purpose toolbox for filtering, summarizing, and transforming data.
 
 The nice thing about `dplyr` is that it is focused on verbs that do things to your data.
 
-
 We'll focus on the following verbs:
 
-- `arrange()` - sorting a `data.frame` by a variable
-- `filter()` - subsetting a `data.frame` by criteria
-- `select()` - returning only a few columns from our `data.frame`
-- `group_by()/summarize()` - summarizing our data.frame, such as counting and computing means
-- `mutate()` - transforming variables in our data
-- `%>%` - the pipe character, which lets us join our verbs together in a *pipeline*.
-
-
-
+-   `arrange()` - sorting a `data.frame` by a variable
+-   `filter()` - subsetting a `data.frame` by criteria
+-   `select()` - returning only a few columns from our `data.frame`
+-   `group_by()/summarize()` - summarizing our data.frame, such as counting and computing means
+-   `mutate()` - transforming variables in our data
+-   `%>%` - the pipe character, which lets us join our verbs together in a *pipeline*.
 
 ## Introducing the pipe (`%>%`)
-
 
 Often times, we want to do multiple operations on our data and in a specific order.
 
 For example, I might want to do the following:
 
-
 *Take* my dataset `smoke_complete` **and then**
+
 *Sort* it by `cigarettes_per_day` **and then**
+
 *filter* to have only `males` from the data.
 
 The pipe (`%>%`) function acts like the **and then**:
-
 
 ```{r}
 # Take my dataset smoke complete **and then**
@@ -377,9 +331,7 @@ smoke_complete %>%
 
 ```
 
-
 You can think of a pipe as putting the output of one step as an input of another. These two statements are equivalent:
-
 
 ```{r}
 smoke_complete %>%
@@ -408,14 +360,11 @@ arrange(
 
 You can see that as you add more and more verbs, it gets more and more complicated. That's what pipes are supposed to save us from.
 
-
-
 ## One Step at a Time
 
 One big advantage of the pipe is that you can build your processing line by line.
 
 In practice, as I work, I will often pipe things into `View()` to confirm I did things correctly:
-
 
 ```{r eval = FALSE}
 smoke_complete %>%
@@ -425,15 +374,11 @@ smoke_complete %>%
 
 This is a good way to work. By building each step and verifying that the output is correct, we can build really long *pipelines* of processing.
 
-
-
-
 ## The difference between `+` and `%>%`
 
 Remember that `+` is for `ggplot2` and that `%>%` is for `dplyr`. To keep them distinct and avoid confusion, separate our your data processing and your plotting.
 
 You can chain them, but I always find that I get confused when I go back and alter the code.
-
 
 ```{r}
 arranged_smokers <- smoke_complete %>%
@@ -444,15 +389,11 @@ ggplot(data=arranged_smokers) +
   geom_histogram()
 ```
 
-
-
-
 ## Sorting Data Frames using `arrange()`
 
 ```{r}
 vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=6805")
 ```
-
 
 Ok, we already have encountered `arrange()`. It's a function that lets us sort a `data.frame` by a variable.
 
@@ -463,7 +404,6 @@ smoke_complete %>%
   arrange(cigarettes_per_day)
 ```
 
-
 To sort by descending order, you need to wrap the variable in the `desc()` function:
 
 ```{r}
@@ -471,15 +411,13 @@ smoke_complete %>%
   arrange(desc(cigarettes_per_day))
 ```
 
-
-You can also arrange by multiple variables. 
+You can also arrange by multiple variables.
 
 ```{r}
 smoke_complete %>%
   arrange(desc(cigarettes_per_day),
           tumor_stage)
 ```
-
 
 Note that order of variables in `arrange()` matters!
 
@@ -500,18 +438,15 @@ smoke_complete %>%
   arrange()
 ```
 
-
 ## `filter()`ing our data
 
 ```{r}
 vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=7179")
 ```
 
-
 `filter()` is an extremely powerful function. It lets us subset our data according to specific criteria.
 
 Let's filter on a `numeric` variable, `cigarettes_per_day`:
-
 
 ```{r}
 smoke_complete %>%
@@ -519,31 +454,24 @@ smoke_complete %>%
 
 ```
 
-
 We can also filter on a category. But that does require us to know the values of that categorical variable.
-
 
 ```{r}
 smoke_complete %>%
   filter(tumor_stage == "stage iv")
 ```
 
-
-
-
 ## Filtering requires a little logic
 
 We can chain multiple criteria using the `&` (AND) or `|` (OR) operators. But we need to review a little logic before we do this.
 
-If I wanted to return patients who were 
+If I wanted to return patients who were
 
-`male` **and** `stage iv`, 
+`male` **and** `stage iv`,
 
 I would want use an `&` to chain these criteria together:
 
-```
-gender == "male" & tumor_stage == "stage_iv"
-```
+    gender == "male" & tumor_stage == "stage_iv"
 
 ```{r}
 smoke_complete %>%
@@ -551,7 +479,6 @@ smoke_complete %>%
            tumor_stage == "stage iv")
 
 ```
-
 
 If I wanted patients who were
 
@@ -564,7 +491,6 @@ smoke_complete %>%
   filter(gender == "male" |
            tumor_stage == "stage iv")
 ```
-
 
 Think about it: which of the above two code blocks will return a larger number of patients?
 
@@ -598,10 +524,9 @@ smoke_complete %>%
 
 ```
 
-
 ### Challenge
 
-Use `filter()` to select patients who have 
+Use `filter()` to select patients who have
 
 disease == "LUSC" and
 
@@ -613,14 +538,9 @@ smoke_complete %>%
 
 ```
 
-
-
 ## More about Comparison and Logical Operators
 
-
-This is a useful reference for all the different operators (both logical and comparison) that you can use: https://www.datamentor.io/r-programming/operator/
-
-
+This is a useful reference for all the different operators (both logical and comparison) that you can use: <https://www.datamentor.io/r-programming/operator/>
 
 ## Selecting columns using `select()`
 
@@ -630,13 +550,11 @@ vembedr::embed_url("https://youtu.be/2U5xh8cn_JU?t=8075")
 
 The final verb we'll look at is `select()`. It allows us to select variables from our dataset:
 
-
 ```{r}
 smoke_complete %>%
   select(gender, tumor_stage)
 
 ```
-
 
 If we want to select everything *but* one variable, we can use a `-` in front of that variable.
 
@@ -657,22 +575,17 @@ library(tidyowl)
 tidyowl::learn_tidyselect()
 ```
 
-
 ## The difference between `filter()` and `select()`
-
 
 One thing to keep in mind is that:
 
-`filter()` works on rows, and
-`select()` works on columns
+`filter()` works on rows, and `select()` works on columns
 
 Keep that in mind!
-
 
 ## Saving our results
 
 Let's save our processed data in the `data/` directory. We'll save it as a `csv` file, which is short for *comma separated value*. This is a file type that can be easily imported into excel.
-
 
 ```{r}
 processed_data <- smoke_complete %>%
@@ -685,40 +598,25 @@ write_excel_csv(x = processed_data,
 
 ## Further Reading about `dplyr`
 
-Please refer to https://sph-r-programming/reading/03-reading/ for more reading about `dplyr`.
-
+Please refer to <https://sph-r-programming/reading/03-reading/> for more reading about `dplyr`.
 
 ## What you learned today
 
-- customizing `ggplots` using `theme()` 
-- making boxplots 
-- faceting plots
-- a little bit about factors
-- pipes (`%>%`) 
-- `arrange()`
-- `filter()`
-- `select()`
-
-
-## Survey
-
-Don't forget to fill out the survey! Fill it out for Part 3.
-
-<https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
-
-
+-   customizing `ggplots` using `theme()`
+-   making boxplots
+-   faceting plots
+-   a little bit about factors
+-   pipes (`%>%`)
+-   `arrange()`
+-   `filter()`
+-   `select()`
 
 ## Practice
 
 Try out chapters 2 and 3 in the R-Bootcamp:
 
-https://r-bootcamp.netlify.app/chapter2 
-https://r-bootcamp.netlify.app/chapter3
-
+<https://r-bootcamp.netlify.app/chapter2> <https://r-bootcamp.netlify.app/chapter3>
 
 ## Acknowledgements
 
-This notebook was adapted from material from Kate Hertweck and https://fredhutch.io and from the R-Bootcamp by Ted Laderas and Jessica Minnier.
-
-
-
+This notebook was adapted from material from Kate Hertweck and <https://fredhutch.io> and from the R-Bootcamp by Ted Laderas and Jessica Minnier.

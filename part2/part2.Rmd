@@ -22,6 +22,7 @@ Link to video: <https://youtu.be/EJ6_DEhC8v4?t=3270>
 
 ```{r}
 vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=3270")
+ 
 ```
 
 # Learning Objectives
@@ -182,7 +183,7 @@ In our example:
 
 We'll be seeing that this format is called **Tidy Data**, and it lets us do all sorts of things in R successfully.
 
-2.  **Transpose is your Friend in Excel.**\* If your data isn't in this format, no worries! You can copy it to a new sheet and use the transpose option when you're pasting it, and then load that in.
+2.  **Transpose is your Friend in Excel.** If your data isn't in this format, no worries! You can copy it to a new sheet and use the *Transpose* option when you're pasting it, and then load that in.
 
 3.  **Every column needs a name.** Every one of your columns should be named at the top, and should begin with a letter. Numbers and special characters can cause errors in your data analysis pipeline.
 
@@ -458,7 +459,7 @@ ggplot(data = brca_clinical) +
 
 We can also map a `character` variable to our graph to color.
 
-Try mapping `gender` to color.
+Try mapping `gender` to `color`.
 
 ```{r}
 ggplot(data = brca_clinical) +
@@ -595,12 +596,6 @@ Importing labeled data can be challenging. This is a good post that delves more 
 -   Loading excel data and tips for formatting your data in excel
 -   Understanding basic properties of `data.frame`s
 -   The basics of the "grammar of graphics" with `ggplot2`
-
-## Survey
-
-Please take the survey, as it is required for your attendance:
-
-<https://ohsu.ca1.qualtrics.com/jfe/form/SV_6nc1ZLFMmRoE7nn>
 
 ## Practice
 

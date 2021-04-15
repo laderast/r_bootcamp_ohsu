@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Save your own version before you do anything!
 
-Link to Video: https://youtu.be/V4EACQWT8O8?t=2569
+Link to Video: <https://youtu.be/V4EACQWT8O8?t=2569>
 
 ```{r}
 vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=2569")
@@ -40,12 +40,11 @@ library(forcats)
 
 ## `bind_rows()`
 
-Link to video: https://youtu.be/V4EACQWT8O8?t=2775
+Link to video: <https://youtu.be/V4EACQWT8O8?t=2775>
 
 ```{r}
 vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=2775")
 ```
-
 
 ### Motivation for `bind_rows()`
 
@@ -137,12 +136,11 @@ smoke_1 %>%
 
 ## Joining Tables
 
-Link to video: https://youtu.be/V4EACQWT8O8?t=3449
+Link to video: <https://youtu.be/V4EACQWT8O8?t=3449>
 
 ```{r}
 vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=3449")
 ```
-
 
 ### Motivation
 
@@ -263,7 +261,7 @@ Which patient in `patient_table` didn't get a WBC?
 
 ## Making your data long: `pivot_longer()`
 
-Link to Video: https://youtu.be/V4EACQWT8O8?t=4617
+Link to Video: <https://youtu.be/V4EACQWT8O8?t=4617>
 
 ```{r}
 vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=4617")
@@ -290,7 +288,6 @@ This format isn't super useful for a lot of data manipulations.
 It's because the columns correspond to samples, and this prevents us from plotting things like PTEN expression across the samples.
 
 This kind of data is in a format that is called *wide* format. What we need to do is collapse the numerical values into a single column.
-
 
 ### The magic of `pivot_longer()`
 
@@ -345,17 +342,13 @@ ggplot(expression_long) +
 
 And part of your assignment will be to figure out how to use it.
 
-
-
-
 # Don't Repeat Yourself (DRY) - use functions!
 
-Link to Video: https://youtu.be/V4EACQWT8O8?t=6357
+Link to Video: <https://youtu.be/V4EACQWT8O8?t=6357>
 
 ```{r}
 vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=6357")
 ```
-
 
 If you do something in R once and have to do it again, it's probably best to think of how to do it well once, rather than cutting and pasting again.
 
@@ -397,7 +390,6 @@ cube_number <- function(-----){
 }
 ```
 
-
 ## Functions: Checking for Errors with `if()`
 
 What about when someone tries `square_number("two")`? Since "two" is a character, you can't multiply with it. We probably want them to know that this isn't what we are expecting.
@@ -406,7 +398,7 @@ What about when someone tries `square_number("two")`? Since "two" is a character
 square_number("two")
 ```
 
-We can use `if()` as a way to check if the value of `number` is actually numeric. 
+We can use `if()` as a way to check if the value of `number` is actually numeric.
 
 `if()` statements check for a condition in the parentheses, and then execute code in the {} (curly brackets) if true.
 
@@ -428,15 +420,11 @@ square_number_improved(2)
 square_number_improved("two")
 ```
 
-
-
 ## Do You Need to Check for All Errors?
 
 It depends on who uses your functions. If they are just for you and your lab, as long as everyone understands what goes into the functions, you probably don't need to anticipate all kinds of errors, just a few major ones.
 
 It's when you are releasing your software as a freely available package that you should think about doing extensive testing for errors, especially the functions you anticipate will be used by most people who use your software.
-
-
 
 ## When should you write a function?
 
@@ -444,9 +432,7 @@ Programmers have an acronym: DRY, which is short for "Don't Repeat Yourself".
 
 If you plan to do something multiple times, then you should probably think of writing a function.
 
-
 ## Practical Example of a function
-
 
 ```{r}
 count_categories <- function(df){
@@ -467,20 +453,17 @@ This might be useful if you needed to summarize these disease across a large num
 
 One thing you might notice is that `disease` is hard coded. There is a way to make this more flexible using something called `tidyeval`, which we will learn about next time.
 
-
 # More about factors
 
 In response to the questions about factors, here is more about factors.
 
-Link to Video: https://youtu.be/V4EACQWT8O8?t=7836
+Link to Video: <https://youtu.be/V4EACQWT8O8?t=7836>
 
 ```{r}
 vembedr::embed_url("https://youtu.be/V4EACQWT8O8?t=7836")
 ```
 
-
 ## Making a factor variable out of disease
-
 
 We're adding a fourth value, `BRCA` to our levels here.
 
@@ -581,9 +564,7 @@ smoke_complete3 %>%
 
 # Other really useful `forcats` functions
 
-`fct_recode()` - lets you recode values manually.
-`fct_other()` - lets you define what categories are in an `other` variable.
-
+`fct_recode()` - lets you recode values manually. `fct_other()` - lets you define what categories are in an `other` variable.
 
 ## Acknowledgements
 
