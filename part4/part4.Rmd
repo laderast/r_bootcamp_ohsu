@@ -426,6 +426,10 @@ smoke_good_colnames %>%
 
 Due to the number of requests, I have added this section on `ggplot2`.
 
+```{r}
+vembedr::embed_url("https://youtu.be/7KZWcICwF54?t=5743")
+```
+
 ## `geom`s are layers on your plot
 
 The really neat thing about `geom`s are that they can be layered onto your plot.
