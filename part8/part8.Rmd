@@ -13,9 +13,9 @@ library(tidyverse)
 library(broom)
 ```
 
-# What about Part 7?
+# What about Parts 6 7?
 
-There is no Part 7 for Ready for R, since it is an advanced topic. I'm keeping the numbering the same to reduce confusion with the video.
+There is no Parts 6 and 7 for Ready for R, since they are advanced topics. I'm keeping the numbering the same to reduce confusion with the video.
 
 # Learning Objectives
 
