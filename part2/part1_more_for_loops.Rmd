@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 https://youtu.be/EJ6_DEhC8v4?t=1790
 
 ```{r}
-
+vembedr::embed_url("https://youtu.be/EJ6_DEhC8v4?t=1790")
 ```
 
 
