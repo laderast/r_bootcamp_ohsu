@@ -13,7 +13,7 @@ library(tidyverse)
 library(broom)
 ```
 
-# What about Parts 6 7?
+# What about Parts 6 and 7?
 
 There is no Parts 6 and 7 for Ready for R, since they are advanced topics. I'm keeping the numbering the same to reduce confusion with the video.
 
@@ -42,7 +42,7 @@ run_model <- function(df){
 }
 ```
 
-# Running Statisical Models in R
+# Running Statistical Models in R
 
 ## Caveat about statistics
 
