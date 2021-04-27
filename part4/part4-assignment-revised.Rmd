@@ -9,12 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Instructions for Submitting
-
-Submit your knitted html file to sakai - if you are having issues, you can submit the `.Rmd` file, put please do your best to knit it. If you are having issues, please give me the URL for your project.
-
-Make sure to name your assignment "part4-asssignment-LASTNAME.html" and to fill out the space with you as an author above. 
-
 
 # Assignment 4
 

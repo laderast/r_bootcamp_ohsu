@@ -9,14 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Instructions for Submitting
-
-Submit your knitted html file - if you are having issues, you can submit the `.Rmd` file, put please do your best to knit it. 
-
-Make sure to name your assignment "assignment2-LASTNAME.html" and to fill out the author field with your name. 
-
-
-
 # Assignment
 
 ### 1. Object manipulation
