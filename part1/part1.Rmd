@@ -125,7 +125,7 @@ round(3.14, digits = 1)
 [getting help]
 
 ```{r}
-`?round`
+?round
 ```
 
 [documentation and arguments]
