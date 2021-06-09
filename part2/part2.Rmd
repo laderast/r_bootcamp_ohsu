@@ -10,6 +10,11 @@ library(vembedr)
 
 ```
 
+# Reminder to open up the `part2.Rproj` file before you do anything
+
+Please do so if you haven't.
+
+
 # Welcome to Ready for R: Part 2!
 
 In this session, we'll continue our introduction to R by working with a large dataset that more closely resembles that which you may encounter while analyzing data for research.

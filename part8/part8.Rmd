@@ -13,6 +13,10 @@ library(tidyverse)
 library(broom)
 ```
 
+# Reminder to open up the `part8.Rproj` file before you do anything
+
+Please do so if you haven't.
+
 # What about Parts 6 and 7?
 
 There is no Parts 6 and 7 for Ready for R, since they are advanced topics. I'm keeping the numbering the same to reduce confusion with the video.
@@ -31,8 +35,6 @@ vembedr::embed_url("https://youtu.be/CcEqOLNT77g?t=2034")
 -   **Learn** about t Tests and how to **apply** them to your dataset
 -   **Learn** and **apply** linear regression models
 -   **Learn** and **apply** Analysis of Variance (ANOVA)
--   **Learn** and **use** `nest()` to make a data.frame with a list-column
--   **Utilize** `broom::glance()` and `broom::tidy()` on models in a list-column
 -   (Optional, choose your own adventure): **use** other statistical models
 
 ```{r functions}
@@ -324,7 +326,7 @@ lm(dxa ~ st + br, data=body_comp) %>%
 
 # Purrr is not in Ready for R
 
-
+Just a quick note - the {purrr} section is not a part of Ready for R. It will be spun out into its own course.
 
 
 # Analysis of Variance (ANOVA) (Optional)

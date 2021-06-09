@@ -9,6 +9,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(vembedr)
 ```
 
+# Reminder to open up the `part1.Rproj` file before you do anything
+
+Please do so if you haven't.
+
 # Before you get started
 
 Please save a copy of this as `part1_FIRSTNAME_LASTNAME.Rmd` and work from that (where FIRSTNAME is your first name, and LASTNAME is your last name). This way, you'll have the original as a reference just in case.

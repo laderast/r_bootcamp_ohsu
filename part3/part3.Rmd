@@ -8,6 +8,10 @@ author: "you!"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Reminder to open up the `part3.Rproj` file before you do anything
+
+Please do so if you haven't.
+
 ## Slides/lecture
 
 This introduces the basic concepts used in Part 3.

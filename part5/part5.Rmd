@@ -9,6 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Reminder to open up the `part5.Rproj` file before you do anything
+
+Please do so if you haven't.
+
 ## Remember
 
 Save your own version before you do anything!

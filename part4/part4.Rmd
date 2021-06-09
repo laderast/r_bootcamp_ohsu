@@ -9,6 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Reminder to open up the `part4.Rproj` file before you do anything
+
+Please do so if you haven't.
+
 # Intro slides:
 
 Link to video: <https://youtu.be/7KZWcICwF54?t=976>
